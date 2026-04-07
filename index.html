@@ -16,6 +16,7 @@
       <p class="lead">
         科目番号または授業名で検索し、アップロードした Excel の「M中間評価」へ点数を書き戻します。
         公開カリキュラム・マップの 8 コンピテンス配点から、Excel の 18 観点へ自動展開します。
+        さらに、履修計画を作ると 18 観点の合計点と不足分をその場で自動集計します。
       </p>
     </div>
     <div class="hero__badge">
@@ -57,7 +58,7 @@
     <section class="card">
       <div class="section-heading">
         <h2>3. 18 観点への展開を確認</h2>
-        <p>まずは自動配分し、必要なら個別に修正してから書き込みます。</p>
+        <p>まずは自動配分し、必要なら個別に修正してから履修計画または Excel へ反映します。</p>
       </div>
 
       <div id="selectedCourseBox" class="selected-course empty">
@@ -89,13 +90,78 @@
       <div id="previewGrid" class="preview-grid"></div>
 
       <div class="actions-row actions-row--end">
+        <button id="planAddBtn" class="button" disabled>履修計画に追加 / 更新</button>
         <button id="writeRowBtn" class="button button--primary" disabled>この行に書き込む</button>
       </div>
     </section>
 
     <section class="card card--wide">
       <div class="section-heading">
-        <h2>この試作版の前提</h2>
+        <h2>4. 履修計画と合計点数</h2>
+        <p>11〜20 行を履修計画として管理し、18 観点の見込み合計と不足分を自動集計します。</p>
+      </div>
+
+      <div class="actions-row">
+        <button id="applyPlanBtn" class="button button--primary" disabled>履修計画を Excel にまとめて反映</button>
+        <button id="reloadPlanBtn" class="button" disabled>Excel から再読込</button>
+        <button id="clearPlanBtn" class="button button--danger" disabled>履修計画をクリア</button>
+      </div>
+
+      <div class="summary-strip">
+        <div class="summary-card">
+          <span>科目数</span>
+          <strong id="planCourseCount">0</strong>
+        </div>
+        <div class="summary-card">
+          <span>単位数</span>
+          <strong id="planCredits">0</strong>
+        </div>
+        <div class="summary-card">
+          <span>履修計画の合計点</span>
+          <strong id="planPointsTotal">0</strong>
+        </div>
+        <div class="summary-card">
+          <span>授業科目以外</span>
+          <strong id="extraPointsTotal">0</strong>
+        </div>
+        <div class="summary-card">
+          <span>見込み合計点</span>
+          <strong id="projectedTotal">0</strong>
+        </div>
+        <div class="summary-card">
+          <span>未達観点</span>
+          <strong id="unmetCount">0 / 18</strong>
+        </div>
+      </div>
+
+      <div class="plan-layout">
+        <div>
+          <div id="planList" class="plan-list"></div>
+        </div>
+
+        <div class="table-scroll">
+          <table class="totals-table">
+            <thead>
+              <tr>
+                <th>観点</th>
+                <th>必要点</th>
+                <th>履修計画</th>
+                <th>授業科目以外</th>
+                <th>見込み合計</th>
+                <th>不足分</th>
+                <th>状態</th>
+              </tr>
+            </thead>
+            <tbody id="totalsBody"></tbody>
+            <tfoot id="totalsFoot"></tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="card card--wide">
+      <div class="section-heading">
+        <h2>5. この試作版の前提</h2>
         <p>本番化するなら、ここだけ差し替えればかなり実用になります。</p>
       </div>
       <ul class="notes">

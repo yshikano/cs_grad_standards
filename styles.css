@@ -7,8 +7,11 @@
   --primary: #2563eb;
   --primary-soft: #e8f0ff;
   --success: #0f766e;
+  --success-soft: #ecfdf5;
   --warn: #92400e;
   --warn-bg: #fff7ed;
+  --danger: #b91c1c;
+  --danger-soft: #fef2f2;
   --shadow: 0 10px 24px rgba(27, 39, 51, 0.08);
   --radius: 18px;
 }
@@ -159,7 +162,7 @@ h1 {
 }
 
 .status--ok {
-  background: #ecfdf5;
+  background: var(--success-soft);
   color: var(--success);
 }
 
@@ -177,6 +180,10 @@ h1 {
 
 .actions-row--end {
   justify-content: flex-end;
+}
+
+.actions-row--compact {
+  margin-top: 12px;
 }
 
 .button {
@@ -205,6 +212,18 @@ h1 {
   background: var(--primary);
   border-color: var(--primary);
   color: #fff;
+}
+
+.button--danger {
+  border-color: #fecaca;
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.button--small {
+  padding: 8px 12px;
+  font-size: 13px;
+  border-radius: 10px;
 }
 
 .search-box input {
@@ -256,7 +275,8 @@ select:focus,
   gap: 12px;
 }
 
-.result-card__code {
+.result-card__code,
+.plan-card__row {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -268,12 +288,14 @@ select:focus,
   font-weight: 800;
 }
 
-.result-card h3 {
+.result-card h3,
+.plan-card h3 {
   margin: 0;
   font-size: 17px;
 }
 
-.result-card p {
+.result-card p,
+.plan-card p {
   margin: 0;
   color: var(--muted);
   font-size: 14px;
@@ -324,6 +346,10 @@ select:focus,
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 10px;
+}
+
+.point8-item--wide {
+  grid-column: 1 / -1;
 }
 
 .point8-item span {
@@ -405,6 +431,137 @@ select {
   background: #fff;
 }
 
+.summary-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.summary-card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  background: #fbfcff;
+}
+
+.summary-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.summary-card strong {
+  font-size: 22px;
+}
+
+.plan-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.95fr) minmax(460px, 1.2fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.plan-list {
+  display: grid;
+  gap: 10px;
+}
+
+.plan-card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  background: #fff;
+}
+
+.plan-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+}
+
+.plan-card__total {
+  font-size: 24px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.table-scroll {
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.totals-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.totals-table th,
+.totals-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e8eef7;
+  font-size: 14px;
+}
+
+.totals-table thead th {
+  position: sticky;
+  top: 0;
+  background: #f7faff;
+  z-index: 1;
+  text-align: left;
+}
+
+.totals-table tbody th,
+.totals-table tfoot th {
+  text-align: left;
+  white-space: nowrap;
+}
+
+.totals-table tfoot th,
+.totals-table tfoot td {
+  background: #f8fbff;
+  font-weight: 800;
+}
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.num--deficit {
+  color: var(--danger);
+  font-weight: 800;
+}
+
+.num--ok {
+  color: var(--success);
+  font-weight: 800;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.badge--ok {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.badge--warn {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+
 .notes {
   margin: 0;
   padding-left: 20px;
@@ -417,6 +574,16 @@ select {
   padding: 14px;
   border-radius: 12px;
   background: #f4f7fc;
+}
+
+@media (max-width: 1180px) {
+  .summary-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .plan-layout {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 1040px) {
@@ -438,13 +605,15 @@ select {
 
   .controls-grid,
   .points8,
-  .preview-grid {
+  .preview-grid,
+  .summary-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .section-heading,
   .preview-head,
-  .result-card__top {
+  .result-card__top,
+  .plan-card__top {
     flex-direction: column;
     align-items: start;
   }
