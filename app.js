@@ -37,7 +37,8 @@ const DEFAULT_ROW_LABELS = {
 
 const COLUMN_LABELS = GROUP_CONFIG.flatMap(group => group.cols);
 const REQUIRED_POINTS18 = GROUP_CONFIG.flatMap(group => group.requiredWeights);
-const COLUMN_LETTERS = Array.from({ length: 18 }, (_, idx) => String.fromCharCode('B'.charCodeAt(0) + idx));
+const COLUMN_LETTERS = Array.from({ length: 18 }, (_, index) => String.fromCharCode('B'.charCodeAt(0) + index));
+const REQUIRED_TOTAL = sumPoints18(REQUIRED_POINTS18);
 
 const state = {
   dataset: null,
@@ -57,6 +58,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   wireEvents();
   renderRowOptions();
   renderPreviewGrid();
+  renderSelectedCourse(null);
+  renderSimulationSection();
   renderPlanSection();
   updateActionStates();
   await loadDataset();
@@ -65,8 +68,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 function bindElements() {
   els.xlsxFile = document.getElementById('xlsxFile');
   els.workbookStatus = document.getElementById('workbookStatus');
-  els.autofillRequiredBtn = document.getElementById('autofillRequiredBtn');
-  els.downloadBtn = document.getElementById('downloadBtn');
   els.searchInput = document.getElementById('searchInput');
   els.searchMeta = document.getElementById('searchMeta');
   els.searchResults = document.getElementById('searchResults');
@@ -76,10 +77,19 @@ function bindElements() {
   els.previewGrid = document.getElementById('previewGrid');
   els.previewTotal = document.getElementById('previewTotal');
   els.planAddBtn = document.getElementById('planAddBtn');
-  els.writeRowBtn = document.getElementById('writeRowBtn');
+  els.simulationNote = document.getElementById('simulationNote');
+  els.simulatedSubtotalTotal = document.getElementById('simulatedSubtotalTotal');
+  els.simulatedExtraTotal = document.getElementById('simulatedExtraTotal');
+  els.simulatedProjectedTotal = document.getElementById('simulatedProjectedTotal');
+  els.simulatedDiffTotal = document.getElementById('simulatedDiffTotal');
+  els.simulatedUnmetCount = document.getElementById('simulatedUnmetCount');
+  els.simulationBody = document.getElementById('simulationBody');
+  els.simulationFoot = document.getElementById('simulationFoot');
   els.applyPlanBtn = document.getElementById('applyPlanBtn');
+  els.downloadBtn = document.getElementById('downloadBtn');
   els.reloadPlanBtn = document.getElementById('reloadPlanBtn');
   els.clearPlanBtn = document.getElementById('clearPlanBtn');
+  els.syncStatus = document.getElementById('syncStatus');
   els.planList = document.getElementById('planList');
   els.planCourseCount = document.getElementById('planCourseCount');
   els.planCredits = document.getElementById('planCredits');
@@ -96,9 +106,8 @@ function wireEvents() {
   els.xlsxFile.addEventListener('change', onWorkbookSelected);
   els.searchInput.addEventListener('input', () => renderSearchResults(searchCourses(els.searchInput.value)));
   els.splitMode.addEventListener('change', onSplitModeChanged);
+  els.targetRow.addEventListener('change', () => renderSimulationSection());
   els.planAddBtn.addEventListener('click', addSelectedCourseToPlan);
-  els.writeRowBtn.addEventListener('click', writeSelectedCourseToWorkbook);
-  els.autofillRequiredBtn.addEventListener('click', autofillExistingRows);
   els.applyPlanBtn.addEventListener('click', applyPlanToWorkbook);
   els.reloadPlanBtn.addEventListener('click', reloadPlanFromWorkbook);
   els.clearPlanBtn.addEventListener('click', clearPlanRows);
@@ -111,19 +120,22 @@ async function loadDataset() {
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
     }
+
     state.dataset = await response.json();
     state.courses = state.dataset.courses || [];
+
     els.searchMeta.textContent = `${state.courses.length} 件のサンプル科目を読み込みました。`;
     els.datasetInfo.innerHTML = [
       `<div><strong>データ件数:</strong> ${state.dataset.meta?.count ?? state.courses.length} 件</div>`,
       `<div><strong>データソース:</strong> <a href="${escapeHtml(state.dataset.meta?.sourceUrl || '#')}" target="_blank" rel="noreferrer">公開カリキュラム・マップ</a></div>`,
       `<div><strong>備考:</strong> ${escapeHtml((state.dataset.meta?.notes || []).join(' / '))}</div>`
     ].join('');
+
     renderSearchResults(searchCourses(''));
 
     if (state.workbook) {
       syncPlanFromWorkbook();
-      setWorkbookStatus(`読込済みの Excel から履修計画を再解釈しました。`, 'ok');
+      setWorkbookStatus('科目データを読み直しました。現在の Excel を基にドラフトを再解釈しています。', currentStatusKindAfterPlanChange());
     }
   } catch (error) {
     console.error(error);
@@ -247,9 +259,6 @@ function renderSelectedCourse(course) {
 
 function onSplitModeChanged() {
   recomputePreview();
-  if (state.workbook) {
-    renderPlanSection();
-  }
 }
 
 function recomputePreview() {
@@ -264,6 +273,7 @@ function recomputePreview() {
   } else {
     state.previewPoints18 = expandPoints8To18(state.selectedCourse.points8 || {}, els.splitMode.value);
   }
+
   updatePreviewInputs();
 }
 
@@ -314,6 +324,7 @@ function renderPreviewGrid() {
     input.addEventListener('input', () => {
       state.previewPoints18[index] = asInt(input.value);
       updatePreviewTotal();
+      renderSimulationSection();
     });
     els.previewGrid.appendChild(wrapper);
   });
@@ -326,6 +337,7 @@ function updatePreviewInputs() {
     input.value = String(asInt(state.previewPoints18[index] || 0));
   });
   updatePreviewTotal();
+  renderSimulationSection();
 }
 
 function updatePreviewTotal() {
@@ -333,11 +345,13 @@ function updatePreviewTotal() {
   const sourceTotal = state.selectedCourse
     ? Number(
         state.selectedCourse.total
-        ?? (Array.isArray(state.selectedCourse.points18) ? sumPoints18(state.selectedCourse.points18) : sumPoints8(state.selectedCourse.points8 || {}))
+        ?? (Array.isArray(state.selectedCourse.points18)
+          ? sumPoints18(state.selectedCourse.points18)
+          : sumPoints8(state.selectedCourse.points8 || {}))
       )
     : 0;
   const diff = total - sourceTotal;
-  const suffix = diff === 0 ? '' : ` / 元データとの差 ${diff > 0 ? '+' : ''}${diff}`;
+  const suffix = diff === 0 ? '' : ` / 元データとの差 ${formatSigned(diff)}`;
   els.previewTotal.textContent = `合計 ${total} 点${suffix}`;
 }
 
@@ -357,12 +371,19 @@ async function onWorkbookSelected(event) {
     state.sheetName = detectSheetName(state.workbook);
     renderRowOptions();
     const imported = syncPlanFromWorkbook();
-    setWorkbookStatus(`読込完了: ${file.name} / シート: ${state.sheetName} / 履修計画 ${imported} 行を取り込みました。`, 'ok');
-    updateActionStates();
+
+    if (isPlanSyncedWithWorkbook()) {
+      setWorkbookStatus(`読込完了: ${file.name} / シート: ${state.sheetName} / ${imported} 行のドラフトが Excel 内容と同期しています。`, 'ok');
+    } else {
+      setWorkbookStatus(`読込完了: ${file.name} / シート: ${state.sheetName} / ${imported} 行のドラフトを作成しました。まだ Excel へは反映していません。`, 'pending');
+    }
   } catch (error) {
     console.error(error);
     state.workbook = null;
+    state.workbookFileName = '';
     state.planRows = {};
+    renderRowOptions();
+    renderSimulationSection();
     renderPlanSection();
     updateActionStates();
     setWorkbookStatus('Excel の読込に失敗しました。ファイル形式を確認してください。', 'warn');
@@ -388,12 +409,13 @@ function renderRowOptions() {
 function getRowLabel(row) {
   const planned = state.planRows[row];
   if (planned) {
-    return `${row}行: ${planned.nameJa}`;
+    return `${row}行: ${displayCourseName(planned)}`;
   }
 
   if (!state.workbook) {
     return DEFAULT_ROW_LABELS[row] || `${row}行`;
   }
+
   try {
     const sheet = state.workbook.sheet(state.sheetName);
     const courseName = String(sheet.cell(`A${row}`).value() || '').trim();
@@ -403,6 +425,7 @@ function getRowLabel(row) {
   } catch (error) {
     console.warn(error);
   }
+
   return DEFAULT_ROW_LABELS[row] || `${row}行`;
 }
 
@@ -421,24 +444,6 @@ function findCourseByNameOrAlias(rawName) {
       .map(normalize);
     return candidates.includes(target);
   }) || null;
-}
-
-function rowIsEmpty(sheet, row) {
-  return COLUMN_LETTERS.every(letter => {
-    const value = sheet.cell(`${letter}${row}`).value();
-    return value === undefined || value === null || value === '' || Number(value) === 0;
-  });
-}
-
-function writePreviewToRow(sheet, row, courseName) {
-  sheet.cell(`A${row}`).value(courseName);
-  COLUMN_LETTERS.forEach((letter, index) => {
-    sheet.cell(`${letter}${row}`).value(asInt(state.previewPoints18[index] || 0));
-  });
-  const totalCell = sheet.cell(`T${row}`);
-  if (!String(totalCell.formula() || '').trim()) {
-    totalCell.formula(`SUM(B${row}:S${row})`);
-  }
 }
 
 function writePoints18ToRow(sheet, row, courseName, points18) {
@@ -486,26 +491,19 @@ function addSelectedCourseToPlan() {
   if (!state.selectedCourse) return;
   const row = Number(els.targetRow.value || 15);
   state.planRows[row] = makePlanEntryFromSelection(row);
+  selectNextAvailableRow(row);
+  state.selectedCourse = null;
+  state.previewPoints18 = Array(18).fill(0);
+  renderSelectedCourse(null);
+  updatePreviewInputs();
   renderRowOptions();
   renderPlanSection();
-  selectNextAvailableRow(row);
-  setWorkbookStatus(`${row}行を履修計画に追加 / 更新しました。`, 'ok');
-}
-
-function writeSelectedCourseToWorkbook() {
-  if (!state.workbook || !state.selectedCourse) return;
-  const row = Number(els.targetRow.value || 15);
-  state.planRows[row] = makePlanEntryFromSelection(row);
-  const sheet = state.workbook.sheet(state.sheetName);
-  writePreviewToRow(sheet, row, state.selectedCourse.nameJa);
-  renderRowOptions();
-  renderPlanSection();
-  selectNextAvailableRow(row);
-  setWorkbookStatus(`${row}行へ「${state.selectedCourse.nameJa}」を書き込みました。`, 'ok');
+  setWorkbookStatus(`${row}行を履修計画ドラフトに追加 / 更新しました。まだ Excel へは反映していません。`, currentStatusKindAfterPlanChange());
 }
 
 function applyPlanToWorkbook() {
   if (!state.workbook) return;
+
   const sheet = state.workbook.sheet(state.sheetName);
   for (let row = 11; row <= 20; row += 1) {
     const entry = state.planRows[row];
@@ -515,13 +513,18 @@ function applyPlanToWorkbook() {
       clearCourseRow(sheet, row);
     }
   }
+
   renderRowOptions();
-  setWorkbookStatus(`履修計画 ${getPlanEntries().length} 行を Excel に反映しました。`, 'ok');
+  renderSimulationSection();
+  renderPlanSection();
+  updateActionStates();
+  setWorkbookStatus(`履修計画 ${getPlanEntries().length} 行を Excel に一括反映しました。ダウンロードできます。`, 'ok');
 }
 
 function syncPlanFromWorkbook() {
   if (!state.workbook) {
     state.planRows = {};
+    renderSimulationSection();
     renderPlanSection();
     updateActionStates();
     return 0;
@@ -563,6 +566,7 @@ function syncPlanFromWorkbook() {
 
   state.planRows = imported;
   renderRowOptions();
+  renderSimulationSection();
   renderPlanSection();
   updateActionStates();
   return Object.keys(imported).length;
@@ -571,23 +575,25 @@ function syncPlanFromWorkbook() {
 function reloadPlanFromWorkbook() {
   if (!state.workbook) return;
   const imported = syncPlanFromWorkbook();
-  setWorkbookStatus(`Excel から履修計画を再読込しました。${imported} 行を反映しています。`, 'ok');
+  setWorkbookStatus(`Excel から履修計画ドラフトを再読込しました。${imported} 行を反映しています。${isPlanSyncedWithWorkbook() ? ' Excel と同期しています。' : ' まだ Excel へは反映していません。'}`, currentStatusKindAfterPlanChange());
 }
 
 function clearPlanRows() {
   state.planRows = {};
   renderRowOptions();
+  renderSimulationSection();
   renderPlanSection();
   updateActionStates();
-  setWorkbookStatus('履修計画をクリアしました。', 'ok');
+  setWorkbookStatus('UI 上の履修計画ドラフトをクリアしました。まだ Excel は更新していません。', currentStatusKindAfterPlanChange());
 }
 
 function removePlanRow(row) {
   delete state.planRows[row];
   renderRowOptions();
+  renderSimulationSection();
   renderPlanSection();
   updateActionStates();
-  setWorkbookStatus(`${row}行を履修計画から削除しました。`, 'ok');
+  setWorkbookStatus(`${row}行を履修計画ドラフトから削除しました。まだ Excel は更新していません。`, currentStatusKindAfterPlanChange());
 }
 
 function editPlanRow(row) {
@@ -608,7 +614,7 @@ function editPlanRow(row) {
   renderSelectedCourse(state.selectedCourse);
   updatePreviewInputs();
   updateActionStates();
-  setWorkbookStatus(`${row}行の内容を編集パネルへ読み込みました。`, 'ok');
+  setWorkbookStatus(`${row}行の内容を編集パネルへ読み込みました。`, currentStatusKindAfterPlanChange());
 }
 
 function selectNextAvailableRow(currentRow) {
@@ -621,15 +627,16 @@ function selectNextAvailableRow(currentRow) {
   }
   const nextEmpty = candidates.find(row => !state.planRows[row]);
   els.targetRow.value = String(nextEmpty || currentRow);
+  renderSimulationSection();
 }
 
-function getPlanEntries() {
-  return Object.values(state.planRows).sort((a, b) => a.row - b.row);
+function getPlanEntries(planRows = state.planRows) {
+  return Object.values(planRows).sort((a, b) => a.row - b.row);
 }
 
-function getPlanTotals18() {
+function getPlanTotals18(planRows = state.planRows) {
   const totals = Array(18).fill(0);
-  getPlanEntries().forEach(entry => {
+  getPlanEntries(planRows).forEach(entry => {
     entry.points18.forEach((value, index) => {
       totals[index] += asInt(value);
     });
@@ -651,19 +658,134 @@ function getExtraTotals18() {
   } catch (error) {
     console.warn(error);
   }
+
   return totals;
 }
 
+function getMetrics(planRows = state.planRows) {
+  const subtotal18 = getPlanTotals18(planRows);
+  const extra18 = getExtraTotals18();
+  const projected18 = subtotal18.map((value, index) => value + extra18[index]);
+  const diff18 = projected18.map((value, index) => value - REQUIRED_POINTS18[index]);
+  const unmetCount = diff18.filter(value => value < 0).length;
+
+  return {
+    subtotal18,
+    extra18,
+    projected18,
+    diff18,
+    subtotalTotal: sumPoints18(subtotal18),
+    extraTotal: sumPoints18(extra18),
+    projectedTotal: sumPoints18(projected18),
+    diffTotal: sumPoints18(projected18) - REQUIRED_TOTAL,
+    unmetCount
+  };
+}
+
+function clonePlanRows(source = state.planRows) {
+  const cloned = {};
+  Object.entries(source).forEach(([row, entry]) => {
+    cloned[row] = {
+      ...entry,
+      points18: clonePoints18(entry.points18)
+    };
+  });
+  return cloned;
+}
+
+function buildPlanRowsWithPreview() {
+  if (!state.selectedCourse) {
+    return clonePlanRows(state.planRows);
+  }
+
+  const row = Number(els.targetRow.value || 15);
+  const simulated = clonePlanRows(state.planRows);
+  simulated[row] = makePlanEntryFromSelection(row);
+  return simulated;
+}
+
+function renderSimulationSection() {
+  const row = Number(els.targetRow?.value || 15);
+  const replacing = state.planRows[row];
+  const simulatedRows = buildPlanRowsWithPreview();
+  const metrics = getMetrics(simulatedRows);
+
+  if (!state.selectedCourse) {
+    els.simulationNote.textContent = '科目を選ぶと、追加後の授業科目小計・見込み合計・必要点との差分をここで確認できます。';
+    els.simulationNote.className = 'status status--muted';
+  } else if (replacing) {
+    els.simulationNote.textContent = `${row}行は現在「${displayCourseName(replacing)}」です。このシミュレーションでは、その内容を選択中の科目で置き換えます。`;
+    els.simulationNote.className = 'status status--pending';
+  } else {
+    els.simulationNote.textContent = `${row}行へ選択中の科目を追加した場合のシミュレーションです。`; 
+    els.simulationNote.className = 'status status--muted';
+  }
+
+  els.simulatedSubtotalTotal.textContent = String(metrics.subtotalTotal);
+  els.simulatedExtraTotal.textContent = String(metrics.extraTotal);
+  els.simulatedProjectedTotal.textContent = String(metrics.projectedTotal);
+  els.simulatedDiffTotal.textContent = formatSigned(metrics.diffTotal);
+  els.simulatedDiffTotal.className = metrics.diffTotal >= 0 ? 'value value--ok' : 'value value--deficit';
+  els.simulatedUnmetCount.textContent = `${metrics.unmetCount} / 18`;
+
+  els.simulationBody.innerHTML = COLUMN_LABELS.map((label, index) => {
+    const required = REQUIRED_POINTS18[index];
+    const subtotal = metrics.subtotal18[index];
+    const projected = metrics.projected18[index];
+    const diff = metrics.diff18[index];
+    const status = diff >= 0
+      ? '<span class="badge badge--ok">OK</span>'
+      : `<span class="badge badge--warn">不足 ${Math.abs(diff)}</span>`;
+
+    return `
+      <tr>
+        <th>${escapeHtml(`${COLUMN_LETTERS[index]} / ${label}`)}</th>
+        <td class="num">${required}</td>
+        <td class="num">${subtotal}</td>
+        <td class="num">${projected}</td>
+        <td class="num ${diff >= 0 ? 'num--ok' : 'num--deficit'}">${formatSigned(diff)}</td>
+        <td>${status}</td>
+      </tr>
+    `;
+  }).join('');
+
+  els.simulationFoot.innerHTML = `
+    <tr>
+      <th>合計</th>
+      <td class="num">${REQUIRED_TOTAL}</td>
+      <td class="num">${metrics.subtotalTotal}</td>
+      <td class="num">${metrics.projectedTotal}</td>
+      <td class="num ${metrics.diffTotal >= 0 ? 'num--ok' : 'num--deficit'}">${formatSigned(metrics.diffTotal)}</td>
+      <td>${metrics.diffTotal >= 0 ? '<span class="badge badge--ok">総点 OK</span>' : `<span class="badge badge--warn">総点不足 ${Math.abs(metrics.diffTotal)}</span>`}</td>
+    </tr>
+  `;
+}
+
 function renderPlanSection() {
+  renderSyncStatus();
   renderPlanList();
   renderTotalsTable();
   updateActionStates();
 }
 
+function renderSyncStatus() {
+  if (!state.workbook) {
+    els.syncStatus.innerHTML = '<span class="badge">Excel 未読込</span><span class="muted"> まだ一括反映先の Excel がありません。</span>';
+    return;
+  }
+
+  if (isPlanSyncedWithWorkbook()) {
+    els.syncStatus.innerHTML = '<span class="badge badge--ok">同期済み</span><span class="muted"> UI 上の履修計画ドラフトと Excel の 11〜20 行が一致しています。</span>';
+    return;
+  }
+
+  els.syncStatus.innerHTML = '<span class="badge badge--pending">未反映</span><span class="muted"> UI 上のドラフトに未反映の変更があります。最後に「履修計画を Excel に一括反映」を押してください。</span>';
+}
+
 function renderPlanList() {
   const entries = getPlanEntries();
   if (!entries.length) {
-    els.planList.innerHTML = '<div class="status status--muted">まだ履修計画はありません。科目を選んで「履修計画に追加 / 更新」を押してください。</div>';
+    els.planList.innerHTML = '<div class="status status--muted">まだ履修計画ドラフトはありません。科目を選んで「履修計画ドラフトに追加 / 更新」を押してください。</div>';
   } else {
     const html = entries.map(entry => {
       const total = sumPoints18(entry.points18);
@@ -673,7 +795,7 @@ function renderPlanList() {
           <div class="plan-card__top">
             <div>
               <div class="plan-card__row">${entry.row}行</div>
-              <h3>${escapeHtml(entry.nameJa)}</h3>
+              <h3>${escapeHtml(displayCourseName(entry))}</h3>
               <p>${escapeHtml(codeText)}${escapeHtml(entry.credits ? `${entry.credits} 単位` : '単位不明')}</p>
             </div>
             <div class="plan-card__total">${total} 点</div>
@@ -695,63 +817,50 @@ function renderPlanList() {
     });
   }
 
-  const planTotals = getPlanTotals18();
-  const extraTotals = getExtraTotals18();
-  const projectedTotals = planTotals.map((value, index) => value + extraTotals[index]);
-  const unmetCount = REQUIRED_POINTS18.filter((required, index) => projectedTotals[index] < required).length;
-
+  const metrics = getMetrics(state.planRows);
   els.planCourseCount.textContent = String(entries.length);
   els.planCredits.textContent = String(entries.reduce((sum, entry) => sum + Number(entry.credits || 0), 0));
-  els.planPointsTotal.textContent = String(sumPoints18(planTotals));
-  els.extraPointsTotal.textContent = String(sumPoints18(extraTotals));
-  els.projectedTotal.textContent = String(sumPoints18(projectedTotals));
-  els.unmetCount.textContent = `${unmetCount} / 18`;
+  els.planPointsTotal.textContent = String(metrics.subtotalTotal);
+  els.extraPointsTotal.textContent = String(metrics.extraTotal);
+  els.projectedTotal.textContent = String(metrics.projectedTotal);
+  els.unmetCount.textContent = `${metrics.unmetCount} / 18`;
 }
 
 function renderTotalsTable() {
-  const planTotals = getPlanTotals18();
-  const extraTotals = getExtraTotals18();
-  const projectedTotals = planTotals.map((value, index) => value + extraTotals[index]);
+  const metrics = getMetrics(state.planRows);
 
   els.totalsBody.innerHTML = COLUMN_LABELS.map((label, index) => {
     const required = REQUIRED_POINTS18[index];
-    const plan = planTotals[index];
-    const extra = extraTotals[index];
-    const projected = projectedTotals[index];
-    const deficit = Math.max(required - projected, 0);
-    const status = deficit === 0
+    const subtotal = metrics.subtotal18[index];
+    const extra = metrics.extra18[index];
+    const projected = metrics.projected18[index];
+    const diff = metrics.diff18[index];
+    const status = diff >= 0
       ? '<span class="badge badge--ok">OK</span>'
-      : `<span class="badge badge--warn">不足 ${deficit}</span>`;
+      : `<span class="badge badge--warn">不足 ${Math.abs(diff)}</span>`;
 
     return `
       <tr>
         <th>${escapeHtml(`${COLUMN_LETTERS[index]} / ${label}`)}</th>
         <td class="num">${required}</td>
-        <td class="num">${plan}</td>
+        <td class="num">${subtotal}</td>
         <td class="num">${extra}</td>
         <td class="num">${projected}</td>
-        <td class="num ${deficit > 0 ? 'num--deficit' : 'num--ok'}">${deficit}</td>
+        <td class="num ${diff >= 0 ? 'num--ok' : 'num--deficit'}">${formatSigned(diff)}</td>
         <td>${status}</td>
       </tr>
     `;
   }).join('');
 
-  const requiredTotal = sumPoints18(REQUIRED_POINTS18);
-  const planTotal = sumPoints18(planTotals);
-  const extraTotal = sumPoints18(extraTotals);
-  const projectedTotal = sumPoints18(projectedTotals);
-  const deficitTotal = REQUIRED_POINTS18.reduce((sum, required, index) => sum + Math.max(required - projectedTotals[index], 0), 0);
-  const overallGap = Math.max(requiredTotal - projectedTotal, 0);
-
   els.totalsFoot.innerHTML = `
     <tr>
       <th>合計</th>
-      <td class="num">${requiredTotal}</td>
-      <td class="num">${planTotal}</td>
-      <td class="num">${extraTotal}</td>
-      <td class="num">${projectedTotal}</td>
-      <td class="num ${deficitTotal > 0 ? 'num--deficit' : 'num--ok'}">${deficitTotal}</td>
-      <td>${overallGap === 0 ? '<span class="badge badge--ok">総点 OK</span>' : `<span class="badge badge--warn">総点不足 ${overallGap}</span>`}</td>
+      <td class="num">${REQUIRED_TOTAL}</td>
+      <td class="num">${metrics.subtotalTotal}</td>
+      <td class="num">${metrics.extraTotal}</td>
+      <td class="num">${metrics.projectedTotal}</td>
+      <td class="num ${metrics.diffTotal >= 0 ? 'num--ok' : 'num--deficit'}">${formatSigned(metrics.diffTotal)}</td>
+      <td>${metrics.diffTotal >= 0 ? '<span class="badge badge--ok">総点 OK</span>' : `<span class="badge badge--warn">総点不足 ${Math.abs(metrics.diffTotal)}</span>`}</td>
     </tr>
   `;
 }
@@ -760,42 +869,71 @@ function updateActionStates() {
   const hasWorkbook = Boolean(state.workbook);
   const hasSelection = Boolean(state.selectedCourse);
   const hasPlan = getPlanEntries().length > 0;
+  const synced = hasWorkbook && isPlanSyncedWithWorkbook();
 
-  els.autofillRequiredBtn.disabled = !hasWorkbook;
-  els.downloadBtn.disabled = !hasWorkbook;
   els.planAddBtn.disabled = !hasSelection;
-  els.writeRowBtn.disabled = !hasWorkbook || !hasSelection;
-  els.applyPlanBtn.disabled = !hasWorkbook || !hasPlan;
+  els.applyPlanBtn.disabled = !hasWorkbook || synced;
+  els.downloadBtn.disabled = !hasWorkbook || !synced;
   els.reloadPlanBtn.disabled = !hasWorkbook;
   els.clearPlanBtn.disabled = !hasPlan;
 }
 
-function autofillExistingRows() {
-  if (!state.workbook) return;
-  const sheet = state.workbook.sheet(state.sheetName);
-  let filled = 0;
+function isPlanSyncedWithWorkbook() {
+  if (!state.workbook) return false;
 
-  for (let row = 11; row <= 20; row += 1) {
-    const courseName = String(sheet.cell(`A${row}`).value() || '').trim();
-    if (!courseName || !rowIsEmpty(sheet, row)) continue;
-    const matched = findCourseByNameOrAlias(courseName);
-    if (!matched) continue;
+  try {
+    const sheet = state.workbook.sheet(state.sheetName);
+    for (let row = 11; row <= 20; row += 1) {
+      const entry = state.planRows[row];
+      const expectedName = entry ? (entry.nameJa || '') : (DEFAULT_ROW_NAMES[row] || '');
+      const expectedPoints18 = entry ? clonePoints18(entry.points18) : Array(18).fill(0);
+      const actualName = String(sheet.cell(`A${row}`).value() || '').trim();
+      const actualPoints18 = COLUMN_LETTERS.map(letter => asInt(sheet.cell(`${letter}${row}`).value()));
 
-    const points18 = resolveCoursePoints18(matched);
-    writePoints18ToRow(sheet, row, matched.nameJa, points18);
-    filled += 1;
+      if (!courseNamesEquivalent(actualName, expectedName)) {
+        return false;
+      }
+
+      for (let index = 0; index < expectedPoints18.length; index += 1) {
+        if (actualPoints18[index] !== expectedPoints18[index]) {
+          return false;
+        }
+      }
+    }
+    return true;
+  } catch (error) {
+    console.warn(error);
+    return false;
+  }
+}
+
+function courseNamesEquivalent(a, b) {
+  const left = String(a || '').trim();
+  const right = String(b || '').trim();
+  if (!left && !right) return true;
+  if (normalize(left) === normalize(right)) return true;
+
+  const leftCourse = findCourseByNameOrAlias(left);
+  const rightCourse = findCourseByNameOrAlias(right);
+  if (leftCourse && rightCourse) {
+    return normalize(leftCourse.code || leftCourse.nameJa) === normalize(rightCourse.code || rightCourse.nameJa);
   }
 
-  syncPlanFromWorkbook();
-  if (filled > 0) {
-    setWorkbookStatus(`既存の必修 / 既入力科目から ${filled} 行を自動入力しました。`, 'ok');
-  } else {
-    setWorkbookStatus('自動入力できる既存行は見つかりませんでした。', 'warn');
-  }
+  return false;
+}
+
+function currentStatusKindAfterPlanChange() {
+  if (!state.workbook) return 'muted';
+  return isPlanSyncedWithWorkbook() ? 'ok' : 'pending';
 }
 
 async function downloadWorkbook() {
   if (!state.workbook) return;
+  if (!isPlanSyncedWithWorkbook()) {
+    setWorkbookStatus('先に「履修計画を Excel に一括反映」を押してからダウンロードしてください。', 'warn');
+    return;
+  }
+
   try {
     const blob = await state.workbook.outputAsync();
     const link = document.createElement('a');
@@ -815,6 +953,10 @@ async function downloadWorkbook() {
   }
 }
 
+function displayCourseName(entry) {
+  return String(entry?.nameJa || entry?.nameEn || entry?.code || '名称未設定');
+}
+
 function sumPoints8(points8) {
   return Object.values(points8 || {}).reduce((sum, value) => sum + Number(value || 0), 0);
 }
@@ -831,6 +973,12 @@ function chip(text) {
   return `<span class="chip">${escapeHtml(text)}</span>`;
 }
 
+function formatSigned(value) {
+  const num = asIntSigned(value);
+  if (num > 0) return `+${num}`;
+  return String(num);
+}
+
 function normalize(value) {
   return String(value || '')
     .normalize('NFKC')
@@ -843,6 +991,11 @@ function normalize(value) {
 function asInt(value) {
   const num = Number(value);
   return Number.isFinite(num) ? Math.max(0, Math.round(num)) : 0;
+}
+
+function asIntSigned(value) {
+  const num = Number(value);
+  return Number.isFinite(num) ? Math.round(num) : 0;
 }
 
 function escapeHtml(value) {

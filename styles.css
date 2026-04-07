@@ -73,7 +73,8 @@ code {
   letter-spacing: 0.04em;
 }
 
-h1, h2 {
+h1,
+h2 {
   margin: 0;
 }
 
@@ -169,6 +170,11 @@ h1 {
 .status--warn {
   background: var(--warn-bg);
   color: var(--warn);
+}
+
+.status--pending {
+  background: var(--primary-soft);
+  color: var(--primary);
 }
 
 .actions-row {
@@ -438,6 +444,10 @@ select {
   margin: 18px 0;
 }
 
+.summary-strip--simulation {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
 .summary-card {
   border: 1px solid var(--line);
   border-radius: 14px;
@@ -452,8 +462,25 @@ select {
   margin-bottom: 8px;
 }
 
-.summary-card strong {
+.summary-card strong,
+.value {
   font-size: 22px;
+}
+
+.value--ok {
+  color: var(--success);
+}
+
+.value--deficit {
+  color: var(--danger);
+}
+
+.sync-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .plan-layout {
@@ -550,6 +577,8 @@ select {
   padding: 5px 10px;
   font-size: 12px;
   font-weight: 800;
+  background: #eef2f7;
+  color: var(--text);
 }
 
 .badge--ok {
@@ -560,6 +589,11 @@ select {
 .badge--warn {
   background: var(--warn-bg);
   color: var(--warn);
+}
+
+.badge--pending {
+  background: var(--primary-soft);
+  color: var(--primary);
 }
 
 .notes {
@@ -577,7 +611,8 @@ select {
 }
 
 @media (max-width: 1180px) {
-  .summary-strip {
+  .summary-strip,
+  .summary-strip--simulation {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
@@ -606,7 +641,8 @@ select {
   .controls-grid,
   .points8,
   .preview-grid,
-  .summary-strip {
+  .summary-strip,
+  .summary-strip--simulation {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
