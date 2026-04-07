@@ -1,0 +1,842 @@
+{
+  "meta": {
+    "program": "情報理工学位プログラム（博士前期課程）",
+    "sourceUrl": "https://www.tsukuba.ac.jp/education/policy-tstandard/gstandard/pdf/2026/mp-systems-information-engineering-c.pdf",
+    "notes": [
+      "公開カリキュラム・マップのうち、8コンピテンスの配点が読み取れる科目だけを抜粋したサンプルデータです。",
+      "Excel 側が要求する 18 観点への展開はアプリ側で行います。",
+      "公式どおりの厳密入力にするには、学内配布の「授業科目シート」等に対応する 18 観点マッピングへ置き換えてください。"
+    ],
+    "pointKeys8": [
+      "knowledge",
+      "management",
+      "communication",
+      "teamwork",
+      "internationality",
+      "research",
+      "specializedKnowledge",
+      "ethics"
+    ],
+    "count": 38
+  },
+  "courses": [
+    {
+      "code": "0AH0201",
+      "nameJa": "美しい国土づくりへの挑戦(I)",
+      "nameEn": "Designing and Planning for National Land (I)",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 30,
+        "management": 20,
+        "communication": 30,
+        "teamwork": 10,
+        "internationality": 10,
+        "research": 10,
+        "specializedKnowledge": 30,
+        "ethics": 60
+      },
+      "aliases": [
+        "Designing and Planning for National Land I",
+        "Designing and Planning for National Land (I)"
+      ],
+      "sourcePage": 0
+    },
+    {
+      "code": "0AH0202",
+      "nameJa": "美しい国土づくりへの挑戦(II)",
+      "nameEn": "Designing and Planning for National Land (II)",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 30,
+        "management": 20,
+        "communication": 30,
+        "teamwork": 10,
+        "internationality": 10,
+        "research": 10,
+        "specializedKnowledge": 30,
+        "ethics": 60
+      },
+      "aliases": [
+        "Designing and Planning for National Land II",
+        "Designing and Planning for National Land (II)"
+      ],
+      "sourcePage": 0
+    },
+    {
+      "code": "0ALA504",
+      "nameJa": "社会工学修士特別演習I",
+      "nameEn": "Special Master's Seminar in Policy and Planning Sciences I",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 30,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 50,
+        "specializedKnowledge": 20,
+        "ethics": 20
+      },
+      "aliases": [
+        "Special Master's Seminar in Policy and Planning Sciences I"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALA505",
+      "nameJa": "社会工学修士特別演習II",
+      "nameEn": "Special Master's Seminar in Policy and Planning Sciences II",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 30,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 50,
+        "specializedKnowledge": 20,
+        "ethics": 20
+      },
+      "aliases": [
+        "Special Master's Seminar in Policy and Planning Sciences II"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALA506",
+      "nameJa": "社会工学修士特別研究I",
+      "nameEn": "Special Master's Research Work in Policy and Planning Sciences I",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 30,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 50,
+        "specializedKnowledge": 20,
+        "ethics": 20
+      },
+      "aliases": [
+        "Special Master's Research Work in Policy and Planning Sciences I"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALA507",
+      "nameJa": "社会工学修士特別研究II",
+      "nameEn": "Special Master's Research Work in Policy and Planning Sciences II",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 30,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 50,
+        "specializedKnowledge": 20,
+        "ethics": 20
+      },
+      "aliases": [
+        "Special Master's Research Work in Policy and Planning Sciences II"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALB000",
+      "nameJa": "消費者心理分析",
+      "nameEn": "Consumer Psychology",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 20,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 60,
+        "specializedKnowledge": 20,
+        "ethics": 20
+      },
+      "aliases": [
+        "Consumer Psychology"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALB001",
+      "nameJa": "地域データ解析",
+      "nameEn": "Regional Data Analysis",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 20,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 60,
+        "specializedKnowledge": 20,
+        "ethics": 20
+      },
+      "aliases": [
+        "Regional Data Analysis"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALB002",
+      "nameJa": "ビッグデータアナリティクス",
+      "nameEn": "Big Data Analytics",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 20,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 60,
+        "specializedKnowledge": 20,
+        "ethics": 20
+      },
+      "aliases": [
+        "Big Data Analytics"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALB003",
+      "nameJa": "応用最適化",
+      "nameEn": "Applied Optimization",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 20,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 60,
+        "specializedKnowledge": 20,
+        "ethics": 20
+      },
+      "aliases": [
+        "Applied Optimization"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALB004",
+      "nameJa": "公共インフラ計画",
+      "nameEn": "Public Infrastructure Planning",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 20,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 60,
+        "specializedKnowledge": 20,
+        "ethics": 20
+      },
+      "aliases": [
+        "Public Infrastructure Planning"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALB005",
+      "nameJa": "情報ネットワーク",
+      "nameEn": "Information Networks",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 20,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 60,
+        "specializedKnowledge": 20,
+        "ethics": 20
+      },
+      "aliases": [
+        "Information Networks"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALB006",
+      "nameJa": "サービスサイエンス",
+      "nameEn": "Service Science",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 20,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 60,
+        "specializedKnowledge": 20,
+        "ethics": 20
+      },
+      "aliases": [
+        "Service Science"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALB007",
+      "nameJa": "プレイスメイキング",
+      "nameEn": "Place Making",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 20,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 60,
+        "specializedKnowledge": 20,
+        "ethics": 20
+      },
+      "aliases": [
+        "Place Making"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALB008",
+      "nameJa": "技術経営",
+      "nameEn": "Management of Technology",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 20,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 60,
+        "specializedKnowledge": 20,
+        "ethics": 20
+      },
+      "aliases": [
+        "Management of Technology"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALB502",
+      "nameJa": "サービス工学特別演習I",
+      "nameEn": "Special Seminar in Service Engineering I",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 20,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 60,
+        "specializedKnowledge": 20,
+        "ethics": 20
+      },
+      "aliases": [
+        "Special Seminar in Service Engineering I"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALB503",
+      "nameJa": "サービス工学特別演習II",
+      "nameEn": "Special Seminar in Service Engineering II",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 20,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 60,
+        "specializedKnowledge": 20,
+        "ethics": 20
+      },
+      "aliases": [
+        "Special Seminar in Service Engineering II"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALB504",
+      "nameJa": "サービス工学特別研究I",
+      "nameEn": "Special Research Work in Service Engineering I",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 20,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 60,
+        "specializedKnowledge": 20,
+        "ethics": 20
+      },
+      "aliases": [
+        "Special Research Work in Service Engineering I"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALB505",
+      "nameJa": "サービス工学特別研究II",
+      "nameEn": "Special Research Work in Service Engineering II",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 20,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 60,
+        "specializedKnowledge": 20,
+        "ethics": 20
+      },
+      "aliases": [
+        "Special Research Work in Service Engineering II"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALD000",
+      "nameJa": "インターンシップI",
+      "nameEn": "Internship I",
+      "credits": 1,
+      "total": 100,
+      "points8": {
+        "knowledge": 10,
+        "management": 10,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 10,
+        "research": 10,
+        "specializedKnowledge": 10,
+        "ethics": 10
+      },
+      "aliases": [
+        "Internship I"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALD001",
+      "nameJa": "インターンシップII",
+      "nameEn": "Internship II",
+      "credits": 1,
+      "total": 100,
+      "points8": {
+        "knowledge": 10,
+        "management": 10,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 10,
+        "research": 10,
+        "specializedKnowledge": 10,
+        "ethics": 10
+      },
+      "aliases": [
+        "Internship II"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALD503",
+      "nameJa": "情報理工前期特別演習",
+      "nameEn": "Seminar in Computer Science",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 30,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 30,
+        "specializedKnowledge": 30,
+        "ethics": 30
+      },
+      "aliases": [
+        "Seminar in Computer Science",
+        "情報理工前期特別演習s",
+        "Seminar in Computer Science s",
+        "情報理工前期特別演習f",
+        "Seminar in Computer Science f"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALD504",
+      "nameJa": "情報理工前期特別研究I",
+      "nameEn": "Research in Computer Science I",
+      "credits": 4,
+      "total": 400,
+      "points8": {
+        "knowledge": 50,
+        "management": 50,
+        "communication": 50,
+        "teamwork": 50,
+        "internationality": 50,
+        "research": 50,
+        "specializedKnowledge": 50,
+        "ethics": 50
+      },
+      "aliases": [
+        "Research in Computer Science I",
+        "情報理工前期特別研究Is",
+        "Research in Computer Science Is",
+        "情報理工前期特別研究If",
+        "Research in Computer Science If"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALD505",
+      "nameJa": "情報理工前期特別研究II",
+      "nameEn": "Research in Computer Science II",
+      "credits": 6,
+      "total": 600,
+      "points8": {
+        "knowledge": 80,
+        "management": 70,
+        "communication": 70,
+        "teamwork": 70,
+        "internationality": 70,
+        "research": 80,
+        "specializedKnowledge": 80,
+        "ethics": 80
+      },
+      "aliases": [
+        "Research in Computer Science II",
+        "情報理工前期特別研究IIs",
+        "Research in Computer Science IIs",
+        "情報理工前期特別研究IIf",
+        "Research in Computer Science IIf"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALD506",
+      "nameJa": "情報理工前期特別演習s",
+      "nameEn": "Seminar in Computer Science s",
+      "credits": 1,
+      "total": 100,
+      "points8": {
+        "knowledge": 15,
+        "management": 10,
+        "communication": 10,
+        "teamwork": 10,
+        "internationality": 10,
+        "research": 15,
+        "specializedKnowledge": 15,
+        "ethics": 15
+      },
+      "aliases": [
+        "Seminar in Computer Science s",
+        "情報理工前期特別演習"
+      ],
+      "sourcePage": 4
+    },
+    {
+      "code": "0ALD507",
+      "nameJa": "情報理工前期特別演習f",
+      "nameEn": "Seminar in Computer Science f",
+      "credits": 1,
+      "total": 100,
+      "points8": {
+        "knowledge": 15,
+        "management": 10,
+        "communication": 10,
+        "teamwork": 10,
+        "internationality": 10,
+        "research": 15,
+        "specializedKnowledge": 15,
+        "ethics": 15
+      },
+      "aliases": [
+        "Seminar in Computer Science f",
+        "情報理工前期特別演習"
+      ],
+      "sourcePage": 5
+    },
+    {
+      "code": "0ALD508",
+      "nameJa": "情報理工前期特別研究Is",
+      "nameEn": "Research in Computer Science Is",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 25,
+        "management": 25,
+        "communication": 25,
+        "teamwork": 25,
+        "internationality": 25,
+        "research": 25,
+        "specializedKnowledge": 25,
+        "ethics": 25
+      },
+      "aliases": [
+        "Research in Computer Science Is",
+        "情報理工前期特別研究I"
+      ],
+      "sourcePage": 5
+    },
+    {
+      "code": "0ALD509",
+      "nameJa": "情報理工前期特別研究If",
+      "nameEn": "Research in Computer Science If",
+      "credits": 2,
+      "total": 200,
+      "points8": {
+        "knowledge": 25,
+        "management": 25,
+        "communication": 25,
+        "teamwork": 25,
+        "internationality": 25,
+        "research": 25,
+        "specializedKnowledge": 25,
+        "ethics": 25
+      },
+      "aliases": [
+        "Research in Computer Science If",
+        "情報理工前期特別研究I"
+      ],
+      "sourcePage": 5
+    },
+    {
+      "code": "0ALD510",
+      "nameJa": "情報理工前期特別研究IIs",
+      "nameEn": "Research in Computer Science IIs",
+      "credits": 3,
+      "total": 300,
+      "points8": {
+        "knowledge": 40,
+        "management": 35,
+        "communication": 35,
+        "teamwork": 35,
+        "internationality": 35,
+        "research": 40,
+        "specializedKnowledge": 40,
+        "ethics": 40
+      },
+      "aliases": [
+        "Research in Computer Science IIs",
+        "情報理工前期特別研究II"
+      ],
+      "sourcePage": 5
+    },
+    {
+      "code": "0ALD511",
+      "nameJa": "情報理工前期特別研究IIf",
+      "nameEn": "Research in Computer Science IIf",
+      "credits": 3,
+      "total": 300,
+      "points8": {
+        "knowledge": 40,
+        "management": 35,
+        "communication": 35,
+        "teamwork": 35,
+        "internationality": 35,
+        "research": 40,
+        "specializedKnowledge": 40,
+        "ethics": 40
+      },
+      "aliases": [
+        "Research in Computer Science IIf",
+        "情報理工前期特別研究II"
+      ],
+      "sourcePage": 5
+    },
+    {
+      "code": "0ALD512",
+      "nameJa": "情報理工前期特別研究A",
+      "nameEn": "Research in Computer Science A",
+      "credits": 3,
+      "total": 300,
+      "points8": {
+        "knowledge": 40,
+        "management": 30,
+        "communication": 40,
+        "teamwork": 40,
+        "internationality": 30,
+        "research": 40,
+        "specializedKnowledge": 40,
+        "ethics": 40
+      },
+      "aliases": [
+        "Research in Computer Science A"
+      ],
+      "sourcePage": 5
+    },
+    {
+      "code": "0ALD513",
+      "nameJa": "情報理工前期特別研究A",
+      "nameEn": "Research in Computer Science A",
+      "credits": 3,
+      "total": 300,
+      "points8": {
+        "knowledge": 40,
+        "management": 30,
+        "communication": 40,
+        "teamwork": 40,
+        "internationality": 30,
+        "research": 40,
+        "specializedKnowledge": 40,
+        "ethics": 40
+      },
+      "aliases": [
+        "Research in Computer Science A"
+      ],
+      "sourcePage": 5
+    },
+    {
+      "code": "0ALD514",
+      "nameJa": "情報理工前期特別研究B",
+      "nameEn": "Research in Computer Science B",
+      "credits": 3,
+      "total": 300,
+      "points8": {
+        "knowledge": 40,
+        "management": 30,
+        "communication": 40,
+        "teamwork": 40,
+        "internationality": 30,
+        "research": 40,
+        "specializedKnowledge": 40,
+        "ethics": 40
+      },
+      "aliases": [
+        "Research in Computer Science B"
+      ],
+      "sourcePage": 5
+    },
+    {
+      "code": "0ALD515",
+      "nameJa": "情報理工前期特別研究B",
+      "nameEn": "Research in Computer Science B",
+      "credits": 3,
+      "total": 300,
+      "points8": {
+        "knowledge": 40,
+        "management": 30,
+        "communication": 40,
+        "teamwork": 40,
+        "internationality": 30,
+        "research": 40,
+        "specializedKnowledge": 40,
+        "ethics": 40
+      },
+      "aliases": [
+        "Research in Computer Science B"
+      ],
+      "sourcePage": 5
+    },
+    {
+      "code": "0ALD516",
+      "nameJa": "情報理工前期特別研究C",
+      "nameEn": "Research in Computer Science C",
+      "credits": 3,
+      "total": 300,
+      "points8": {
+        "knowledge": 40,
+        "management": 40,
+        "communication": 30,
+        "teamwork": 40,
+        "internationality": 40,
+        "research": 40,
+        "specializedKnowledge": 40,
+        "ethics": 30
+      },
+      "aliases": [
+        "Research in Computer Science C"
+      ],
+      "sourcePage": 5
+    },
+    {
+      "code": "0ALD517",
+      "nameJa": "情報理工前期特別研究C",
+      "nameEn": "Research in Computer Science C",
+      "credits": 3,
+      "total": 300,
+      "points8": {
+        "knowledge": 40,
+        "management": 40,
+        "communication": 30,
+        "teamwork": 40,
+        "internationality": 40,
+        "research": 40,
+        "specializedKnowledge": 40,
+        "ethics": 30
+      },
+      "aliases": [
+        "Research in Computer Science C"
+      ],
+      "sourcePage": 5
+    },
+    {
+      "code": "0ALD518",
+      "nameJa": "情報理工前期特別研究D",
+      "nameEn": "Research in Computer Science D",
+      "credits": 3,
+      "total": 300,
+      "points8": {
+        "knowledge": 40,
+        "management": 40,
+        "communication": 30,
+        "teamwork": 40,
+        "internationality": 40,
+        "research": 40,
+        "specializedKnowledge": 40,
+        "ethics": 30
+      },
+      "aliases": [
+        "Research in Computer Science D"
+      ],
+      "sourcePage": 5
+    },
+    {
+      "code": "0ALD519",
+      "nameJa": "情報理工前期特別研究D",
+      "nameEn": "Research in Computer Science D",
+      "credits": 3,
+      "total": 300,
+      "points8": {
+        "knowledge": 40,
+        "management": 40,
+        "communication": 30,
+        "teamwork": 40,
+        "internationality": 40,
+        "research": 40,
+        "specializedKnowledge": 40,
+        "ethics": 30
+      },
+      "aliases": [
+        "Research in Computer Science D"
+      ],
+      "sourcePage": 5
+    }
+  ]
+}

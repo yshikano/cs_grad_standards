@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>達成度評価シート入力支援</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/xlsx-populate/browser/xlsx-populate.min.js"></script>
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero__text">
+      <p class="eyebrow">GitHub Pages 向けプロトタイプ</p>
+      <h1>達成度評価シート入力支援</h1>
+      <p class="lead">
+        科目番号または授業名で検索し、アップロードした Excel の「M中間評価」へ点数を書き戻します。
+        公開カリキュラム・マップの 8 コンピテンス配点から、Excel の 18 観点へ自動展開します。
+      </p>
+    </div>
+    <div class="hero__badge">
+      <strong>注意</strong>
+      <span>公開 PDF だけでは 18 観点の厳密表は得られないため、この試作版は自動展開ルールを使います。</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="card card--wide">
+      <div class="section-heading">
+        <h2>1. Excel テンプレートを読み込む</h2>
+        <p>添付の達成度評価シートをそのままアップロードできます。</p>
+      </div>
+      <label class="file-drop" for="xlsxFile">
+        <input id="xlsxFile" type="file" accept=".xlsx,.xlsm,.xls">
+        <span class="file-drop__title">ここをクリックして Excel を選択</span>
+        <span class="file-drop__sub">対応: .xlsx / .xlsm / .xls</span>
+      </label>
+      <div id="workbookStatus" class="status status--muted">まだ Excel は読み込まれていません。</div>
+      <div class="actions-row">
+        <button id="autofillRequiredBtn" class="button" disabled>既存の必修行を自動入力</button>
+        <button id="downloadBtn" class="button button--primary" disabled>更新した Excel をダウンロード</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-heading">
+        <h2>2. 科目を検索</h2>
+        <p>科目番号・日本語名・英語名で絞り込みます。</p>
+      </div>
+      <div class="search-box">
+        <input id="searchInput" type="search" placeholder="例: 0ALD512 / 情報理工前期特別研究A / Research in Computer Science A">
+      </div>
+      <div id="searchMeta" class="search-meta">サンプルデータを読み込み中…</div>
+      <div id="searchResults" class="results"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-heading">
+        <h2>3. 18 観点への展開を確認</h2>
+        <p>まずは自動配分し、必要なら個別に修正してから書き込みます。</p>
+      </div>
+
+      <div id="selectedCourseBox" class="selected-course empty">
+        まだ科目が選択されていません。
+      </div>
+
+      <div class="controls-grid">
+        <label>
+          <span>配分ルール</span>
+          <select id="splitMode">
+            <option value="required">必要点比例（既定）</option>
+            <option value="even">均等配分</option>
+          </select>
+        </label>
+        <label>
+          <span>書き込み先の行</span>
+          <select id="targetRow"></select>
+        </label>
+      </div>
+
+      <div class="preview-head">
+        <div>
+          <strong>プレビュー</strong>
+          <span class="muted">B〜S 列に書き込まれる値</span>
+        </div>
+        <div id="previewTotal" class="preview-total">合計 0 点</div>
+      </div>
+
+      <div id="previewGrid" class="preview-grid"></div>
+
+      <div class="actions-row actions-row--end">
+        <button id="writeRowBtn" class="button button--primary" disabled>この行に書き込む</button>
+      </div>
+    </section>
+
+    <section class="card card--wide">
+      <div class="section-heading">
+        <h2>この試作版の前提</h2>
+        <p>本番化するなら、ここだけ差し替えればかなり実用になります。</p>
+      </div>
+      <ul class="notes">
+        <li>同梱の <code>data/courses.sample.json</code> は、公開カリキュラム・マップから読み取りやすい科目をサンプルとして入れています。</li>
+        <li>アプリ自体は <code>points18</code>（18 観点の厳密値）にも対応するよう作ってあります。公式の「授業科目シート」があれば JSON を差し替えるだけで厳密化できます。</li>
+        <li>いまは「授業科目」欄の入力支援が中心です。「授業科目以外」の論文・TOEIC・海外活動なども、同じ UI を追加すれば GitHub Pages 上で扱えます。</li>
+      </ul>
+      <div id="datasetInfo" class="dataset-info"></div>
+    </section>
+  </main>
+</body>
+</html>
