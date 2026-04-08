@@ -5116,3 +5116,449 @@ function initCompactWorkspaceUi() {
 document.addEventListener('DOMContentLoaded', () => {
   initCompactWorkspaceUi();
 });
+
+/* === 2026-04 timetable simplification + intensive tab + collapsible UI patch === */
+const UI_PREFS_KEY_20260408 = 'tsukuba-achievement-helper.ui-prefs.v20260408';
+const TIMETABLE_VIEW_TABS = [
+  ...SCHEDULE_TERM_OPTIONS.map(item => ({ code: item.code, label: item.label, kind: 'regular' })),
+  { code: 'intensive', label: '集中', kind: 'special' }
+];
+
+state.uiPrefs = state.uiPrefs || loadUiPrefs20260408();
+if (state.uiPrefs.denseText) {
+  document.body.classList.add('app-body--dense-text');
+}
+if (state.uiPrefs.activeTimetableTab === 'intensive') {
+  state.activeTermCode = 'intensive';
+}
+
+function loadUiPrefs20260408() {
+  try {
+    const raw = localStorage.getItem(UI_PREFS_KEY_20260408);
+    if (!raw) return { cards: {}, denseText: false, hintCollapsed: true, activeTimetableTab: 0 };
+    const parsed = JSON.parse(raw);
+    return {
+      cards: parsed && typeof parsed.cards === 'object' ? parsed.cards : {},
+      denseText: Boolean(parsed?.denseText),
+      hintCollapsed: parsed?.hintCollapsed !== false,
+      activeTimetableTab: parsed?.activeTimetableTab ?? 0
+    };
+  } catch (error) {
+    console.warn('ui prefs load failed', error);
+    return { cards: {}, denseText: false, hintCollapsed: true, activeTimetableTab: 0 };
+  }
+}
+
+function saveUiPrefs20260408() {
+  try {
+    localStorage.setItem(UI_PREFS_KEY_20260408, JSON.stringify({
+      cards: state.uiPrefs?.cards || {},
+      denseText: Boolean(state.uiPrefs?.denseText),
+      hintCollapsed: state.uiPrefs?.hintCollapsed !== false,
+      activeTimetableTab: state.uiPrefs?.activeTimetableTab ?? 0
+    }));
+  } catch (error) {
+    console.warn('ui prefs save failed', error);
+  }
+}
+
+function slugifyUiKey20260408(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\p{L}\p{N}_-]/gu, '')
+    .slice(0, 60) || 'panel';
+}
+
+function getCardPrefKey20260408(card, index) {
+  if (card.dataset.collapseKey) return card.dataset.collapseKey;
+  const title = card.querySelector('h2')?.textContent?.trim() || card.id || `panel-${index + 1}`;
+  const key = slugifyUiKey20260408(title);
+  card.dataset.collapseKey = key;
+  return key;
+}
+
+function setCompactCardCollapsed20260408(card, collapsed, persist = true) {
+  if (!card) return;
+  const button = card.querySelector('.section-heading__toggle');
+  card.classList.toggle('is-collapsed', Boolean(collapsed));
+  if (button) {
+    button.textContent = collapsed ? '展開' : '縮小';
+    button.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+  }
+  if (persist) {
+    const key = card.dataset.collapseKey || getCardPrefKey20260408(card, 0);
+    state.uiPrefs.cards[key] = Boolean(collapsed);
+    saveUiPrefs20260408();
+  }
+}
+
+function installCompactCardCollapseUi20260408() {
+  const cards = Array.from(document.querySelectorAll('.compact-card'));
+  cards.forEach((card, index) => {
+    if (card.dataset.collapseReady === '1') return;
+    const heading = card.querySelector('.section-heading--compact');
+    if (!heading) return;
+
+    const body = document.createElement('div');
+    body.className = 'compact-card__body';
+    Array.from(card.children).forEach(child => {
+      if (child !== heading) body.appendChild(child);
+    });
+    card.appendChild(body);
+
+    const actionWrap = document.createElement('div');
+    actionWrap.className = 'section-heading__actions';
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'button button--small section-heading__toggle';
+    toggle.addEventListener('click', () => {
+      setCompactCardCollapsed20260408(card, !card.classList.contains('is-collapsed'));
+    });
+    actionWrap.appendChild(toggle);
+    heading.appendChild(actionWrap);
+
+    const key = getCardPrefKey20260408(card, index);
+    const stored = state.uiPrefs.cards?.[key];
+    setCompactCardCollapsed20260408(card, Boolean(stored), false);
+    card.dataset.collapseReady = '1';
+  });
+}
+
+function setTopbarHintCollapsed20260408(collapsed, persist = true) {
+  const hint = document.querySelector('.topbar__hint');
+  if (!hint) return;
+  hint.classList.toggle('is-collapsed', Boolean(collapsed));
+  const button = hint.querySelector('.topbar__hint-toggle');
+  if (button) {
+    button.textContent = collapsed ? '使い方を表示' : '使い方を隠す';
+    button.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+  }
+  if (persist) {
+    state.uiPrefs.hintCollapsed = Boolean(collapsed);
+    saveUiPrefs20260408();
+  }
+}
+
+function installTopbarHintToggle20260408() {
+  const hint = document.querySelector('.topbar__hint');
+  if (!hint || hint.dataset.collapseReady === '1') return;
+  const title = hint.querySelector('.topbar__hint-title');
+  if (!title) return;
+
+  const head = document.createElement('div');
+  head.className = 'topbar__hint-head';
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'button button--small topbar__hint-toggle';
+  toggle.addEventListener('click', () => {
+    setTopbarHintCollapsed20260408(!hint.classList.contains('is-collapsed'));
+  });
+
+  title.parentNode.insertBefore(head, title);
+  head.appendChild(title);
+  head.appendChild(toggle);
+
+  setTopbarHintCollapsed20260408(state.uiPrefs?.hintCollapsed !== false, false);
+  hint.dataset.collapseReady = '1';
+}
+
+function setDenseTextMode20260408(enabled, persist = true) {
+  document.body.classList.toggle('app-body--dense-text', Boolean(enabled));
+  const button = document.getElementById('toggleDenseBtn');
+  if (button) {
+    button.textContent = enabled ? '説明を戻す' : '説明を省略';
+    button.classList.toggle('is-active', Boolean(enabled));
+  }
+  if (persist) {
+    state.uiPrefs.denseText = Boolean(enabled);
+    saveUiPrefs20260408();
+  }
+}
+
+function collapseAllCompactCards20260408(collapsed) {
+  document.querySelectorAll('.compact-card[data-collapse-ready="1"]').forEach(card => {
+    setCompactCardCollapsed20260408(card, collapsed);
+  });
+}
+
+function injectWorkspaceViewControls20260408() {
+  const switcher = document.querySelector('.workspace-switcher');
+  if (!switcher || document.getElementById('compactViewControls')) return;
+
+  const controls = document.createElement('div');
+  controls.id = 'compactViewControls';
+  controls.className = 'workspace-switcher__actions';
+  controls.innerHTML = `
+    <button id="toggleDenseBtn" type="button" class="button button--small">説明を省略</button>
+    <button id="collapseAllPanelsBtn" type="button" class="button button--small">全パネルを縮小</button>
+    <button id="expandAllPanelsBtn" type="button" class="button button--small">全パネルを展開</button>
+  `;
+  switcher.appendChild(controls);
+
+  document.getElementById('toggleDenseBtn')?.addEventListener('click', () => {
+    setDenseTextMode20260408(!document.body.classList.contains('app-body--dense-text'));
+  });
+  document.getElementById('collapseAllPanelsBtn')?.addEventListener('click', () => {
+    collapseAllCompactCards20260408(true);
+  });
+  document.getElementById('expandAllPanelsBtn')?.addEventListener('click', () => {
+    collapseAllCompactCards20260408(false);
+  });
+
+  setDenseTextMode20260408(Boolean(state.uiPrefs?.denseText), false);
+}
+
+function isIntensiveTimetableTab20260408(termCode) {
+  return String(termCode) === 'intensive';
+}
+
+function getTimetableTabLabel20260408(termCode) {
+  return TIMETABLE_VIEW_TABS.find(item => String(item.code) === String(termCode))?.label || '—';
+}
+
+function renderScheduleTermTabs() {
+  if (!els.scheduleTermTabs) return;
+  els.scheduleTermTabs.innerHTML = '';
+  TIMETABLE_VIEW_TABS.forEach(term => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = term.label;
+    button.className = String(term.code) === String(state.activeTermCode) ? 'is-active' : '';
+    button.addEventListener('click', () => {
+      state.activeTermCode = term.code;
+      state.uiPrefs.activeTimetableTab = term.code;
+      saveUiPrefs20260408();
+      renderScheduleTermTabs();
+      renderTimetablePanel();
+    });
+    els.scheduleTermTabs.appendChild(button);
+  });
+}
+
+function buildTimetableItemsForTerm(termCode) {
+  if (isIntensiveTimetableTab20260408(termCode)) {
+    return buildIntensiveTimetableItems20260408();
+  }
+
+  const items = [];
+  const draftEntries = getPlanEntries(getCurrentDraft().courseRows);
+
+  draftEntries.forEach(entry => {
+    const schedule = getCourseScheduleInfo(entry.sourceCourse || entry);
+    const table = schedule?.slotsByTerm?.[termCode];
+    if (!table) return;
+    items.push({
+      kind: 'draft',
+      row: entry.row,
+      code: entry.code || '',
+      label: displayCourseName(entry),
+      shortLabel: displayCourseName(entry),
+      meta: '',
+      cells: scheduleTableToCells(table)
+    });
+  });
+
+  const preview = buildSelectedPreviewTimetableItem(termCode);
+  if (preview) {
+    items.push(preview);
+  }
+
+  const occupancy = new Map();
+  items.forEach(item => {
+    item.cells.forEach(cell => {
+      const key = `${cell.dayIndex}-${cell.periodIndex}`;
+      if (!occupancy.has(key)) occupancy.set(key, []);
+      occupancy.get(key).push(item);
+    });
+  });
+  items.forEach(item => {
+    item.hasConflict = item.cells.some(cell => (occupancy.get(`${cell.dayIndex}-${cell.periodIndex}`) || []).length > 1);
+  });
+
+  return items;
+}
+
+function buildSelectedPreviewTimetableItem(termCode) {
+  if (!state.selectedCourse) return null;
+  const row = Number((els.targetRow && els.targetRow.value) || '');
+  const existing = getCurrentDraft().courseRows[row];
+  if (existing && courseNamesEquivalent(displayCourseName(existing), displayCourseName(state.selectedCourse))) {
+    return null;
+  }
+
+  const schedule = getCourseScheduleInfo(state.selectedCourse);
+  if (isIntensiveTimetableTab20260408(termCode)) {
+    if (!schedule?.specialKinds?.concentration) return null;
+    return {
+      kind: 'preview',
+      row: row || null,
+      code: state.selectedCourse.code || '',
+      label: displayCourseName(state.selectedCourse),
+      shortLabel: displayCourseName(state.selectedCourse),
+      meta: formatScheduleSummaryText(schedule),
+      cells: [],
+      hasConflict: false,
+      isIntensive: true
+    };
+  }
+
+  const table = schedule?.slotsByTerm?.[termCode];
+  if (!table) return null;
+
+  return {
+    kind: 'preview',
+    row: row || null,
+    code: state.selectedCourse.code || '',
+    label: displayCourseName(state.selectedCourse),
+    shortLabel: displayCourseName(state.selectedCourse),
+    meta: '',
+    cells: scheduleTableToCells(table),
+    hasConflict: false
+  };
+}
+
+function buildIntensiveTimetableItems20260408() {
+  const items = [];
+  const draftEntries = getPlanEntries(getCurrentDraft().courseRows);
+
+  draftEntries.forEach(entry => {
+    const schedule = getCourseScheduleInfo(entry.sourceCourse || entry);
+    if (!schedule?.specialKinds?.concentration) return;
+    items.push({
+      kind: 'draft',
+      row: entry.row,
+      code: entry.code || '',
+      label: displayCourseName(entry),
+      shortLabel: displayCourseName(entry),
+      meta: formatScheduleSummaryText(schedule),
+      cells: [],
+      hasConflict: false,
+      isIntensive: true
+    });
+  });
+
+  const preview = buildSelectedPreviewTimetableItem('intensive');
+  if (preview) items.push(preview);
+  return items;
+}
+
+function renderTimetablePanel() {
+  if (!els.timetableGrid || !els.timetableSummary || !els.timetableUnscheduled) return;
+  renderScheduleStatus();
+  renderScheduleTermTabs();
+
+  const isIntensive = isIntensiveTimetableTab20260408(state.activeTermCode);
+
+  if (!Object.keys(state.scheduleMap || {}).length && state.scheduleStatus !== 'loading') {
+    els.timetableGrid.innerHTML = '<div class="status status--muted">開講時限データがまだありません。自動読込を待つか、必要なら KdB JSON を手動読込してください。</div>';
+    els.timetableSummary.innerHTML = '';
+    const unscheduled = buildUnscheduledCourseItems();
+    els.timetableUnscheduled.innerHTML = unscheduled.length
+      ? `<div class="unscheduled-list">${unscheduled.map(item => `<div class="unscheduled-chip"><strong>${escapeHtml(item.label)}</strong><div class="unscheduled-chip__meta">${escapeHtml(item.reason)}</div></div>`).join('')}</div>`
+      : '<div class="status status--muted">時間割へ載せられる科目がまだありません。</div>';
+    return;
+  }
+
+  if (isIntensive) {
+    const items = buildIntensiveTimetableItems20260408();
+    els.timetableGrid.innerHTML = items.length
+      ? `<div class="intensive-list">${items.map(item => {
+          const classes = ['intensive-chip'];
+          if (item.kind === 'preview') classes.push('intensive-chip--preview');
+          return `<div class="${classes.join(' ')}"><strong>${escapeHtml(item.label)}</strong></div>`;
+        }).join('')}</div>`
+      : '<div class="status status--muted">集中として扱う科目はまだありません。</div>';
+
+    const previewCount = items.filter(item => item.kind === 'preview').length;
+    els.timetableSummary.innerHTML = `
+      <div class="timetable-summary__stats">
+        <span class="chip">表示 ${escapeHtml(getTimetableTabLabel20260408(state.activeTermCode))}</span>
+        <span class="chip">集中科目 ${items.filter(item => item.kind === 'draft').length} 件</span>
+        ${previewCount ? '<span class="chip">候補科目を表示中</span>' : ''}
+      </div>
+    `;
+    els.timetableUnscheduled.innerHTML = '<div class="status status--muted">集中以外の未配置科目は、各ターム表示で確認できます。</div>';
+    return;
+  }
+
+  const timetableItems = buildTimetableItemsForTerm(state.activeTermCode);
+  const cellMap = new Map();
+
+  timetableItems.forEach(item => {
+    item.cells.forEach(cell => {
+      const key = `${cell.dayIndex}-${cell.periodIndex}`;
+      if (!cellMap.has(key)) {
+        cellMap.set(key, []);
+      }
+      cellMap.get(key).push(item);
+    });
+  });
+
+  let conflictCellCount = 0;
+  const bodyHtml = Array.from({ length: SCHEDULE_PERIOD_TIMES.length }, (_, periodIndex) => {
+    const cellHtml = SCHEDULE_DAY_LABELS.map((dayLabel, dayIndex) => {
+      const key = `${dayIndex}-${periodIndex}`;
+      const items = cellMap.get(key) || [];
+      if (items.length > 1) {
+        conflictCellCount += 1;
+      }
+      const slotContent = items.length
+        ? `<div class="timetable-slotlist">${items.map(item => {
+            const classes = ['timetable-chip'];
+            if (items.length > 1) classes.push('timetable-chip--conflict');
+            if (item.kind === 'preview') classes.push('timetable-chip--preview');
+            return `<div class="${classes.join(' ')}"><strong>${escapeHtml(item.shortLabel)}</strong></div>`;
+          }).join('')}</div>`
+        : '';
+      return `<td class="timetable-slot">${slotContent}</td>`;
+    }).join('');
+
+    return `
+      <tr>
+        <th class="timetable-table__time">
+          <strong>${periodIndex + 1}限</strong>
+          <span>${escapeHtml(SCHEDULE_PERIOD_TIMES[periodIndex][0])}<br>${escapeHtml(SCHEDULE_PERIOD_TIMES[periodIndex][1])}</span>
+        </th>
+        ${cellHtml}
+      </tr>
+    `;
+  }).join('');
+
+  els.timetableGrid.innerHTML = `
+    <table class="timetable-table timetable-table--names-only">
+      <thead>
+        <tr>
+          <th class="timetable-table__time">時限</th>
+          ${SCHEDULE_DAY_LABELS.map(label => `<th>${escapeHtml(label)}</th>`).join('')}
+        </tr>
+      </thead>
+      <tbody>${bodyHtml}</tbody>
+    </table>
+  `;
+
+  const draftItems = timetableItems.filter(item => item.kind === 'draft').length;
+  const previewItem = timetableItems.find(item => item.kind === 'preview');
+  els.timetableSummary.innerHTML = `
+    <div class="timetable-summary__stats">
+      <span class="chip">表示 ${escapeHtml(getTimetableTabLabel20260408(state.activeTermCode))}</span>
+      <span class="chip">ドラフト掲載 ${draftItems} 件</span>
+      ${previewItem ? '<span class="chip">候補科目を重ね表示中</span>' : ''}
+      ${conflictCellCount > 0 ? `<span class="chip">重複セル ${conflictCellCount} 件</span>` : '<span class="chip">時限重複なし</span>'}
+    </div>
+  `;
+
+  const unscheduled = buildUnscheduledCourseItems();
+  els.timetableUnscheduled.innerHTML = unscheduled.length
+    ? `<div class="unscheduled-list">${unscheduled.map(item => `<div class="unscheduled-chip"><strong>${escapeHtml(item.label)}</strong><div class="unscheduled-chip__meta">${escapeHtml(item.reason)}</div></div>`).join('')}</div>`
+    : '<div class="status status--ok">集中・応談・随時などを除く、現在のドラフト科目は時間割へ反映できています。</div>';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  injectWorkspaceViewControls20260408();
+  installCompactCardCollapseUi20260408();
+  installTopbarHintToggle20260408();
+  renderScheduleTermTabs();
+  renderTimetablePanel();
+});
