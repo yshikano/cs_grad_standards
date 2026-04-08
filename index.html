@@ -14,37 +14,56 @@
       <p class="eyebrow">Tsukuba Achievement Helper</p>
       <h1>達成度評価シート入力支援</h1>
       <p class="lead">
-        科目番号や授業名で科目を探し、公開カリキュラム・マップをもとに 18 観点の配点を自動提案します。
-        smart モードでは、現在の不足差分を見ながら配点を自動調整し、履修計画を固めてから最後にだけ Excel を更新します。
+        履修計画、M中間評価、M最終評価の 3 モードで使える版です。
+        システム情報工学研究群の科目検索、他研究群科目の登録、授業科目以外の加点、
+        18観点の手修正、Excel への最後の一括反映に対応しています。
       </p>
     </div>
     <div class="hero__badge">
-      <div><strong>今回の版で追加したこと</strong></div>
-      <div>・他研究群科目の 1 単位 100 点処理</div>
-      <div>・不足差分を見ながらの自動配点</div>
-      <div>・10 科目超でも Excel 行を自動拡張</div>
-      <div>・システム情報工学研究群の科目データ拡張</div>
+      <div><strong>今回の版で対応したこと</strong></div>
+      <div>・ 実際の様式に合わせて M中間評価 / M最終評価 を切替</div>
+      <div>・ 履修計画モードを追加</div>
+      <div>・ 最終評価を中間評価から初期化</div>
+      <div>・ 授業科目以外（論文、WG、TA、TOEIC/TOEFL 等）を追加</div>
+      <div>・ 11〜30 行を授業科目欄として使えるように再配置</div>
     </div>
   </header>
 
   <main class="layout">
-    <section class="card">
+    <section class="card card--wide">
       <div class="section-heading">
-        <h2>1. Excel を読み込む</h2>
-        <p>最後に一括反映するまで、UI 上のドラフトだけを更新します。</p>
+        <div>
+          <h2>1. Excel とモード</h2>
+          <p>履修計画では UI 上のドラフトだけを更新し、M中間評価 / M最終評価でのみ Excel へ一括反映します。</p>
+        </div>
       </div>
+
       <label class="file-drop">
         <input id="xlsxFile" type="file" accept=".xlsx,.xlsm,.xls">
         <span class="file-drop__title">達成度評価 Excel を選択</span>
         <span class="file-drop__sub">対応: .xlsx / .xlsm / .xls</span>
       </label>
+
+      <div class="mode-panel">
+        <div>
+          <div class="mode-panel__label">利用モード</div>
+          <div id="modeSwitch" class="mode-switch"></div>
+        </div>
+        <div class="actions-row actions-row--compact mode-panel__actions">
+          <button id="seedFinalBtn" class="button button--small" type="button">中間評価の内容で最終評価を初期化</button>
+        </div>
+      </div>
+
+      <div id="modeInfo" class="status status--muted">履修計画モードです。まだ Excel は更新しません。</div>
       <div id="workbookStatus" class="status status--muted">まだ Excel は読み込まれていません。</div>
     </section>
 
     <section class="card">
       <div class="section-heading">
-        <h2>2. システム情報工学研究群の科目を検索</h2>
-        <p>科目番号・日本語名・英語名で絞り込みます。</p>
+        <div>
+          <h2>2. システム情報工学研究群の科目を検索</h2>
+          <p>科目番号・日本語名・英語名で絞り込みます。公開カリキュラム・マップの 8 コンピテンス配点を初期値に使います。</p>
+        </div>
       </div>
       <div class="search-box">
         <input id="searchInput" type="search" placeholder="例: 0ALD512 / 情報理工前期特別研究A / Research in Computer Science A">
@@ -55,8 +74,10 @@
 
     <section class="card card--wide">
       <div class="section-heading">
-        <h2>3. 他研究群の科目を作る</h2>
-        <p>元のコンピテンスまたは観点を入力すると、1 単位 = 100 点で smart 配点できます。</p>
+        <div>
+          <h2>3. 他研究群の科目を作る</h2>
+          <p>元のコンピテンスまたは観点を入力すると、1 単位 = 100 点で正規化し、現在の不足差分を見ながら 18 観点へ初期配点します。</p>
+        </div>
       </div>
 
       <div class="controls-grid controls-grid--triple">
@@ -81,7 +102,7 @@
         </label>
       </div>
 
-      <div id="customValueMeta" class="status status--muted">元のコンピテンス / 観点を入力すると、1単位 100 点へ正規化した上で不足差分を見ながら自動配点します。</div>
+      <div id="customValueMeta" class="status status--muted">元のコンピテンス / 観点を入力すると、1単位 100 点へ正規化した上で不足差分を見ながら初期配点します。</div>
       <div id="customValueGrid" class="preview-grid preview-grid--compact"></div>
 
       <div class="actions-row actions-row--end">
@@ -90,16 +111,24 @@
       </div>
     </section>
 
-    <section class="card">
+    <section class="card card--wide">
       <div class="section-heading">
-        <h2>4. 選択中の科目を確認</h2>
-        <p>配点を見ながら、どの行へ置くかを決めます。</p>
+        <div>
+          <h2>4. 授業科目の配点</h2>
+          <p>公開カリキュラム・マップの 8 コンピテンス配点を初期値にしつつ、B〜S 列の 18 観点は手動で修正できます。</p>
+        </div>
       </div>
+
+      <div>
+        <div class="mode-panel__label">固定行のクイック選択</div>
+        <div id="fixedCourseButtons" class="quick-grid"></div>
+      </div>
+
       <div id="selectedCourseBox" class="selected-course empty">まだ科目が選択されていません。</div>
 
       <div class="controls-grid">
         <label>
-          <span>自動配点ルール</span>
+          <span>初期配点ルール</span>
           <select id="splitMode">
             <option value="smart">不足差分優先 smart（既定）</option>
             <option value="required">必要点比例</option>
@@ -115,84 +144,99 @@
       <div class="preview-head">
         <div>
           <strong>18 観点プレビュー</strong>
-          <span class="muted">B〜S 列へ最終的に反映される値。必要なら手で微調整できます。</span>
+          <span class="muted">初期配点を入れたあと、必要なら手で微調整してください。</span>
         </div>
-        <div id="previewTotal" class="preview-total">合計 0 点</div>
+        <div class="preview-head__actions">
+          <div id="previewTotal" class="preview-total">合計 0 点</div>
+          <button id="courseRecomputeBtn" class="button button--small" type="button">差分に合わせて再提案</button>
+        </div>
       </div>
 
       <div id="previewGrid" class="preview-grid"></div>
 
       <div class="actions-row actions-row--end">
-        <button id="planAddBtn" class="button button--primary" disabled>履修計画ドラフトに追加 / 更新</button>
+        <button id="planAddBtn" class="button button--primary" type="button" disabled>現在のモードの授業科目へ追加 / 更新</button>
       </div>
     </section>
 
     <section class="card card--wide">
       <div class="section-heading">
-        <h2>5. 追加前シミュレーション</h2>
-        <p>追加後の小計と、各観点の必要点との差分を UI 上で確認できます。</p>
-      </div>
-
-      <div id="simulationNote" class="status status--muted">科目を選ぶと、ここに追加後のシミュレーションが表示されます。</div>
-
-      <div class="summary-strip summary-strip--simulation">
-        <div class="summary-card">
-          <span>追加後の授業科目小計</span>
-          <strong id="simulatedSubtotalTotal">0</strong>
-        </div>
-        <div class="summary-card">
-          <span>授業科目以外</span>
-          <strong id="simulatedExtraTotal">0</strong>
-        </div>
-        <div class="summary-card">
-          <span>追加後の見込み合計</span>
-          <strong id="simulatedProjectedTotal">0</strong>
-        </div>
-        <div class="summary-card">
-          <span>必要点との差分</span>
-          <strong id="simulatedDiffTotal">0</strong>
-        </div>
-        <div class="summary-card">
-          <span>未達観点</span>
-          <strong id="simulatedUnmetCount">0 / 18</strong>
+        <div>
+          <h2>5. 授業科目以外</h2>
+          <p>論文、特許、研究室WG、CSスペシャルワークショップ、学位プログラム外活動、TA、TOEIC/TOEFL、固定項目を追加できます。</p>
         </div>
       </div>
 
-      <div class="table-scroll">
-        <table class="totals-table">
-          <thead>
-            <tr>
-              <th>観点</th>
-              <th>必要点</th>
-              <th>追加後小計</th>
-              <th>追加後見込み合計</th>
-              <th>差分</th>
-              <th>状態</th>
-            </tr>
-          </thead>
-          <tbody id="simulationBody"></tbody>
-          <tfoot id="simulationFoot"></tfoot>
-        </table>
+      <div class="controls-grid controls-grid--triple">
+        <label>
+          <span>種類</span>
+          <select id="extraType"></select>
+        </label>
+        <label>
+          <span>表示名（任意）</span>
+          <input id="extraLabel" type="text" placeholder="未入力なら種類から自動設定します">
+        </label>
+        <label>
+          <span>初期配点ルール</span>
+          <select id="extraSplitMode">
+            <option value="smart">不足差分優先 smart（既定）</option>
+            <option value="required">必要点比例</option>
+            <option value="even">均等配分</option>
+          </select>
+        </label>
+        <label>
+          <span>メモ（任意）</span>
+          <input id="extraNote" type="text" placeholder="例: 国際会議発表, 企業インターン など">
+        </label>
       </div>
+
+      <div id="extraDynamicFields" class="dynamic-fields"></div>
+      <div id="extraMeta" class="status status--muted">種類と条件を指定すると、授業科目以外の点数と配点候補を表示します。</div>
+
+      <div>
+        <div class="mode-panel__label">固定項目のクイック追加</div>
+        <div id="fixedExtraButtons" class="quick-grid"></div>
+      </div>
+
+      <div class="preview-head">
+        <div>
+          <strong>授業科目以外の 18 観点配点</strong>
+          <span class="muted">固定項目は自動入力、その他の項目は必要に応じて手修正できます。</span>
+        </div>
+        <div class="preview-head__actions">
+          <div id="extraPreviewTotal" class="preview-total">合計 0 点</div>
+          <button id="extraRecomputeBtn" class="button button--small" type="button">差分に合わせて再提案</button>
+        </div>
+      </div>
+      <div id="extraPreviewGrid" class="preview-grid"></div>
+
+      <div class="actions-row actions-row--end">
+        <button id="extraAddBtn" class="button button--primary" type="button">現在のモードの授業科目以外へ追加 / 更新</button>
+        <button id="extraClearBtn" class="button" type="button">入力をクリア</button>
+      </div>
+
+      <div id="extraList" class="plan-list plan-list--tight"></div>
     </section>
 
     <section class="card card--wide">
       <div class="section-heading">
-        <h2>6. 履修計画ドラフト</h2>
-        <p>順番を入れ替えながら履修計画を固めて、最後にだけ Excel へ一括反映します。</p>
+        <div>
+          <h2>6. 現在のモードのドラフト</h2>
+          <p>小計と各観点の必要点との差分を見ながら調整し、M中間評価 / M最終評価でだけ Excel に一括反映します。</p>
+        </div>
       </div>
 
       <div class="actions-row">
-        <button id="applyPlanBtn" class="button button--primary" disabled>履修計画を Excel に一括反映</button>
-        <button id="downloadBtn" class="button" disabled>更新した Excel をダウンロード</button>
-        <button id="reloadPlanBtn" class="button" disabled>Excel から再読込</button>
-        <button id="clearPlanBtn" class="button button--danger" disabled>履修計画ドラフトをクリア</button>
+        <button id="applyPlanBtn" class="button button--primary" type="button" disabled>現在のモードを Excel に一括反映</button>
+        <button id="downloadBtn" class="button" type="button" disabled>更新した Excel をダウンロード</button>
+        <button id="reloadPlanBtn" class="button" type="button" disabled>Excel から再読込</button>
+        <button id="clearPlanBtn" class="button button--danger" type="button" disabled>現在のモードのドラフトをクリア</button>
       </div>
       <div id="syncStatus" class="sync-status"></div>
 
-      <div class="summary-strip">
+      <div class="summary-strip summary-strip--wide">
         <div class="summary-card">
-          <span>科目数</span>
+          <span>授業科目数</span>
           <strong id="planCourseCount">0</strong>
         </div>
         <div class="summary-card">
@@ -204,7 +248,11 @@
           <strong id="planPointsTotal">0</strong>
         </div>
         <div class="summary-card">
-          <span>授業科目以外</span>
+          <span>授業科目以外件数</span>
+          <strong id="extraItemCount">0</strong>
+        </div>
+        <div class="summary-card">
+          <span>授業科目以外小計</span>
           <strong id="extraPointsTotal">0</strong>
         </div>
         <div class="summary-card">
@@ -219,6 +267,7 @@
 
       <div class="plan-layout">
         <div>
+          <div class="subsection-title">授業科目</div>
           <div id="planList" class="plan-list"></div>
         </div>
 
@@ -244,13 +293,15 @@
 
     <section class="card card--wide">
       <div class="section-heading">
-        <h2>7. この試作版の前提</h2>
-        <p>公開 PDF だけでは 8 コンピテンスの 0 列が省略されることがあるため、その場合は smart 配点で補っています。</p>
+        <div>
+          <h2>7. データと前提</h2>
+          <p>公開カリキュラム・マップは 8 コンピテンス配点なので、18 観点は初期案として展開し、必要に応じて手入力で修正してください。</p>
+        </div>
       </div>
       <ul class="notes">
-        <li>同梱の <code>data/courses.sample.json</code> は、公開カリキュラム・マップから抽出したシステム情報工学研究群の科目データです。</li>
-        <li>8 コンピテンスが完全に読める科目はそのまま使用し、0 配点列が省略される科目は、現在の不足差分に最も合う位置へ非ゼロ列を配置してから 18 観点へ展開します。</li>
-        <li>Excel 側は 10 科目を超えても、授業科目欄の下へ自動的に小計・授業科目以外・合計・不足分を再配置します。</li>
+        <li>システム情報工学研究群の科目データは、公式の 2026 年度博士前期課程向け開設授業科目一覧と、大学院スタンダードの公開カリキュラム・マップを突き合わせた JSON を同梱しています。</li>
+        <li>授業科目以外は、論文・発表の最高点ルール、特許 300×貢献率、TA 1 コマ 4 点、TOEIC / TOEFL の離散点、固定項目を組み込んでいます。</li>
+        <li>11〜30 行を授業科目欄として使い、必要に応じてその下へ小計・授業科目以外・合計・不足分を再配置します。</li>
       </ul>
       <div id="datasetInfo" class="dataset-info"></div>
     </section>

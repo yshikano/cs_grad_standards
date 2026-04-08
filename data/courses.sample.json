@@ -1,12 +1,14 @@
 {
   "meta": {
-    "count": 308,
+    "count": 337,
     "sourceUrl": "https://www.tsukuba.ac.jp/education/policy-tstandard/gstandard/pdf/2026/mp-systems-information-engineering-c.pdf",
     "notes": [
-      "公開カリキュラム・マップから抽出したシステム情報工学研究群科目データです。",
-      "8 コンピテンスが完全に読める行は points8 を格納しています。",
-      "0 配点列が省略される行は rawCompetenceValues を格納し、アプリ側で不足差分に合わせて自動補完します。"
-    ]
+      "2026年度博士前期課程のシステム情報工学研究群開設授業科目一覧と公開カリキュラム・マップを突き合わせたデータです。",
+      "8 コンピテンスが完全に読める科目は points8、0 配点列が落ちる科目は rawCompetenceValues を格納しています。",
+      "ライフイノベーション（生物情報）学位プログラム等で公開カリキュラム・マップの配点を同梱できなかった科目は creditsOnly とし、単位数ベースで初期配点します。",
+      "英語系同内容コード・別科目番号の alias も検索できるよう補っています。"
+    ],
+    "courseListSourceUrl": "https://www.tsukuba.ac.jp/education/g-courses-g-tsukuba-tokyo/2026-2.html"
   },
   "courses": [
     {
@@ -197,6 +199,32 @@
       ]
     },
     {
+      "code": "0AL0000",
+      "nameJa": "テクニカルライティング基礎",
+      "nameEn": "Introductory Technical Writing",
+      "credits": 2,
+      "total": 200,
+      "year": "1･2",
+      "sourceKind": "sequence",
+      "aliases": [
+        "テクニカルライティング基礎 Introductory Technical Writing",
+        "0AL0001",
+        "0AL0012"
+      ],
+      "rawCompetenceValues": [
+        150,
+        20,
+        20,
+        10
+      ],
+      "equivalentCodes": [
+        "0AL0000",
+        "0AL0001",
+        "0AL0012"
+      ],
+      "offeringSource": "official-course-table-or-curriculum-map"
+    },
+    {
       "code": "0AL0001",
       "nameJa": "テクニカルライティング基礎",
       "nameEn": "Introductory Technical Writing",
@@ -205,14 +233,48 @@
       "year": "1･2",
       "sourceKind": "sequence",
       "aliases": [
-        "テクニカルライティング基礎 Introductory Technical Writing"
+        "テクニカルライティング基礎 Introductory Technical Writing",
+        "0AL0000",
+        "0AL0012"
       ],
       "rawCompetenceValues": [
         150,
         20,
         20,
         10
-      ]
+      ],
+      "equivalentCodes": [
+        "0AL0000",
+        "0AL0001",
+        "0AL0012"
+      ],
+      "offeringSource": "official-course-table-or-curriculum-map"
+    },
+    {
+      "code": "0AL0002",
+      "nameJa": "テクニカルライティング発展",
+      "nameEn": "Advanced Technical Writing",
+      "credits": 2,
+      "total": 200,
+      "year": "1･2",
+      "sourceKind": "sequence",
+      "aliases": [
+        "テクニカルライティング発展 Advanced Technical Writing",
+        "0AL0003"
+      ],
+      "rawCompetenceValues": [
+        120,
+        10,
+        20,
+        30,
+        10,
+        10
+      ],
+      "equivalentCodes": [
+        "0AL0002",
+        "0AL0003"
+      ],
+      "offeringSource": "official-course-table-or-curriculum-map"
     },
     {
       "code": "0AL0003",
@@ -223,7 +285,8 @@
       "year": "1･2",
       "sourceKind": "sequence",
       "aliases": [
-        "テクニカルライティング発展 Advanced Technical Writing"
+        "テクニカルライティング発展 Advanced Technical Writing",
+        "0AL0002"
       ],
       "rawCompetenceValues": [
         120,
@@ -232,7 +295,35 @@
         30,
         10,
         10
-      ]
+      ],
+      "equivalentCodes": [
+        "0AL0002",
+        "0AL0003"
+      ],
+      "offeringSource": "official-course-table-or-curriculum-map"
+    },
+    {
+      "code": "0AL0004",
+      "nameJa": "アカデミック・プレゼンテーション1",
+      "nameEn": "Academic Presentations 1",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "sequence",
+      "aliases": [
+        "アカデミック・プレゼンテーション1 Academic Presentations 1",
+        "0AL0005"
+      ],
+      "rawCompetenceValues": [
+        60,
+        20,
+        20
+      ],
+      "equivalentCodes": [
+        "0AL0004",
+        "0AL0005"
+      ],
+      "offeringSource": "official-course-table-or-curriculum-map"
     },
     {
       "code": "0AL0005",
@@ -243,13 +334,42 @@
       "year": "1･2",
       "sourceKind": "sequence",
       "aliases": [
-        "アカデミック・プレゼンテーション1 Academic Presentations 1"
+        "アカデミック・プレゼンテーション1 Academic Presentations 1",
+        "0AL0004"
       ],
       "rawCompetenceValues": [
         60,
         20,
         20
-      ]
+      ],
+      "equivalentCodes": [
+        "0AL0004",
+        "0AL0005"
+      ],
+      "offeringSource": "official-course-table-or-curriculum-map"
+    },
+    {
+      "code": "0AL0006",
+      "nameJa": "アカデミック・プレゼンテーション2",
+      "nameEn": "Academic Presentations 2",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "sequence",
+      "aliases": [
+        "アカデミック・プレゼンテーション2 Academic Presentations 2",
+        "0AL0007"
+      ],
+      "rawCompetenceValues": [
+        60,
+        20,
+        20
+      ],
+      "equivalentCodes": [
+        "0AL0006",
+        "0AL0007"
+      ],
+      "offeringSource": "official-course-table-or-curriculum-map"
     },
     {
       "code": "0AL0007",
@@ -260,13 +380,42 @@
       "year": "1･2",
       "sourceKind": "sequence",
       "aliases": [
-        "アカデミック・プレゼンテーション2 Academic Presentations 2"
+        "アカデミック・プレゼンテーション2 Academic Presentations 2",
+        "0AL0006"
       ],
       "rawCompetenceValues": [
         60,
         20,
         20
-      ]
+      ],
+      "equivalentCodes": [
+        "0AL0006",
+        "0AL0007"
+      ],
+      "offeringSource": "official-course-table-or-curriculum-map"
+    },
+    {
+      "code": "0AL0008",
+      "nameJa": "アカデミック・スピーキング1",
+      "nameEn": "Academic Speaking 1",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "sequence",
+      "aliases": [
+        "アカデミック・スピーキング1 Academic Speaking 1",
+        "0AL0009"
+      ],
+      "rawCompetenceValues": [
+        60,
+        20,
+        20
+      ],
+      "equivalentCodes": [
+        "0AL0008",
+        "0AL0009"
+      ],
+      "offeringSource": "official-course-table-or-curriculum-map"
     },
     {
       "code": "0AL0009",
@@ -277,13 +426,42 @@
       "year": "1･2",
       "sourceKind": "sequence",
       "aliases": [
-        "アカデミック・スピーキング1 Academic Speaking 1"
+        "アカデミック・スピーキング1 Academic Speaking 1",
+        "0AL0008"
       ],
       "rawCompetenceValues": [
         60,
         20,
         20
-      ]
+      ],
+      "equivalentCodes": [
+        "0AL0008",
+        "0AL0009"
+      ],
+      "offeringSource": "official-course-table-or-curriculum-map"
+    },
+    {
+      "code": "0AL0010",
+      "nameJa": "アカデミック・スピーキング2",
+      "nameEn": "Academic Speaking 2",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "sequence",
+      "aliases": [
+        "アカデミック・スピーキング2 Academic Speaking 2",
+        "0AL0011"
+      ],
+      "rawCompetenceValues": [
+        60,
+        20,
+        20
+      ],
+      "equivalentCodes": [
+        "0AL0010",
+        "0AL0011"
+      ],
+      "offeringSource": "official-course-table-or-curriculum-map"
     },
     {
       "code": "0AL0011",
@@ -294,13 +472,45 @@
       "year": "1･2",
       "sourceKind": "sequence",
       "aliases": [
-        "アカデミック・スピーキング2 Academic Speaking 2"
+        "アカデミック・スピーキング2 Academic Speaking 2",
+        "0AL0010"
       ],
       "rawCompetenceValues": [
         60,
         20,
         20
-      ]
+      ],
+      "equivalentCodes": [
+        "0AL0010",
+        "0AL0011"
+      ],
+      "offeringSource": "official-course-table-or-curriculum-map"
+    },
+    {
+      "code": "0AL0012",
+      "nameJa": "テクニカルライティング基礎",
+      "nameEn": "Introductory Technical Writing",
+      "credits": 2,
+      "total": 200,
+      "year": "1･2",
+      "sourceKind": "sequence",
+      "aliases": [
+        "テクニカルライティング基礎 Introductory Technical Writing",
+        "0AL0000",
+        "0AL0001"
+      ],
+      "rawCompetenceValues": [
+        150,
+        20,
+        20,
+        10
+      ],
+      "equivalentCodes": [
+        "0AL0000",
+        "0AL0001",
+        "0AL0012"
+      ],
+      "offeringSource": "official-course-table-or-curriculum-map"
     },
     {
       "code": "0AL0013",
@@ -922,6 +1132,56 @@
       ]
     },
     {
+      "code": "0AL0605",
+      "nameJa": "災害情報学",
+      "nameEn": "Disaster Information",
+      "credits": 2,
+      "total": 200,
+      "year": "1･2",
+      "sourceKind": "sequence",
+      "aliases": [
+        "災害情報学 Disaster Information"
+      ],
+      "rawCompetenceValues": [
+        25,
+        25,
+        150
+      ]
+    },
+    {
+      "code": "0AL0620",
+      "nameJa": "インフラ開発工学特別演習",
+      "nameEn": "",
+      "credits": 2,
+      "total": 200,
+      "year": "1･2",
+      "sourceKind": "sequence",
+      "rawCompetenceValues": [
+        100,
+        40,
+        40,
+        20
+      ]
+    },
+    {
+      "code": "0AL0621",
+      "nameJa": "建築設計計画特別演習",
+      "nameEn": "Advanced Exercises for Planning and Designing",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "sequence",
+      "aliases": [
+        "建築設計計画特別演習 Advanced Exercises for Planning and Designing"
+      ],
+      "rawCompetenceValues": [
+        50,
+        20,
+        20,
+        10
+      ]
+    },
+    {
       "code": "0AL0622",
       "nameJa": "電磁気学特論",
       "nameEn": "Advanced Electromagnetics",
@@ -956,23 +1216,6 @@
       ]
     },
     {
-      "code": "0AL0605",
-      "nameJa": "災害情報学",
-      "nameEn": "Disaster Information",
-      "credits": 2,
-      "total": 200,
-      "year": "1･2",
-      "sourceKind": "sequence",
-      "aliases": [
-        "災害情報学 Disaster Information"
-      ],
-      "rawCompetenceValues": [
-        25,
-        25,
-        150
-      ]
-    },
-    {
       "code": "0AL0624",
       "nameJa": "流体力学特論 Advanced Fluid Mechanics 1･2 3 ○ 75 75 150 300 01CM43* 宇宙開発工学特別演習20XX",
       "nameEn": "Advanced Space Exploration Engineering Workshop 20XX",
@@ -988,39 +1231,6 @@
         40,
         40,
         20
-      ]
-    },
-    {
-      "code": "0AL0620",
-      "nameJa": "インフラ開発工学特別演習",
-      "nameEn": "",
-      "credits": 2,
-      "total": 200,
-      "year": "1･2",
-      "sourceKind": "sequence",
-      "rawCompetenceValues": [
-        100,
-        40,
-        40,
-        20
-      ]
-    },
-    {
-      "code": "0AL0621",
-      "nameJa": "建築設計計画特別演習",
-      "nameEn": "Advanced Exercises for Planning and Designing",
-      "credits": 1,
-      "total": 100,
-      "year": "1･2",
-      "sourceKind": "sequence",
-      "aliases": [
-        "建築設計計画特別演習 Advanced Exercises for Planning and Designing"
-      ],
-      "rawCompetenceValues": [
-        50,
-        20,
-        20,
-        10
       ]
     },
     {
@@ -1715,23 +1925,6 @@
       ]
     },
     {
-      "code": "0AL5325",
-      "nameJa": "Webアプリケーションセキュリティ",
-      "nameEn": "Web Application Security",
-      "credits": 1,
-      "total": 100,
-      "year": "1･2",
-      "sourceKind": "sequence",
-      "aliases": [
-        "Webアプリケーションセキュリティ Web Application Security"
-      ],
-      "rawCompetenceValues": [
-        20,
-        20,
-        60
-      ]
-    },
-    {
       "code": "0AL5324",
       "nameJa": "金融情報セキュリティ",
       "nameEn": "Financial Cryptography and Information Security",
@@ -1746,6 +1939,23 @@
         40,
         40,
         120
+      ]
+    },
+    {
+      "code": "0AL5325",
+      "nameJa": "Webアプリケーションセキュリティ",
+      "nameEn": "Web Application Security",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "sequence",
+      "aliases": [
+        "Webアプリケーションセキュリティ Web Application Security"
+      ],
+      "rawCompetenceValues": [
+        20,
+        20,
+        60
       ]
     },
     {
@@ -2858,23 +3068,6 @@
       ]
     },
     {
-      "code": "0AL5624",
-      "nameJa": "環境流体工学特論",
-      "nameEn": "Environmental Fluid Engineering",
-      "credits": 1,
-      "total": 100,
-      "year": "1･2",
-      "sourceKind": "sequence",
-      "aliases": [
-        "環境流体工学特論 Environmental Fluid Engineering"
-      ],
-      "rawCompetenceValues": [
-        15,
-        15,
-        70
-      ]
-    },
-    {
       "code": "0AL5604",
       "nameJa": "計算力学特論",
       "nameEn": "Advanced Computational Mechanics",
@@ -3157,6 +3350,23 @@
         40,
         40,
         20
+      ]
+    },
+    {
+      "code": "0AL5624",
+      "nameJa": "環境流体工学特論",
+      "nameEn": "Environmental Fluid Engineering",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "sequence",
+      "aliases": [
+        "環境流体工学特論 Environmental Fluid Engineering"
+      ],
+      "rawCompetenceValues": [
+        15,
+        15,
+        70
       ]
     },
     {
@@ -3502,42 +3712,6 @@
       ]
     },
     {
-      "code": "0ALA508",
-      "nameJa": "社会工学ファシリテーター育成プログラムI",
-      "nameEn": "Facilitation Training Program in Policy and Planning Sciences I",
-      "credits": 2,
-      "total": 200,
-      "year": "1･2",
-      "sourceKind": "sequence",
-      "aliases": [
-        "社会工学ファシリテーター育成プログラムI Facilitation Training Program in Policy and Planning Sciences I"
-      ],
-      "rawCompetenceValues": [
-        40,
-        40,
-        80,
-        40
-      ]
-    },
-    {
-      "code": "0ALA509",
-      "nameJa": "社会工学ファシリテーター育成プログラムII",
-      "nameEn": "Facilitation Training Program in Policy and Planning Sciences II",
-      "credits": 2,
-      "total": 200,
-      "year": "1･2",
-      "sourceKind": "sequence",
-      "aliases": [
-        "社会工学ファシリテーター育成プログラムII Facilitation Training Program in Policy and Planning Sciences II"
-      ],
-      "rawCompetenceValues": [
-        40,
-        40,
-        80,
-        40
-      ]
-    },
-    {
       "code": "0ALA502",
       "nameJa": "社会工学修士基礎演習I",
       "nameEn": "Basic Master's Seminar in Policy and Planning Sciences I",
@@ -3668,6 +3842,42 @@
         "specializedKnowledge": 20,
         "ethics": 20
       }
+    },
+    {
+      "code": "0ALA508",
+      "nameJa": "社会工学ファシリテーター育成プログラムI",
+      "nameEn": "Facilitation Training Program in Policy and Planning Sciences I",
+      "credits": 2,
+      "total": 200,
+      "year": "1･2",
+      "sourceKind": "sequence",
+      "aliases": [
+        "社会工学ファシリテーター育成プログラムI Facilitation Training Program in Policy and Planning Sciences I"
+      ],
+      "rawCompetenceValues": [
+        40,
+        40,
+        80,
+        40
+      ]
+    },
+    {
+      "code": "0ALA509",
+      "nameJa": "社会工学ファシリテーター育成プログラムII",
+      "nameEn": "Facilitation Training Program in Policy and Planning Sciences II",
+      "credits": 2,
+      "total": 200,
+      "year": "1･2",
+      "sourceKind": "sequence",
+      "aliases": [
+        "社会工学ファシリテーター育成プログラムII Facilitation Training Program in Policy and Planning Sciences II"
+      ],
+      "rawCompetenceValues": [
+        40,
+        40,
+        80,
+        40
+      ]
     },
     {
       "code": "0ALB000",
@@ -5500,6 +5710,264 @@
         15,
         100
       ]
+    },
+    {
+      "code": "0AS0511",
+      "nameJa": "医学概論",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1・2",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": []
+    },
+    {
+      "code": "0AS0801",
+      "nameJa": "レギュラトリーサイエンス",
+      "nameEn": "Regulatory Science",
+      "credits": 1,
+      "total": 100,
+      "year": "1・2",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": []
+    },
+    {
+      "code": "0AXA002",
+      "nameJa": "創薬概論",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": []
+    },
+    {
+      "code": "0AXA003",
+      "nameJa": "食品科学概論",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": []
+    },
+    {
+      "code": "0AXA004",
+      "nameJa": "バイオリソース概論",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": []
+    },
+    {
+      "code": "0AXA005",
+      "nameJa": "自然史概論",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": []
+    },
+    {
+      "code": "0AXA006",
+      "nameJa": "バイオインフォマティクス概論",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": []
+    },
+    {
+      "code": "0AXA024",
+      "nameJa": "ライフイノベーションチーム型演習(基礎)",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": []
+    },
+    {
+      "code": "0AXA025",
+      "nameJa": "ライフイノベーションチーム型演習(発展)",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1・2",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": []
+    },
+    {
+      "code": "0AXA031",
+      "nameJa": "博士前期ライフイノベーションセミナー",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": []
+    },
+    {
+      "code": "0AXA043",
+      "nameJa": "修士力実践プログラム",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": []
+    },
+    {
+      "code": "0AXA12F",
+      "nameJa": "ライフイノベーション修士研究I",
+      "nameEn": "",
+      "credits": 3,
+      "total": 300,
+      "year": "1",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": [
+        "秋学期版"
+      ]
+    },
+    {
+      "code": "0AXA12S",
+      "nameJa": "ライフイノベーション修士研究I",
+      "nameEn": "",
+      "credits": 3,
+      "total": 300,
+      "year": "1",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": [
+        "春学期版"
+      ]
+    },
+    {
+      "code": "0AXA13F",
+      "nameJa": "ライフイノベーション修士研究II",
+      "nameEn": "",
+      "credits": 3,
+      "total": 300,
+      "year": "1",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": [
+        "秋学期版"
+      ]
+    },
+    {
+      "code": "0AXA13S",
+      "nameJa": "ライフイノベーション修士研究II",
+      "nameEn": "",
+      "credits": 3,
+      "total": 300,
+      "year": "1",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": [
+        "春学期版"
+      ]
+    },
+    {
+      "code": "0AXA22F",
+      "nameJa": "ライフイノベーション修士研究III",
+      "nameEn": "",
+      "credits": 3,
+      "total": 300,
+      "year": "2",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": [
+        "秋学期版"
+      ]
+    },
+    {
+      "code": "0AXA22S",
+      "nameJa": "ライフイノベーション修士研究III",
+      "nameEn": "",
+      "credits": 3,
+      "total": 300,
+      "year": "2",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": [
+        "春学期版"
+      ]
+    },
+    {
+      "code": "0AXA23F",
+      "nameJa": "ライフイノベーション修士研究IV",
+      "nameEn": "",
+      "credits": 3,
+      "total": 300,
+      "year": "2",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": [
+        "秋学期版"
+      ]
+    },
+    {
+      "code": "0AXA23S",
+      "nameJa": "ライフイノベーション修士研究IV",
+      "nameEn": "",
+      "credits": 3,
+      "total": 300,
+      "year": "2",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": [
+        "春学期版"
+      ]
+    },
+    {
+      "code": "0AXA802",
+      "nameJa": "生体分子・創薬インフォマティクス",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": []
+    },
+    {
+      "code": "0AXA803",
+      "nameJa": "遺伝子解析と機能ゲノミクス",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": []
+    },
+    {
+      "code": "0AXA804",
+      "nameJa": "実践機械学習",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1",
+      "sourceKind": "creditsOnly",
+      "offeringSource": "official-course-list-2026",
+      "aliases": []
     }
   ]
 }
