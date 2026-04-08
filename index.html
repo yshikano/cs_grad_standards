@@ -25,7 +25,7 @@
       <div>・ 履修計画モードを追加</div>
       <div>・ 最終評価を中間評価から初期化</div>
       <div>・ 授業科目以外（論文、WG、TA、TOEIC/TOEFL 等）を追加</div>
-      <div>・ 11〜30 行を授業科目欄として使えるように再配置</div>
+      <div>・ 11〜14 行は特別研究 A〜D、通常科目は 15 行目以降へ配置</div>
     </div>
   </header>
 
@@ -58,18 +58,43 @@
       <div id="workbookStatus" class="status status--muted">まだ Excel は読み込まれていません。</div>
     </section>
 
-    <section class="card">
+    <section class="card card--wide">
       <div class="section-heading">
         <div>
           <h2>2. システム情報工学研究群の科目を検索</h2>
-          <p>科目番号・日本語名・英語名で絞り込みます。公開カリキュラム・マップの 8 コンピテンス配点を初期値に使います。</p>
+          <p>科目番号・日本語名・英語名で絞り込みます。開講ターム・曜日時限も併せて確認しながら、時間割を埋める形で履修計画を作れます。</p>
         </div>
       </div>
-      <div class="search-box">
-        <input id="searchInput" type="search" placeholder="例: 0ALD512 / 情報理工前期特別研究A / Research in Computer Science A">
+
+      <div class="search-layout">
+        <div class="search-main">
+          <div class="search-box">
+            <input id="searchInput" type="search" placeholder="例: 0ALD512 / 情報理工前期特別研究A / Research in Computer Science A">
+          </div>
+          <div class="search-meta-stack">
+            <div id="searchMeta" class="search-meta">科目データを読み込み中…</div>
+            <div id="datasetInfo" class="dataset-info"></div>
+          </div>
+          <div id="searchResults" class="results results--compact"></div>
+        </div>
+
+        <aside class="search-side">
+          <div class="side-card">
+            <div class="side-card__head">
+              <div>
+                <strong>時間割プレビュー</strong>
+                <div class="muted">現在のモードのドラフトと、選択中の候補科目を時限で確認できます。</div>
+              </div>
+              <span id="scheduleStatus" class="badge">未読込</span>
+            </div>
+            <div id="scheduleUpdated" class="side-card__meta muted">alternative-tsukuba-kdb の大学院 KdB 参照データを読み込みます。</div>
+            <div id="scheduleTermTabs" class="term-tabs"></div>
+            <div id="timetableGrid" class="timetable-table-wrap"></div>
+            <div id="timetableSummary" class="timetable-summary"></div>
+            <div id="timetableUnscheduled" class="timetable-unscheduled"></div>
+          </div>
+        </aside>
       </div>
-      <div id="searchMeta" class="search-meta">科目データを読み込み中…</div>
-      <div id="searchResults" class="results"></div>
     </section>
 
     <section class="card card--wide">
@@ -115,12 +140,12 @@
       <div class="section-heading">
         <div>
           <h2>4. 授業科目の配点</h2>
-          <p>公開カリキュラム・マップの 8 コンピテンス配点を初期値にしつつ、B〜S 列の 18 観点は手動で修正できます。</p>
+          <p>11〜14 行は情報理工前期特別研究 A〜D の手動配点用です。通常の受講科目は 15 行目以降へ追加し、B〜S 列の 18 観点は手動で修正できます。</p>
         </div>
       </div>
 
       <div>
-        <div class="mode-panel__label">固定行のクイック選択</div>
+        <div class="mode-panel__label">固定行のクイック選択（11〜14行・情報理工前期特別研究A〜D）</div>
         <div id="fixedCourseButtons" class="quick-grid"></div>
       </div>
 
@@ -136,7 +161,7 @@
           </select>
         </label>
         <label>
-          <span>配置先の行</span>
+          <span>配置先の行（通常科目は15行目以降）</span>
           <select id="targetRow"></select>
         </label>
       </div>
@@ -301,9 +326,8 @@
       <ul class="notes">
         <li>システム情報工学研究群の科目データは、公式の 2026 年度博士前期課程向け開設授業科目一覧と、大学院スタンダードの公開カリキュラム・マップを突き合わせた JSON を同梱しています。</li>
         <li>授業科目以外は、論文・発表の最高点ルール、特許 300×貢献率、TA 1 コマ 4 点、TOEIC / TOEFL の離散点、固定項目を組み込んでいます。</li>
-        <li>11〜30 行を授業科目欄として使い、必要に応じてその下へ小計・授業科目以外・合計・不足分を再配置します。</li>
+        <li>11〜14 行は特別研究 A〜D の固定行、15 行目以降は通常科目の行として扱い、必要に応じてその下へ小計・授業科目以外・合計・不足分を再配置します。</li>
       </ul>
-      <div id="datasetInfo" class="dataset-info"></div>
     </section>
   </main>
 </body>
