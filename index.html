@@ -3,24 +3,24 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>達成度評価シート入力支援</title>
+  <title>筑波大学達成度評価シート入力支援（非公式）</title>
   <link rel="stylesheet" href="./styles.css">
   <script defer src="https://cdn.jsdelivr.net/npm/xlsx-populate/browser/xlsx-populate.min.js"></script>
   <script defer src="./app.js"></script>
 </head>
-<body class="app-body app-body--compact">
+<body class="app-body app-body--compact app-body--unofficial">
   <header class="topbar">
     <div class="topbar__brand">
-      <p class="eyebrow">Tsukuba Achievement Helper</p>
-      <h1>達成度評価シート入力支援</h1>
-      <p class="lead">履修計画 / M中間評価 / M最終評価を、固定行・時間割・差分確認つきで省スクロール運用できる版です。</p>
+      <p class="eyebrow">Unofficial Tsukuba Achievement Helper</p>
+      <h1>筑波大学達成度評価シート入力支援（非公式）</h1>
+      <p class="lead">履修計画 / M中間評価 / M最終評価を、固定行・時間割・差分確認つきで省スクロール運用できる非公式ツールです。</p>
     </div>
     <div class="topbar__hint">
       <div class="topbar__hint-title">この版の使い方</div>
       <ol class="topbar__steps">
         <li>Excel を読み込む</li>
-        <li>科目検索タブで授業を追加</li>
-        <li>追加項目タブで他研究群科目 / 授業科目以外を調整</li>
+        <li>授業検索タブで授業を追加</li>
+        <li>授業科目以外タブで論文・TA などを追加</li>
         <li>ドラフトタブで差分を確認し、最後に Excel へ一括反映</li>
       </ol>
     </div>
@@ -91,8 +91,8 @@
 
     <section class="workspace-switcher">
       <div class="workspace-switcher__tabs" id="workspaceTabs">
-        <button type="button" class="workspace-tab is-active" data-workspace="search">科目検索・授業科目</button>
-        <button type="button" class="workspace-tab" data-workspace="extras">他研究群 / 授業科目以外</button>
+        <button type="button" class="workspace-tab is-active" data-workspace="search">授業検索・授業科目</button>
+        <button type="button" class="workspace-tab" data-workspace="extras">授業科目以外</button>
         <button type="button" class="workspace-tab" data-workspace="draft">ドラフト・差分</button>
       </div>
     </section>
@@ -102,8 +102,8 @@
         <section class="card compact-card compact-card--search">
           <div class="section-heading section-heading--compact">
             <div>
-              <h2>システム情報工学研究群の科目を検索</h2>
-              <p>科目番号・日本語名・英語名で検索します。通常科目は 15 行目以降、情報理工前期特別研究 A〜D は 11〜14 行の固定欄です。</p>
+              <h2>大学院科目を検索（非公式）</h2>
+              <p>科目番号・日本語名・英語名で検索します。通常科目は 15 行目以降、情報理工前期特別研究 A〜D は 11〜14 行の固定欄です。大学院共通科目も検索対象へ統合しています。</p>
             </div>
           </div>
 
@@ -117,8 +117,9 @@
           <div id="searchResults" class="results results--compact results--scroll"></div>
         </section>
 
-        <div class="stack stack--dense">
-          <section class="card compact-card compact-card--editor">
+        <div class="stack stack--dense stack--search-side">
+          <div class="search-side-switcher" id="searchSideSwitcher"></div>
+          <section class="card compact-card compact-card--editor" data-side-view-card="editor">
             <div class="section-heading section-heading--compact">
               <div>
                 <h2>授業科目の配点</h2>
@@ -163,7 +164,7 @@
             </div>
           </section>
 
-          <section class="card compact-card compact-card--timetable">
+          <section class="card compact-card compact-card--timetable" data-side-view-card="timetable">
             <div class="section-heading section-heading--compact">
               <div>
                 <h2>時間割プレビュー</h2>
@@ -194,7 +195,7 @@
 
     <section class="workspace-panel" data-workspace-panel="extras">
       <div class="compact-grid compact-grid--extras">
-        <section class="card compact-card">
+        <section class="card compact-card legacy-course-builder">
           <div class="section-heading section-heading--compact">
             <div>
               <h2>他研究群の科目を作る</h2>

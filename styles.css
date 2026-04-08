@@ -1542,3 +1542,290 @@ hr {
     justify-content: flex-end;
   }
 }
+
+/* === 2026-04-08 unofficial compact + unified-search patch === */
+.app-body--unofficial {
+  background: linear-gradient(180deg, #eef5ff 0%, #f8fbff 220px);
+}
+
+.app-body--unofficial .eyebrow {
+  letter-spacing: 0.12em;
+}
+
+.app-body--unofficial .workspace-switcher,
+.app-body--unofficial .summary-strip,
+.app-body--unofficial .control-card {
+  box-shadow: 0 8px 24px rgba(44, 77, 145, 0.06);
+}
+
+.legacy-course-builder {
+  display: none !important;
+}
+
+.stack--search-side {
+  gap: 10px;
+}
+
+.search-side-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.search-side-switcher .button {
+  min-width: 112px;
+}
+
+.stack--search-side[data-side-view="editor"] [data-side-view-card="timetable"],
+.stack--search-side[data-side-view="timetable"] [data-side-view-card="editor"] {
+  display: none;
+}
+
+.stack--search-side[data-side-view="editor"] [data-side-view-card="editor"],
+.stack--search-side[data-side-view="timetable"] [data-side-view-card="timetable"] {
+  display: block;
+}
+
+.compact-grid--search {
+  grid-template-columns: minmax(360px, 1.08fr) minmax(500px, 0.92fr);
+}
+
+.compact-card--search,
+.compact-card--editor,
+.compact-card--timetable,
+.compact-grid--draft .compact-card,
+.compact-grid--extras .compact-card {
+  min-height: 0;
+}
+
+.results--scroll {
+  max-height: calc(100vh - 340px);
+}
+
+.compact-card--editor .preview-grid--scroll,
+.compact-card--timetable .timetable-table-wrap,
+.compact-card--timetable .timetable-unscheduled,
+.plan-list--scroll,
+.table-scroll--tall {
+  scrollbar-gutter: stable;
+}
+
+.compact-card--editor .preview-grid--scroll {
+  max-height: calc(100vh - 560px);
+}
+
+.compact-card--timetable .timetable-table-wrap {
+  max-height: calc(100vh - 470px);
+  min-height: 360px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+  overflow: auto;
+}
+
+.compact-card--timetable .timetable-summary {
+  margin-top: 8px;
+}
+
+.compact-card--timetable .timetable-unscheduled {
+  max-height: 110px;
+  overflow: auto;
+}
+
+#scheduleUpdated {
+  min-height: 2.7em;
+}
+
+.term-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.term-tabs button {
+  border-radius: 999px;
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  background: #f8fbff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.term-tabs button.is-active {
+  border-color: var(--primary);
+  background: #edf4ff;
+  color: var(--primary-strong);
+}
+
+.timetable-table {
+  min-width: 100%;
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.timetable-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f3f7ff;
+  font-size: 0.86rem;
+  padding: 8px 6px;
+}
+
+.timetable-table__time {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  min-width: 72px;
+  width: 72px;
+  background: #f8fbff;
+}
+
+.timetable-table thead .timetable-table__time {
+  z-index: 3;
+}
+
+.timetable-table--names-only .timetable-slot {
+  height: 86px;
+  padding: 6px;
+  vertical-align: top;
+  background: #fff;
+}
+
+.timetable-table--names-only .timetable-slotlist {
+  display: grid;
+  gap: 4px;
+}
+
+.timetable-table--names-only .timetable-chip {
+  min-height: 0;
+  padding: 5px 6px;
+  border-radius: 10px;
+  border: 1px solid #dbe7ff;
+  background: linear-gradient(180deg, #f7faff 0%, #eef5ff 100%);
+}
+
+.timetable-table--names-only .timetable-chip strong {
+  font-size: 0.75rem;
+  line-height: 1.3;
+  font-weight: 700;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.timetable-chip--preview {
+  border-style: dashed !important;
+  background: #fff7ea !important;
+}
+
+.timetable-chip--conflict {
+  border-color: #ffb4a8 !important;
+  background: #fff1ee !important;
+}
+
+.intensive-list {
+  display: grid;
+  gap: 8px;
+}
+
+.intensive-chip {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #f8fbff;
+  padding: 10px 12px;
+}
+
+.intensive-chip strong {
+  display: block;
+  line-height: 1.4;
+}
+
+.intensive-chip--preview {
+  border-style: dashed;
+  background: #fff8ea;
+}
+
+.result-card {
+  padding: 12px 13px;
+  border-radius: 14px;
+}
+
+.result-card__body {
+  gap: 6px;
+}
+
+.result-card__extra {
+  font-size: 0.86rem;
+}
+
+.selected-course {
+  max-height: 140px;
+}
+
+.search-meta,
+.dataset-info,
+.side-card__meta,
+.timetable-summary,
+.timetable-unscheduled {
+  font-size: 0.88rem;
+}
+
+.preview-head--sticky {
+  top: -2px;
+}
+
+.compact-grid--draft {
+  grid-template-columns: minmax(360px, 0.96fr) minmax(480px, 1.04fr);
+}
+
+.compact-grid--extras {
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 1440px) {
+  .compact-grid--search {
+    grid-template-columns: minmax(320px, 1fr) minmax(460px, 0.92fr);
+  }
+}
+
+@media (max-width: 1180px) {
+  .search-side-switcher {
+    justify-content: flex-start;
+  }
+
+  .compact-grid--search,
+  .compact-grid--draft {
+    grid-template-columns: 1fr;
+  }
+
+  .compact-card--editor .preview-grid--scroll,
+  .compact-card--timetable .timetable-table-wrap,
+  .results--scroll,
+  .plan-list--scroll,
+  .table-scroll--tall {
+    max-height: none;
+  }
+}
+
+@media (max-width: 820px) {
+  .search-side-switcher {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .search-side-switcher .button {
+    width: 100%;
+  }
+
+  .term-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

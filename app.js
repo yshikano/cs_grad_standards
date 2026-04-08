@@ -5562,3 +5562,433 @@ document.addEventListener('DOMContentLoaded', () => {
   renderScheduleTermTabs();
   renderTimetablePanel();
 });
+
+
+/* === 2026-04-08 unofficial title + unified-search + timetable compact patch === */
+const EXTRA_UNOFFICIAL_COURSE_DATA_20260408 = {"courses": [{"code": "0A00101", "nameJa": "応用倫理", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Applied Ethics"], "points8": {"knowledge": 25, "management": 25, "communication": 25, "teamwork": 0, "internationality": 25, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00102", "nameJa": "環境倫理学概論", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Introduction to Environmental Ethics"], "points8": {"knowledge": 25, "management": 25, "communication": 25, "teamwork": 0, "internationality": 25, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00103", "nameJa": "研究倫理", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Introduction to Academic Integrity"], "points8": {"knowledge": 40, "management": 30, "communication": 30, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00104", "nameJa": "生命倫理学", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Bioethics in Medical Research and Practice"], "points8": {"knowledge": 50, "management": 50, "communication": 0, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00105", "nameJa": "企業と技術者の倫理", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Ethics for Engineers in Business"], "points8": {"knowledge": 50, "management": 50, "communication": 0, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00106", "nameJa": "生物多様性と地球環境自然保護", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Biodiversity and nature conservation"], "points8": {"knowledge": 50, "management": 0, "communication": 0, "teamwork": 0, "internationality": 50, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00201", "nameJa": "テクニカルコミュニケーション", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Technical Communication"], "points8": {"knowledge": 30, "management": 0, "communication": 40, "teamwork": 0, "internationality": 30, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00202", "nameJa": "英語発表", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Presentations for General Audiences"], "points8": {"knowledge": 20, "management": 0, "communication": 30, "teamwork": 0, "internationality": 50, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00203", "nameJa": "異分野コミュニケーションのためのプレゼンテーションバトル", "nameEn": "", "credits": 2, "total": 200, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Presentation Battle for Interdisciplinary Communication"], "points8": {"knowledge": 50, "management": 0, "communication": 100, "teamwork": 50, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00204", "nameJa": "Global Communication Skills Training", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 20, "management": 10, "communication": 20, "teamwork": 0, "internationality": 50, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00205", "nameJa": "サイエンスコミュニケーション概論", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Science Communication in General"], "points8": {"knowledge": 40, "management": 0, "communication": 60, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00206", "nameJa": "サイエンスコミュニケーション特論", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Advanced Science Communication"], "points8": {"knowledge": 30, "management": 0, "communication": 70, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00207", "nameJa": "サイエンスコミュニケータ養成実践講座", "nameEn": "", "credits": 2, "total": 200, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Science Communicator Practical Training Program"], "points8": {"knowledge": 50, "management": 0, "communication": 100, "teamwork": 50, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00208", "nameJa": "人文知コミュニケーション：人文社会科学と自然科学の壁を超える", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Research Communication in Humanities and Social Sciences"], "points8": {"knowledge": 20, "management": 0, "communication": 60, "teamwork": 20, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00209", "nameJa": "総合資料学：歴史文化の高度化研究とその伝達方法", "nameEn": "", "credits": 2, "total": 200, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Integrated Studies of Cultural and Research Resources"], "points8": {"knowledge": 80, "management": 80, "communication": 20, "teamwork": 20, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00210", "nameJa": "学術活動と生活に役立つ日本語・日本文化入門", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Introduction to Japanese Language and Culture for Academic and Daily Life"], "points8": {"knowledge": 20, "management": 0, "communication": 40, "teamwork": 0, "internationality": 40, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00211", "nameJa": "留学生のための就職活動 基礎B", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Basics of Job Hunting in Japan for International Students B"], "points8": {"knowledge": 0, "management": 0, "communication": 50, "teamwork": 0, "internationality": 50, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00212", "nameJa": "生活の日本語 初級B", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Elementary Japanese for Daily life B"], "points8": {"knowledge": 0, "management": 0, "communication": 60, "teamwork": 0, "internationality": 40, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00213", "nameJa": "日本語プレゼンテーション 中級B", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Academic Japanese Presentation for Intermediate Students B"], "points8": {"knowledge": 0, "management": 0, "communication": 100, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00214", "nameJa": "留学生のための日本社会と文化 上級B", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Advanced Seminar on Japanese Society and Culture for International Students B"], "points8": {"knowledge": 0, "management": 0, "communication": 60, "teamwork": 0, "internationality": 40, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00218", "nameJa": "留学生のための就職活動 基礎A", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Basics of Job Hunting in Japan for International Students A"], "points8": {"knowledge": 0, "management": 0, "communication": 100, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00219", "nameJa": "生活の日本語 初級A", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Elementary Japanese for Daily Life A"], "points8": {"knowledge": 0, "management": 0, "communication": 100, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00220", "nameJa": "日本語プレゼンテーション 中級A", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Academic Japanese Presentation for Intermediate Students A"], "points8": {"knowledge": 0, "management": 0, "communication": 100, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00221", "nameJa": "留学生のための日本社会と文化 上級A", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Advanced Seminar on Japanese Society and Culture for International Students A"], "points8": {"knowledge": 0, "management": 0, "communication": 100, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00222", "nameJa": "留学生のための就職活動 日本語入門A", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["First Steps in Japanese for Job Hunting A"], "points8": {"knowledge": 0, "management": 0, "communication": 100, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00223", "nameJa": "留学生のための就職活動 日本語入門B", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["First Steps in Japanese for Job Hunting B"], "points8": {"knowledge": 0, "management": 0, "communication": 100, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00224", "nameJa": "はじめての日本語A", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Japanese for Beginners A"], "points8": {"knowledge": 0, "management": 0, "communication": 100, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00225", "nameJa": "はじめての日本語B", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Japanese for Beginners B"], "points8": {"knowledge": 0, "management": 0, "communication": 100, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00226", "nameJa": "敬語と場面別コミュニケーション 中級A", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Keigo and Situational Communication for Intermediate Students A"], "points8": {"knowledge": 0, "management": 0, "communication": 100, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00227", "nameJa": "敬語と場面別コミュニケーション 中級B", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Keigo and Situational Communication for Intermediate Students B"], "points8": {"knowledge": 0, "management": 0, "communication": 100, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00228", "nameJa": "アカデミックライティング 中上級A", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Academic Japanese Writing for Upper-Intermediate Students A"], "points8": {"knowledge": 0, "management": 0, "communication": 100, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00229", "nameJa": "アカデミックライティング 中上級B", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Academic Japanese Writing for Upper-Intermediate Students B"], "points8": {"knowledge": 0, "management": 0, "communication": 100, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00230", "nameJa": "日本語の不思議を考える 上級A", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Advanced Seminar on Exploring Japanese Language for International Students A"], "points8": {"knowledge": 0, "management": 0, "communication": 100, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00231", "nameJa": "日本語の不思議を考える 上級B", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Advanced Seminar on Exploring Japanese Language for International Students B"], "points8": {"knowledge": 0, "management": 0, "communication": 100, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00301", "nameJa": "21世紀的中国―現代中国的多相―", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["China in 21 Century: Aspects of Contemporary China"], "points8": {"knowledge": 50, "management": 0, "communication": 0, "teamwork": 0, "internationality": 50, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00302", "nameJa": "国際研究プロジェクト", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["International Research Project"], "points8": {"knowledge": 30, "management": 20, "communication": 20, "teamwork": 0, "internationality": 30, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00303", "nameJa": "国際インターンシップ", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["International Internship"], "points8": {"knowledge": 20, "management": 20, "communication": 30, "teamwork": 0, "internationality": 30, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00311", "nameJa": "地球規模課題と国際社会：食料問題", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 30, "management": 0, "communication": 30, "teamwork": 0, "internationality": 40, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00312", "nameJa": "地球規模課題と国際社会：海洋環境変動と生命", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 30, "management": 0, "communication": 30, "teamwork": 0, "internationality": 40, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00313", "nameJa": "地球規模課題と国際社会：社会脳", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 30, "management": 0, "communication": 30, "teamwork": 0, "internationality": 40, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00314", "nameJa": "地球規模課題と国際社会：感染症・保健医療問題", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 30, "management": 0, "communication": 30, "teamwork": 0, "internationality": 40, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00315", "nameJa": "地球規模課題と国際社会：社会問題", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 30, "management": 0, "communication": 30, "teamwork": 0, "internationality": 40, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00316", "nameJa": "地球規模課題と国際社会：環境汚染と健康影響", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 30, "management": 0, "communication": 30, "teamwork": 0, "internationality": 40, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00317", "nameJa": "地球規模課題と国際社会：環境・エネルギー", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 30, "management": 0, "communication": 30, "teamwork": 0, "internationality": 40, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00318", "nameJa": "外交実務の実際と国際関係論", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Diplomatic Practice and International Relations"], "points8": {"knowledge": 0, "management": 0, "communication": 0, "teamwork": 0, "internationality": 100, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00319", "nameJa": "Discussing Japan’s political economy", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 30, "management": 0, "communication": 30, "teamwork": 0, "internationality": 40, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00320", "nameJa": "Inclusive Smart Society 概論I", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Introduction to Inclusive Smart Society I"], "points8": {"knowledge": 30, "management": 0, "communication": 30, "teamwork": 0, "internationality": 40, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00321", "nameJa": "Inclusive Smart Society 概論II", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Introduction to Inclusive Smart Society II"], "points8": {"knowledge": 30, "management": 0, "communication": 30, "teamwork": 0, "internationality": 40, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00322", "nameJa": "Inclusive Smart Society PBL", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 20, "management": 20, "communication": 20, "teamwork": 20, "internationality": 20, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00323", "nameJa": "多文化共修による課題解決実習（海外）", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Problem solving through multicultural co-learning (overseas)"], "points8": {"knowledge": 20, "management": 0, "communication": 20, "teamwork": 30, "internationality": 30, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00324", "nameJa": "多文化共修による課題解決実習（国内）", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Problem solving through multicultural co-learning (in Japan)"], "points8": {"knowledge": 20, "management": 0, "communication": 20, "teamwork": 30, "internationality": 30, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00325", "nameJa": "「好き」を発信する：大人の発表を極めよ！", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "大学院共通科目", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": ["Present Your Passions"], "points8": {"knowledge": 50, "management": 0, "communication": 0, "teamwork": 50, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00401", "nameJa": "JAPICアドバンストディスカッションコースI―流動化する世界とこれからの日本", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 20, "management": 30, "communication": 10, "teamwork": 20, "internationality": 20, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00402", "nameJa": "JAPICアドバンストディスカッションコースII―次世代モビリティのマーケットデザインと計算科学", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 20, "management": 30, "communication": 10, "teamwork": 20, "internationality": 20, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00403", "nameJa": "ダイバーシティとSOGI/LGBT+", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 20, "management": 30, "communication": 20, "teamwork": 20, "internationality": 10, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00404", "nameJa": "ワークライフミックス―モーハウスに学ぶパラダイムシフト", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 30, "management": 40, "communication": 0, "teamwork": 30, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00405", "nameJa": "魅力ある理科教員になるための生物・地学実験", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 30, "management": 40, "communication": 0, "teamwork": 30, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00406", "nameJa": "アクセシビリティリーダー特論", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 20, "management": 30, "communication": 20, "teamwork": 30, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00407", "nameJa": "脳の多様性とセルフマネジメント", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 20, "management": 30, "communication": 30, "teamwork": 20, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00408", "nameJa": "筑波クリエイティブ・キャンプ・アドバンスト", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 20, "management": 30, "communication": 20, "teamwork": 30, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00410", "nameJa": "Career Paths for Ph.D. Candidates", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 0, "management": 0, "communication": 40, "teamwork": 30, "internationality": 30, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00411", "nameJa": "起業を支える目利き入門", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 20, "management": 50, "communication": 30, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00412", "nameJa": "アントレプレナーのための経営法務入門", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 100, "management": 0, "communication": 0, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00504", "nameJa": "科学的発見と創造性", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 60, "management": 0, "communication": 40, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00505", "nameJa": "自然災害にどう向き合うか", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 40, "management": 30, "communication": 30, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00506", "nameJa": "「考える」動物としての人間―東西哲学からの考察", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 30, "management": 30, "communication": 20, "teamwork": 0, "internationality": 20, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00507", "nameJa": "21世紀と宗教", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 40, "management": 0, "communication": 30, "teamwork": 0, "internationality": 30, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00508", "nameJa": "UT-Top Academist’s Lecture", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 30, "management": 30, "communication": 20, "teamwork": 0, "internationality": 20, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00509", "nameJa": "スポーツパフォーマンス向上のための先端的体・医・工融合研究", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 40, "management": 30, "communication": 30, "teamwork": 0, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00611", "nameJa": "大学院体育Ia", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 25, "management": 20, "communication": 30, "teamwork": 25, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00612", "nameJa": "大学院体育Ib", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 20, "management": 20, "communication": 20, "teamwork": 20, "internationality": 20, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00613", "nameJa": "大学院体育Ic", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 25, "management": 25, "communication": 25, "teamwork": 25, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00614", "nameJa": "大学院体育IIa", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 25, "management": 25, "communication": 25, "teamwork": 25, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00615", "nameJa": "大学院体育IIb", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 20, "management": 20, "communication": 20, "teamwork": 20, "internationality": 20, "research": 0, "specializedKnowledge": 0, "ethics": 0}}, {"code": "0A00616", "nameJa": "大学院体育IIc", "nameEn": "", "credits": 1, "total": 100, "year": "1･2", "sourceKind": "exact8", "catalog": "人文社会科学研究群 共通M", "offeringSource": "official-curriculum-map-20260401", "sourceRule": "numeric-generic-5-mapped-to-current-program", "aliases": [], "points8": {"knowledge": 25, "management": 25, "communication": 25, "teamwork": 25, "internationality": 0, "research": 0, "specializedKnowledge": 0, "ethics": 0}}]};
+const SEARCH_SIDE_VIEW_KEY_20260408 = 'tsukuba-achievement-helper.search-side-view.v20260408';
+state.searchSideView = state.searchSideView || (localStorage.getItem(SEARCH_SIDE_VIEW_KEY_20260408) || 'editor');
+
+function getDefaultCatalogLabel20260408(course) {
+  if (course?.catalog) return String(course.catalog);
+  const code = String(course?.code || '').trim().toUpperCase();
+  if (code.startsWith('0A')) return '大学院共通 / 他研究群';
+  return 'システム情報工学研究群';
+}
+
+function getSourceRuleLabel20260408(course) {
+  if (course?.sourceRule === 'numeric-generic-5-mapped-to-current-program') return '数値配点（汎用5）';
+  if (course?.sourceKind === 'circle8') return '〇配点（自動配分）';
+  if (course?.sourceKind === 'exact8') return '数値配点';
+  if (course?.sourceKind === 'sequence') return '非ゼロ列を自動補完';
+  if (course?.sourceKind === 'creditsOnly') return '単位数ベース';
+  return '手動 / 個別';
+}
+
+function normalizeUnofficialCourse20260408(course) {
+  const normalized = { ...course };
+  normalized.code = String(course?.code || '').trim().toUpperCase();
+  normalized.aliases = Array.from(new Set([
+    ...(Array.isArray(course?.aliases) ? course.aliases : []),
+    course?.nameJa,
+    course?.nameEn,
+    course?.catalog
+  ].filter(Boolean)));
+  normalized.catalog = getDefaultCatalogLabel20260408(course);
+  if (course?.circle8 && !course?.sourceKind) normalized.sourceKind = 'circle8';
+  return normalized;
+}
+
+function mergeUnofficialCourseDatasets20260408(primary) {
+  const mergedMap = new Map();
+  const push = (course) => {
+    if (!course || !course.code) return;
+    const normalized = normalizeUnofficialCourse20260408(course);
+    mergedMap.set(normalized.code, normalized);
+  };
+  (primary?.courses || []).forEach(push);
+  (EXTRA_UNOFFICIAL_COURSE_DATA_20260408.courses || []).forEach(push);
+  const notes = [
+    ...((primary?.meta?.notes) || []),
+    '非公式拡張: 大学院共通科目および人文社会科学研究群共通Mの一部科目を、公開カリキュラム・マップの汎用コンピテンス数値から検索対象へ追加しています。',
+    '○表記の配点に備えて circle8 形式の自動配分ルールを実装しています。'
+  ];
+  return {
+    meta: {
+      ...(primary?.meta || {}),
+      count: mergedMap.size,
+      notes: Array.from(new Set(notes))
+    },
+    courses: Array.from(mergedMap.values()).sort((a, b) => String(a.code || '').localeCompare(String(b.code || ''), 'ja'))
+  };
+}
+
+const __old_cloneCourseSource_20260408 = cloneCourseSource;
+function cloneCourseSource(course) {
+  const cloned = __old_cloneCourseSource_20260408(course);
+  if (!course) return cloned;
+  cloned.catalog = getDefaultCatalogLabel20260408(course);
+  cloned.sourceRule = course?.sourceRule || '';
+  cloned.provenance = course?.provenance || '';
+  cloned.circle8 = course?.circle8 ? { ...course.circle8 } : null;
+  cloned.circle18 = Array.isArray(course?.circle18) ? clonePoints18(course.circle18) : null;
+  return cloned;
+}
+
+const __old_makePlanEntryFromSelection_20260408 = makePlanEntryFromSelection;
+function makePlanEntryFromSelection(row) {
+  const entry = __old_makePlanEntryFromSelection_20260408(row);
+  const course = state.selectedCourse || {};
+  entry.catalog = getDefaultCatalogLabel20260408(course);
+  entry.sourceRule = course?.sourceRule || '';
+  entry.provenance = course?.provenance || '';
+  return entry;
+}
+
+function applyDataset(data, loadSource) {
+  const merged = mergeUnofficialCourseDatasets20260408(data);
+  state.dataset = merged;
+  state.datasetLoadSource = loadSource || '';
+  state.courses = state.dataset.courses || [];
+
+  const count = state.dataset.meta?.count ?? state.courses.length;
+  const sourceTag = state.datasetLoadSource ? `（${state.datasetLoadSource}）` : '';
+  if (els.searchMeta) {
+    els.searchMeta.textContent = `${state.courses.length} 件の科目データを読み込みました${sourceTag}。`;
+  }
+  const notes = (state.dataset.meta?.notes || []).map(text => escapeHtml(text)).join(' / ');
+  const sourceUrl = escapeHtml(state.dataset.meta?.sourceUrl || '#');
+  const courseListSourceUrl = escapeHtml(state.dataset.meta?.courseListSourceUrl || '#');
+  const sourceParts = [
+    `<div><strong>データ件数:</strong> ${count} 件</div>`,
+    `<div><strong>読込元:</strong> ${escapeHtml(state.datasetLoadSource || '不明')}</div>`,
+    `<div><strong>参照元:</strong> <a href="${sourceUrl}" target="_blank" rel="noreferrer">公開カリキュラム・マップ</a></div>`
+  ];
+  if (state.dataset.meta?.courseListSourceUrl) {
+    sourceParts.push(`<div><strong>開設授業科目一覧:</strong> <a href="${courseListSourceUrl}" target="_blank" rel="noreferrer">公式ページ</a></div>`);
+  }
+  sourceParts.push(`<div><strong>検索対象:</strong> システム情報工学研究群 / 大学院共通科目 / 人文社会科学研究群共通M（一部）</div>`);
+  sourceParts.push(`<div><strong>配点ルール:</strong> 数値配点はその比率を単位数×100点へ正規化し、○配点は該当コンピテンス内で smart / required / even に従って配分します。</div>`);
+  sourceParts.push(`<div><strong>メモ:</strong> ${notes || 'なし'}</div>`);
+  if (els.datasetInfo) {
+    els.datasetInfo.innerHTML = sourceParts.join('');
+  }
+
+  renderSearchResults(searchCourses(els.searchInput?.value || ''));
+  renderFixedCourseButtons();
+  renderScheduleStatus();
+  renderTimetablePanel();
+  void loadScheduleDataset();
+}
+
+const __old_resolveCoursePoints8_20260408 = resolveCoursePoints8;
+function resolveCoursePoints8(course, total, mode, positiveDeficits18) {
+  if (course?.points8 && Object.keys(course.points8).length > 0) {
+    return __old_resolveCoursePoints8_20260408(course, total, mode, positiveDeficits18);
+  }
+
+  if (course?.circle8 && typeof course.circle8 === 'object') {
+    const mask = GROUP_KEYS.map(key => Boolean(course.circle8?.[key]));
+    if (!mask.some(Boolean) || total <= 0) return zeroPoints8();
+
+    const groupNeeds = getGroupNeedTotals(positiveDeficits18);
+    let weights;
+    if (mode === 'required') {
+      weights = GROUP_TOTAL_REQUIREMENTS.slice();
+    } else if (mode === 'smart') {
+      weights = sumNumbers(groupNeeds) > 0 ? groupNeeds.slice() : GROUP_TOTAL_REQUIREMENTS.slice();
+    } else {
+      weights = Array(8).fill(1);
+    }
+
+    weights = weights.map((value, index) => mask[index] ? Math.max(value, 0) : 0);
+    if (!weights.some(value => value > 0)) {
+      weights = mask.map(flag => flag ? 1 : 0);
+    }
+
+    return arrayToPoints8(allocateByWeights(total, weights));
+  }
+
+  return __old_resolveCoursePoints8_20260408(course, total, mode, positiveDeficits18);
+}
+
+function renderSearchResults(courses) {
+  if (!els.searchResults) return;
+  if (!courses.length) {
+    els.searchResults.innerHTML = '<div class="status status--warn">該当科目が見つかりません。</div>';
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+
+  courses.forEach(course => {
+    const card = document.createElement('article');
+    card.className = 'result-card';
+
+    const fixedRow = getFixedCourseRowForCourse(course);
+    const schedule = getCourseScheduleInfo(course);
+    const rowLabel = fixedRow ? `${fixedRow}行の固定欄` : '15行目以降へ追加';
+    const metaChips = [
+      chip(course.code || 'コードなし'),
+      chip(getDefaultCatalogLabel20260408(course)),
+      chip(`単位 ${course.credits ?? '—'}`),
+      chip(`合計 ${course.total ?? '—'} 点`),
+      chip(getSourceRuleLabel20260408(course)),
+      chip(rowLabel)
+    ].join('');
+
+    const scheduleText = schedule ? formatScheduleSummaryText(schedule) : '';
+    const scheduleHtml = scheduleText
+      ? `<div class="result-card__extra"><strong>開講</strong> ${escapeHtml(scheduleText)}</div>`
+      : (state.scheduleStatus === 'loading'
+        ? '<div class="result-card__extra muted">開講時限データを読み込み中です。</div>'
+        : '<div class="result-card__extra muted">開講時限データは未読込または未登録です。</div>');
+
+    const fixedNote = fixedRow
+      ? `<div class="result-card__extra"><strong>固定欄</strong> ${fixedRow}行で手動配点します。</div>`
+      : '';
+
+    card.innerHTML = `
+      <div class="result-card__body">
+        <div>
+          <strong>${escapeHtml(course.nameJa || course.nameEn || '名称未設定')}</strong>
+          ${course.nameEn ? `<div class="muted">${escapeHtml(course.nameEn)}</div>` : ''}
+        </div>
+        <div class="chips">${metaChips}</div>
+        ${scheduleHtml}
+        ${fixedNote}
+      </div>
+      <div class="result-card__actions">
+        <button type="button" class="button button--primary button--small">選択</button>
+      </div>
+    `;
+    card.querySelector('button').addEventListener('click', () => selectCourse(course));
+    fragment.appendChild(card);
+  });
+
+  els.searchResults.innerHTML = '';
+  els.searchResults.appendChild(fragment);
+}
+
+function renderPlanList() {
+  const draft = getCurrentDraft();
+  draft.courseRows = normalizeCourseRowsForFixedLayout(draft.courseRows);
+  const entries = getPlanEntries(draft.courseRows);
+  if (!els.planList) return;
+  if (!entries.length) {
+    els.planList.innerHTML = '<div class="status status--muted">まだ授業科目ドラフトはありません。科目を選んで追加してください。</div>';
+  } else {
+    els.planList.innerHTML = entries.map(entry => {
+      const total = sumPoints18(entry.points18);
+      const isFixed = isFixedCourseRow(entry.row);
+      const sourceCourse = entry.sourceCourse || entry;
+      const tags = [
+        entry.code ? chip(entry.code) : '',
+        chip(getDefaultCatalogLabel20260408(sourceCourse)),
+        chip(getSourceRuleLabel20260408(sourceCourse)),
+        chip(`${entry.credits ? `${entry.credits} 単位 / ` : ''}${total} 点`)
+      ].join('');
+      const schedule = getCourseScheduleInfo(sourceCourse);
+      const scheduleHtml = schedule
+        ? `<div class="plan-card__schedule"><div><strong>開講</strong> ${escapeHtml(formatScheduleSummaryText(schedule))}</div></div>`
+        : '';
+      const controls = isFixed
+        ? `
+          <div class="actions-row actions-row--compact">
+            <span class="badge plan-card__fixed">固定行</span>
+            <button class="button button--small" type="button" data-action="edit" data-row="${entry.row}">編集</button>
+            <button class="button button--small button--danger" type="button" data-action="remove" data-row="${entry.row}">クリア</button>
+          </div>
+        `
+        : `
+          <div class="actions-row actions-row--compact">
+            <button class="button button--small" type="button" data-action="up" data-row="${entry.row}">上へ</button>
+            <button class="button button--small" type="button" data-action="down" data-row="${entry.row}">下へ</button>
+            <button class="button button--small" type="button" data-action="edit" data-row="${entry.row}">編集</button>
+            <button class="button button--small button--danger" type="button" data-action="remove" data-row="${entry.row}">削除</button>
+          </div>
+        `;
+      return `
+        <article class="plan-card">
+          <div class="plan-card__top">
+            <div>
+              <div class="plan-card__row">${entry.row}行</div>
+              <h3>${escapeHtml(displayCourseName(entry))}</h3>
+              <p>${escapeHtml(entry.nameEn || '')}</p>
+              <div class="plan-card__meta">${tags}</div>
+              ${scheduleHtml}
+            </div>
+            <div class="plan-card__total">${total} 点</div>
+          </div>
+          ${controls}
+        </article>
+      `;
+    }).join('');
+
+    els.planList.querySelectorAll('button[data-action="remove"]').forEach(button => {
+      button.addEventListener('click', () => removePlanRow(Number(button.dataset.row)));
+    });
+    els.planList.querySelectorAll('button[data-action="edit"]').forEach(button => {
+      button.addEventListener('click', () => editPlanRow(Number(button.dataset.row)));
+    });
+    els.planList.querySelectorAll('button[data-action="up"]').forEach(button => {
+      button.addEventListener('click', () => movePlanRow(Number(button.dataset.row), -1));
+    });
+    els.planList.querySelectorAll('button[data-action="down"]').forEach(button => {
+      button.addEventListener('click', () => movePlanRow(Number(button.dataset.row), +1));
+    });
+  }
+
+  const metrics = getMetrics(draft);
+  if (els.planCourseCount) els.planCourseCount.textContent = String(entries.length);
+  if (els.planCredits) els.planCredits.textContent = String(entries.reduce((sum, entry) => sum + Number(entry.credits || 0), 0));
+  if (els.planPointsTotal) els.planPointsTotal.textContent = String(metrics.subtotalTotal);
+  if (els.extraItemCount) els.extraItemCount.textContent = String((draft.extraItems || []).length);
+  if (els.extraPointsTotal) els.extraPointsTotal.textContent = String(metrics.extraTotal);
+  if (els.projectedTotal) els.projectedTotal.textContent = String(metrics.projectedTotal);
+  if (els.unmetCount) els.unmetCount.textContent = `${metrics.unmetCount} / 18`;
+}
+
+const __old_renderPlanSection_20260408 = renderPlanSection;
+function renderPlanSection() {
+  const draft = getCurrentDraft();
+  draft.courseRows = normalizeCourseRowsForFixedLayout(draft.courseRows);
+  __old_renderPlanSection_20260408();
+}
+
+function setSearchSideView20260408(view, persist = true) {
+  const safe = view === 'timetable' ? 'timetable' : 'editor';
+  state.searchSideView = safe;
+  const wrap = document.querySelector('.stack--search-side');
+  if (wrap) wrap.dataset.sideView = safe;
+  document.querySelectorAll('[data-search-side-view]').forEach(button => {
+    button.classList.toggle('is-active', button.dataset.searchSideView === safe);
+  });
+  if (persist) {
+    try { localStorage.setItem(SEARCH_SIDE_VIEW_KEY_20260408, safe); } catch (error) { console.warn(error); }
+  }
+  if (safe === 'timetable') renderTimetablePanel();
+}
+
+function installSearchSideViewTabs20260408() {
+  const host = document.getElementById('searchSideSwitcher');
+  if (!host || host.dataset.ready === '1') return;
+  host.innerHTML = `
+    <button type="button" class="button button--small" data-search-side-view="editor">配点編集</button>
+    <button type="button" class="button button--small" data-search-side-view="timetable">時間割</button>
+  `;
+  host.querySelectorAll('[data-search-side-view]').forEach(button => {
+    button.addEventListener('click', () => setSearchSideView20260408(button.dataset.searchSideView));
+  });
+  setSearchSideView20260408(state.searchSideView || 'editor', false);
+  host.dataset.ready = '1';
+}
+
+const __old_selectCourse_20260408 = selectCourse;
+function selectCourse(course) {
+  __old_selectCourse_20260408(course);
+  setActiveWorkspaceTab('search');
+}
+
+async function loadScheduleDataset(force = false) {
+  if (!state.courses.length) return;
+  if (!force && state.scheduleStatus === 'loading') return;
+  if (!force && state.scheduleStatus === 'ready' && Object.keys(state.scheduleMap || {}).length) {
+    renderTimetablePanel();
+    return;
+  }
+
+  const allowedCodes = new Set(
+    state.courses.flatMap(course => [course.code, ...(Array.isArray(course.equivalentCodes) ? course.equivalentCodes : [])])
+      .map(value => String(value || '').trim())
+      .filter(Boolean)
+  );
+
+  if (!force) {
+    const cached = loadScheduleCache();
+    if (cached?.map && Object.keys(cached.map).length) {
+      applyScheduleMap(cached.map, {
+        updated: cached.updated || '',
+        source: `${cached.source || 'ローカルキャッシュ'} / ローカルキャッシュ`
+      });
+      return;
+    }
+  }
+
+  state.scheduleStatus = 'loading';
+  state.scheduleMessage = 'alternative-tsukuba-kdb の大学院 KdB データを読み込んでいます。';
+  renderScheduleStatus();
+  renderTimetablePanel();
+
+  const errors = [];
+  const candidates = [
+    { url: './data/kdb-grad.json', label: '同梱 data/kdb-grad.json' },
+    { url: 'data/kdb-grad.json', label: '同梱 data/kdb-grad.json (relative)' },
+    { url: 'https://cdn.jsdelivr.net/gh/Make-IT-TSUKUBA/alternative-tsukuba-kdb@main/frontend/src/kdb/kdb-grad.json', label: 'jsDelivr / alternative-tsukuba-kdb' },
+    { url: 'https://cdn.jsdelivr.net/gh/make-it-tsukuba/alternative-tsukuba-kdb@main/frontend/src/kdb/kdb-grad.json', label: 'jsDelivr / alternative-tsukuba-kdb (lowercase)' },
+    { url: 'https://raw.githubusercontent.com/Make-IT-TSUKUBA/alternative-tsukuba-kdb/main/frontend/src/kdb/kdb-grad.json', label: 'raw.githubusercontent.com / Make-IT-TSUKUBA' },
+    { url: 'https://raw.githubusercontent.com/make-it-tsukuba/alternative-tsukuba-kdb/main/frontend/src/kdb/kdb-grad.json', label: 'raw.githubusercontent.com / make-it-tsukuba' },
+    { url: 'https://github.com/Make-IT-TSUKUBA/alternative-tsukuba-kdb/raw/refs/heads/main/frontend/src/kdb/kdb-grad.json', label: 'GitHub raw download / Make-IT-TSUKUBA' }
+  ];
+
+  for (const candidate of candidates) {
+    try {
+      const response = await fetch(candidate.url, { cache: 'force-cache', mode: 'cors' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const rawText = await response.text();
+      if (!rawText || !rawText.trim()) throw new Error('空のレスポンス');
+      if (/^\s*</.test(rawText)) throw new Error('JSON ではなく HTML が返りました');
+      const payload = JSON.parse(rawText);
+      const map = buildScheduleMapFromKdb(payload, allowedCodes);
+      if (!Object.keys(map).length) throw new Error('現在の科目データと照合できる開講時限がありませんでした');
+      applyScheduleMap(map, { updated: payload.updated || '', source: candidate.label });
+      return;
+    } catch (error) {
+      errors.push(`${candidate.label}: ${error.message}`);
+    }
+  }
+
+  state.scheduleStatus = 'warn';
+  state.scheduleMessage = `開講時限データを取得できませんでした。${errors.join(' / ')}`;
+  state.scheduleMap = {};
+  state.scheduleNameMap = {};
+  renderScheduleStatus();
+  renderSearchResults(searchCourses(els.searchInput?.value || ''));
+  renderTimetablePanel();
+}
+
+function renderScheduleStatus() {
+  if (!els.scheduleStatus || !els.scheduleUpdated) return;
+  let label = '未読込';
+  let className = 'badge';
+  if (state.scheduleStatus === 'loading') {
+    label = '読込中';
+    className = 'badge badge--pending';
+  } else if (state.scheduleStatus === 'ready') {
+    label = '利用可能';
+    className = 'badge badge--ok';
+  } else if (state.scheduleStatus === 'warn') {
+    label = '未取得';
+    className = 'badge badge--warn';
+  }
+  els.scheduleStatus.textContent = label;
+  els.scheduleStatus.className = className;
+
+  if (state.scheduleStatus === 'ready') {
+    const updatedLabel = state.scheduleMeta?.updated ? `更新日 ${escapeHtml(String(state.scheduleMeta.updated))}` : '更新日未取得';
+    const sourceLabel = state.scheduleMeta?.source ? ` / 読込元 ${escapeHtml(String(state.scheduleMeta.source))}` : '';
+    const countLabel = ` / 対応科目 ${Object.keys(state.scheduleMap || {}).length} 件`;
+    els.scheduleUpdated.innerHTML = `alternative-tsukuba-kdb 由来の大学院 KdB データを利用中です。<br>${updatedLabel}${sourceLabel}${countLabel}`;
+  } else if (state.scheduleStatus === 'loading') {
+    els.scheduleUpdated.textContent = state.scheduleMessage || '開講時限データを読み込み中です。';
+  } else {
+    els.scheduleUpdated.innerHTML = `${escapeHtml(state.scheduleMessage || '開講時限データを読み込めませんでした。')}<br>必要なら <code>kdb-grad.json</code> を手動読込してください。`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  installSearchSideViewTabs20260408();
+  const h1 = document.querySelector('.topbar__brand h1');
+  if (h1 && !/非公式/.test(h1.textContent || '')) h1.textContent = `${h1.textContent.trim()}（非公式）`;
+  document.title = '筑波大学達成度評価シート入力支援（非公式）';
+});

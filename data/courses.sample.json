@@ -1,16 +1,1827 @@
 {
   "meta": {
-    "count": 337,
+    "count": 412,
     "sourceUrl": "https://www.tsukuba.ac.jp/education/policy-tstandard/gstandard/pdf/2026/mp-systems-information-engineering-c.pdf",
     "notes": [
       "2026年度博士前期課程のシステム情報工学研究群開設授業科目一覧と公開カリキュラム・マップを突き合わせたデータです。",
       "8 コンピテンスが完全に読める科目は points8、0 配点列が落ちる科目は rawCompetenceValues を格納しています。",
       "ライフイノベーション（生物情報）学位プログラム等で公開カリキュラム・マップの配点を同梱できなかった科目は creditsOnly とし、単位数ベースで初期配点します。",
-      "英語系同内容コード・別科目番号の alias も検索できるよう補っています。"
+      "英語系同内容コード・別科目番号の alias も検索できるよう補っています。",
+      "大学院共通科目と人文社会科学研究群共通Mの一部科目を、公開カリキュラム・マップの汎用コンピテンス数値を現在の5汎用コンピテンスへ写像したデータとして追加しました。",
+      "公開資料が ○ 表記中心の科目に備え、circle8 形式の等配分/差分配分ルールにアプリ側で対応しています。"
     ],
     "courseListSourceUrl": "https://www.tsukuba.ac.jp/education/g-courses-g-tsukuba-tokyo/2026-2.html"
   },
   "courses": [
+    {
+      "code": "0A00101",
+      "nameJa": "応用倫理",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Applied Ethics"
+      ],
+      "points8": {
+        "knowledge": 25,
+        "management": 25,
+        "communication": 25,
+        "teamwork": 0,
+        "internationality": 25,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00102",
+      "nameJa": "環境倫理学概論",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Introduction to Environmental Ethics"
+      ],
+      "points8": {
+        "knowledge": 25,
+        "management": 25,
+        "communication": 25,
+        "teamwork": 0,
+        "internationality": 25,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00103",
+      "nameJa": "研究倫理",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Introduction to Academic Integrity"
+      ],
+      "points8": {
+        "knowledge": 40,
+        "management": 30,
+        "communication": 30,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00104",
+      "nameJa": "生命倫理学",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Bioethics in Medical Research and Practice"
+      ],
+      "points8": {
+        "knowledge": 50,
+        "management": 50,
+        "communication": 0,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00105",
+      "nameJa": "企業と技術者の倫理",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Ethics for Engineers in Business"
+      ],
+      "points8": {
+        "knowledge": 50,
+        "management": 50,
+        "communication": 0,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00106",
+      "nameJa": "生物多様性と地球環境自然保護",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Biodiversity and nature conservation"
+      ],
+      "points8": {
+        "knowledge": 50,
+        "management": 0,
+        "communication": 0,
+        "teamwork": 0,
+        "internationality": 50,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00201",
+      "nameJa": "テクニカルコミュニケーション",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Technical Communication"
+      ],
+      "points8": {
+        "knowledge": 30,
+        "management": 0,
+        "communication": 40,
+        "teamwork": 0,
+        "internationality": 30,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00202",
+      "nameJa": "英語発表",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Presentations for General Audiences"
+      ],
+      "points8": {
+        "knowledge": 20,
+        "management": 0,
+        "communication": 30,
+        "teamwork": 0,
+        "internationality": 50,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00203",
+      "nameJa": "異分野コミュニケーションのためのプレゼンテーションバトル",
+      "nameEn": "",
+      "credits": 2,
+      "total": 200,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Presentation Battle for Interdisciplinary Communication"
+      ],
+      "points8": {
+        "knowledge": 50,
+        "management": 0,
+        "communication": 100,
+        "teamwork": 50,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00204",
+      "nameJa": "Global Communication Skills Training",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 20,
+        "management": 10,
+        "communication": 20,
+        "teamwork": 0,
+        "internationality": 50,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00205",
+      "nameJa": "サイエンスコミュニケーション概論",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Science Communication in General"
+      ],
+      "points8": {
+        "knowledge": 40,
+        "management": 0,
+        "communication": 60,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00206",
+      "nameJa": "サイエンスコミュニケーション特論",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Advanced Science Communication"
+      ],
+      "points8": {
+        "knowledge": 30,
+        "management": 0,
+        "communication": 70,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00207",
+      "nameJa": "サイエンスコミュニケータ養成実践講座",
+      "nameEn": "",
+      "credits": 2,
+      "total": 200,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Science Communicator Practical Training Program"
+      ],
+      "points8": {
+        "knowledge": 50,
+        "management": 0,
+        "communication": 100,
+        "teamwork": 50,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00208",
+      "nameJa": "人文知コミュニケーション：人文社会科学と自然科学の壁を超える",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Research Communication in Humanities and Social Sciences"
+      ],
+      "points8": {
+        "knowledge": 20,
+        "management": 0,
+        "communication": 60,
+        "teamwork": 20,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00209",
+      "nameJa": "総合資料学：歴史文化の高度化研究とその伝達方法",
+      "nameEn": "",
+      "credits": 2,
+      "total": 200,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Integrated Studies of Cultural and Research Resources"
+      ],
+      "points8": {
+        "knowledge": 80,
+        "management": 80,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00210",
+      "nameJa": "学術活動と生活に役立つ日本語・日本文化入門",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Introduction to Japanese Language and Culture for Academic and Daily Life"
+      ],
+      "points8": {
+        "knowledge": 20,
+        "management": 0,
+        "communication": 40,
+        "teamwork": 0,
+        "internationality": 40,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00211",
+      "nameJa": "留学生のための就職活動 基礎B",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Basics of Job Hunting in Japan for International Students B"
+      ],
+      "points8": {
+        "knowledge": 0,
+        "management": 0,
+        "communication": 50,
+        "teamwork": 0,
+        "internationality": 50,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00212",
+      "nameJa": "生活の日本語 初級B",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Elementary Japanese for Daily life B"
+      ],
+      "points8": {
+        "knowledge": 0,
+        "management": 0,
+        "communication": 60,
+        "teamwork": 0,
+        "internationality": 40,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00213",
+      "nameJa": "日本語プレゼンテーション 中級B",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Academic Japanese Presentation for Intermediate Students B"
+      ],
+      "points8": {
+        "knowledge": 0,
+        "management": 0,
+        "communication": 100,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00214",
+      "nameJa": "留学生のための日本社会と文化 上級B",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Advanced Seminar on Japanese Society and Culture for International Students B"
+      ],
+      "points8": {
+        "knowledge": 0,
+        "management": 0,
+        "communication": 60,
+        "teamwork": 0,
+        "internationality": 40,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00218",
+      "nameJa": "留学生のための就職活動 基礎A",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Basics of Job Hunting in Japan for International Students A"
+      ],
+      "points8": {
+        "knowledge": 0,
+        "management": 0,
+        "communication": 100,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00219",
+      "nameJa": "生活の日本語 初級A",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Elementary Japanese for Daily Life A"
+      ],
+      "points8": {
+        "knowledge": 0,
+        "management": 0,
+        "communication": 100,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00220",
+      "nameJa": "日本語プレゼンテーション 中級A",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Academic Japanese Presentation for Intermediate Students A"
+      ],
+      "points8": {
+        "knowledge": 0,
+        "management": 0,
+        "communication": 100,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00221",
+      "nameJa": "留学生のための日本社会と文化 上級A",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Advanced Seminar on Japanese Society and Culture for International Students A"
+      ],
+      "points8": {
+        "knowledge": 0,
+        "management": 0,
+        "communication": 100,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00222",
+      "nameJa": "留学生のための就職活動 日本語入門A",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "First Steps in Japanese for Job Hunting A"
+      ],
+      "points8": {
+        "knowledge": 0,
+        "management": 0,
+        "communication": 100,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00223",
+      "nameJa": "留学生のための就職活動 日本語入門B",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "First Steps in Japanese for Job Hunting B"
+      ],
+      "points8": {
+        "knowledge": 0,
+        "management": 0,
+        "communication": 100,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00224",
+      "nameJa": "はじめての日本語A",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Japanese for Beginners A"
+      ],
+      "points8": {
+        "knowledge": 0,
+        "management": 0,
+        "communication": 100,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00225",
+      "nameJa": "はじめての日本語B",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Japanese for Beginners B"
+      ],
+      "points8": {
+        "knowledge": 0,
+        "management": 0,
+        "communication": 100,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00226",
+      "nameJa": "敬語と場面別コミュニケーション 中級A",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Keigo and Situational Communication for Intermediate Students A"
+      ],
+      "points8": {
+        "knowledge": 0,
+        "management": 0,
+        "communication": 100,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00227",
+      "nameJa": "敬語と場面別コミュニケーション 中級B",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Keigo and Situational Communication for Intermediate Students B"
+      ],
+      "points8": {
+        "knowledge": 0,
+        "management": 0,
+        "communication": 100,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00228",
+      "nameJa": "アカデミックライティング 中上級A",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Academic Japanese Writing for Upper-Intermediate Students A"
+      ],
+      "points8": {
+        "knowledge": 0,
+        "management": 0,
+        "communication": 100,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00229",
+      "nameJa": "アカデミックライティング 中上級B",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Academic Japanese Writing for Upper-Intermediate Students B"
+      ],
+      "points8": {
+        "knowledge": 0,
+        "management": 0,
+        "communication": 100,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00230",
+      "nameJa": "日本語の不思議を考える 上級A",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Advanced Seminar on Exploring Japanese Language for International Students A"
+      ],
+      "points8": {
+        "knowledge": 0,
+        "management": 0,
+        "communication": 100,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00231",
+      "nameJa": "日本語の不思議を考える 上級B",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Advanced Seminar on Exploring Japanese Language for International Students B"
+      ],
+      "points8": {
+        "knowledge": 0,
+        "management": 0,
+        "communication": 100,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00301",
+      "nameJa": "21世紀的中国―現代中国的多相―",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "China in 21 Century: Aspects of Contemporary China"
+      ],
+      "points8": {
+        "knowledge": 50,
+        "management": 0,
+        "communication": 0,
+        "teamwork": 0,
+        "internationality": 50,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00302",
+      "nameJa": "国際研究プロジェクト",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "International Research Project"
+      ],
+      "points8": {
+        "knowledge": 30,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 0,
+        "internationality": 30,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00303",
+      "nameJa": "国際インターンシップ",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "International Internship"
+      ],
+      "points8": {
+        "knowledge": 20,
+        "management": 20,
+        "communication": 30,
+        "teamwork": 0,
+        "internationality": 30,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00311",
+      "nameJa": "地球規模課題と国際社会：食料問題",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 30,
+        "management": 0,
+        "communication": 30,
+        "teamwork": 0,
+        "internationality": 40,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00312",
+      "nameJa": "地球規模課題と国際社会：海洋環境変動と生命",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 30,
+        "management": 0,
+        "communication": 30,
+        "teamwork": 0,
+        "internationality": 40,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00313",
+      "nameJa": "地球規模課題と国際社会：社会脳",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 30,
+        "management": 0,
+        "communication": 30,
+        "teamwork": 0,
+        "internationality": 40,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00314",
+      "nameJa": "地球規模課題と国際社会：感染症・保健医療問題",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 30,
+        "management": 0,
+        "communication": 30,
+        "teamwork": 0,
+        "internationality": 40,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00315",
+      "nameJa": "地球規模課題と国際社会：社会問題",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 30,
+        "management": 0,
+        "communication": 30,
+        "teamwork": 0,
+        "internationality": 40,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00316",
+      "nameJa": "地球規模課題と国際社会：環境汚染と健康影響",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 30,
+        "management": 0,
+        "communication": 30,
+        "teamwork": 0,
+        "internationality": 40,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00317",
+      "nameJa": "地球規模課題と国際社会：環境・エネルギー",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 30,
+        "management": 0,
+        "communication": 30,
+        "teamwork": 0,
+        "internationality": 40,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00318",
+      "nameJa": "外交実務の実際と国際関係論",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Diplomatic Practice and International Relations"
+      ],
+      "points8": {
+        "knowledge": 0,
+        "management": 0,
+        "communication": 0,
+        "teamwork": 0,
+        "internationality": 100,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00319",
+      "nameJa": "Discussing Japan’s political economy",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 30,
+        "management": 0,
+        "communication": 30,
+        "teamwork": 0,
+        "internationality": 40,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00320",
+      "nameJa": "Inclusive Smart Society 概論I",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Introduction to Inclusive Smart Society I"
+      ],
+      "points8": {
+        "knowledge": 30,
+        "management": 0,
+        "communication": 30,
+        "teamwork": 0,
+        "internationality": 40,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00321",
+      "nameJa": "Inclusive Smart Society 概論II",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Introduction to Inclusive Smart Society II"
+      ],
+      "points8": {
+        "knowledge": 30,
+        "management": 0,
+        "communication": 30,
+        "teamwork": 0,
+        "internationality": 40,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00322",
+      "nameJa": "Inclusive Smart Society PBL",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 20,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00323",
+      "nameJa": "多文化共修による課題解決実習（海外）",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Problem solving through multicultural co-learning (overseas)"
+      ],
+      "points8": {
+        "knowledge": 20,
+        "management": 0,
+        "communication": 20,
+        "teamwork": 30,
+        "internationality": 30,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00324",
+      "nameJa": "多文化共修による課題解決実習（国内）",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Problem solving through multicultural co-learning (in Japan)"
+      ],
+      "points8": {
+        "knowledge": 20,
+        "management": 0,
+        "communication": 20,
+        "teamwork": 30,
+        "internationality": 30,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00325",
+      "nameJa": "「好き」を発信する：大人の発表を極めよ！",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "大学院共通科目",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [
+        "Present Your Passions"
+      ],
+      "points8": {
+        "knowledge": 50,
+        "management": 0,
+        "communication": 0,
+        "teamwork": 50,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00401",
+      "nameJa": "JAPICアドバンストディスカッションコースI―流動化する世界とこれからの日本",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 20,
+        "management": 30,
+        "communication": 10,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00402",
+      "nameJa": "JAPICアドバンストディスカッションコースII―次世代モビリティのマーケットデザインと計算科学",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 20,
+        "management": 30,
+        "communication": 10,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00403",
+      "nameJa": "ダイバーシティとSOGI/LGBT+",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 20,
+        "management": 30,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 10,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00404",
+      "nameJa": "ワークライフミックス―モーハウスに学ぶパラダイムシフト",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 30,
+        "management": 40,
+        "communication": 0,
+        "teamwork": 30,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00405",
+      "nameJa": "魅力ある理科教員になるための生物・地学実験",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 30,
+        "management": 40,
+        "communication": 0,
+        "teamwork": 30,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00406",
+      "nameJa": "アクセシビリティリーダー特論",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 20,
+        "management": 30,
+        "communication": 20,
+        "teamwork": 30,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00407",
+      "nameJa": "脳の多様性とセルフマネジメント",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 20,
+        "management": 30,
+        "communication": 30,
+        "teamwork": 20,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00408",
+      "nameJa": "筑波クリエイティブ・キャンプ・アドバンスト",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 20,
+        "management": 30,
+        "communication": 20,
+        "teamwork": 30,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00410",
+      "nameJa": "Career Paths for Ph.D. Candidates",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 0,
+        "management": 0,
+        "communication": 40,
+        "teamwork": 30,
+        "internationality": 30,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00411",
+      "nameJa": "起業を支える目利き入門",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 20,
+        "management": 50,
+        "communication": 30,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00412",
+      "nameJa": "アントレプレナーのための経営法務入門",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 100,
+        "management": 0,
+        "communication": 0,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00504",
+      "nameJa": "科学的発見と創造性",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 60,
+        "management": 0,
+        "communication": 40,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00505",
+      "nameJa": "自然災害にどう向き合うか",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 40,
+        "management": 30,
+        "communication": 30,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00506",
+      "nameJa": "「考える」動物としての人間―東西哲学からの考察",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 30,
+        "management": 30,
+        "communication": 20,
+        "teamwork": 0,
+        "internationality": 20,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00507",
+      "nameJa": "21世紀と宗教",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 40,
+        "management": 0,
+        "communication": 30,
+        "teamwork": 0,
+        "internationality": 30,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00508",
+      "nameJa": "UT-Top Academist’s Lecture",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 30,
+        "management": 30,
+        "communication": 20,
+        "teamwork": 0,
+        "internationality": 20,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00509",
+      "nameJa": "スポーツパフォーマンス向上のための先端的体・医・工融合研究",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 40,
+        "management": 30,
+        "communication": 30,
+        "teamwork": 0,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00611",
+      "nameJa": "大学院体育Ia",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 25,
+        "management": 20,
+        "communication": 30,
+        "teamwork": 25,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00612",
+      "nameJa": "大学院体育Ib",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 20,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00613",
+      "nameJa": "大学院体育Ic",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 25,
+        "management": 25,
+        "communication": 25,
+        "teamwork": 25,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00614",
+      "nameJa": "大学院体育IIa",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 25,
+        "management": 25,
+        "communication": 25,
+        "teamwork": 25,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00615",
+      "nameJa": "大学院体育IIb",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 20,
+        "management": 20,
+        "communication": 20,
+        "teamwork": 20,
+        "internationality": 20,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
+    {
+      "code": "0A00616",
+      "nameJa": "大学院体育IIc",
+      "nameEn": "",
+      "credits": 1,
+      "total": 100,
+      "year": "1･2",
+      "sourceKind": "exact8",
+      "catalog": "人文社会科学研究群 共通M",
+      "offeringSource": "official-curriculum-map-20260401",
+      "sourceRule": "numeric-generic-5-mapped-to-current-program",
+      "aliases": [],
+      "points8": {
+        "knowledge": 25,
+        "management": 25,
+        "communication": 25,
+        "teamwork": 25,
+        "internationality": 0,
+        "research": 0,
+        "specializedKnowledge": 0,
+        "ethics": 0
+      }
+    },
     {
       "code": "0AH0201",
       "nameJa": "美しい国土づくりへの挑戦(I)",
