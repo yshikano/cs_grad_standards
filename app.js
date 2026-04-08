@@ -4037,3 +4037,1082 @@ async function loadScheduleDataset() {
   renderSearchResults(searchCourses(els.searchInput?.value || ''));
   renderTimetablePanel();
 }
+
+/* === 2026-04 compact UI / fixed-row / timetable reliability patch === */
+const SCHEDULE_CACHE_KEY = 'tsukuba-achievement-helper.schedule-cache.v2';
+state.scheduleNameMap = state.scheduleNameMap || {};
+
+function getSpecialResearchRowMap() {
+  return [
+    { row: 11, ja: '情報理工前期特別研究A', en: 'Research in Computer Science A', codes: ['0ALD512', '0ALD513'] },
+    { row: 12, ja: '情報理工前期特別研究B', en: 'Research in Computer Science B', codes: ['0ALD514', '0ALD515'] },
+    { row: 13, ja: '情報理工前期特別研究C', en: 'Research in Computer Science C', codes: ['0ALD516', '0ALD517'] },
+    { row: 14, ja: '情報理工前期特別研究D', en: 'Research in Computer Science D', codes: ['0ALD518', '0ALD519'] }
+  ];
+}
+
+function getFixedCourseRowForCourse(courseLike) {
+  if (!courseLike) return null;
+  const codeCandidates = [
+    courseLike.code,
+    ...(Array.isArray(courseLike.equivalentCodes) ? courseLike.equivalentCodes : [])
+  ].map(value => String(value || '').trim().toUpperCase()).filter(Boolean);
+
+  const names = [
+    courseLike.nameJa,
+    courseLike.nameEn,
+    ...(Array.isArray(courseLike.aliases) ? courseLike.aliases : [])
+  ].map(value => normalize(value)).filter(Boolean);
+
+  const matched = getSpecialResearchRowMap().find(item => {
+    if (item.codes.some(code => codeCandidates.includes(code))) return true;
+    return names.includes(normalize(item.ja)) || names.includes(normalize(item.en));
+  });
+  return matched ? matched.row : null;
+}
+
+function isSpecialResearchRow(row) {
+  return FIXED_COURSE_ROWS.includes(Number(row));
+}
+
+function normalizeCourseRowsForFixedLayout(courseRows = {}) {
+  const normalizedRows = {};
+  const pendingRegularEntries = [];
+  const rowMap = Object.fromEntries(getSpecialResearchRowMap().map(item => [item.row, item]));
+
+  getPlanEntries(courseRows).forEach(sourceEntry => {
+    const entry = {
+      ...sourceEntry,
+      row: Number(sourceEntry.row),
+      points18: clonePoints18(sourceEntry.points18),
+      sourceCourse: sourceEntry.sourceCourse ? cloneCourseSource(sourceEntry.sourceCourse) : null
+    };
+
+    const fixedRow = getFixedCourseRowForCourse(entry.sourceCourse || entry);
+    if (fixedRow) {
+      const info = rowMap[fixedRow];
+      normalizedRows[fixedRow] = {
+        ...entry,
+        row: fixedRow,
+        nameJa: info?.ja || entry.nameJa,
+        nameEn: info?.en || entry.nameEn,
+        aliases: Array.from(new Set([...(entry.aliases || []), info?.ja, info?.en].filter(Boolean)))
+      };
+      return;
+    }
+
+    if (!Number.isFinite(entry.row) || entry.row < FIRST_REGULAR_COURSE_ROW || isSpecialResearchRow(entry.row)) {
+      pendingRegularEntries.push(entry);
+      return;
+    }
+
+    if (normalizedRows[entry.row]) {
+      pendingRegularEntries.push(entry);
+      return;
+    }
+
+    normalizedRows[entry.row] = entry;
+  });
+
+  pendingRegularEntries.sort((a, b) => (a.row || FIRST_REGULAR_COURSE_ROW) - (b.row || FIRST_REGULAR_COURSE_ROW));
+  pendingRegularEntries.forEach(entry => {
+    let row = Math.max(FIRST_REGULAR_COURSE_ROW, Number(entry.row) || FIRST_REGULAR_COURSE_ROW);
+    while (normalizedRows[row]) {
+      row += 1;
+    }
+    normalizedRows[row] = {
+      ...entry,
+      row
+    };
+  });
+
+  return normalizedRows;
+}
+
+function getAllowedRegularRows(maxRow = getSelectableMaxRow()) {
+  const rows = [];
+  for (let row = FIRST_REGULAR_COURSE_ROW; row <= maxRow; row += 1) {
+    rows.push(row);
+  }
+  return rows.length ? rows : [FIRST_REGULAR_COURSE_ROW];
+}
+
+function getNextAvailableRegularRow(planRows = getCurrentDraft().courseRows, preferredStart = FIRST_REGULAR_COURSE_ROW) {
+  const normalizedRows = normalizeCourseRowsForFixedLayout(planRows);
+  let row = Math.max(FIRST_REGULAR_COURSE_ROW, preferredStart);
+  while (normalizedRows[row]) {
+    row += 1;
+  }
+  return row;
+}
+
+function cloneCourseSource(course) {
+  return {
+    code: course?.code || '',
+    nameJa: course?.nameJa || '',
+    nameEn: course?.nameEn || '',
+    credits: Number(course?.credits || 0),
+    total: resolveCourseTotal(course),
+    points8: course?.points8 ? { ...course.points8 } : null,
+    rawCompetenceValues: Array.isArray(course?.rawCompetenceValues) ? course.rawCompetenceValues.map(asInt) : null,
+    points18: Array.isArray(course?.points18) ? clonePoints18(course.points18) : null,
+    aliases: Array.isArray(course?.aliases) ? course.aliases.slice() : [],
+    equivalentCodes: Array.isArray(course?.equivalentCodes) ? course.equivalentCodes.slice() : [],
+    offeringSource: course?.offeringSource || '',
+    sourceKind: course?.sourceKind || '',
+    isExternal: Boolean(course?.isExternal),
+    schedule: course?.schedule ? deepClone(course.schedule) : null
+  };
+}
+
+function renderFixedCourseButtons() {
+  if (!els.fixedCourseButtons) return;
+  els.fixedCourseButtons.innerHTML = '';
+  getSpecialResearchRowMap().forEach(item => {
+    const matched = findCourseByNameOrAlias(item.ja) || findCourseByNameOrAlias(item.en) || state.courses.find(course => item.codes.includes(String(course.code || '').trim().toUpperCase()));
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'button button--small';
+    button.textContent = `${item.row}行: ${item.ja}`;
+    button.addEventListener('click', () => {
+      const course = matched || {
+        code: item.codes[0],
+        nameJa: item.ja,
+        nameEn: item.en,
+        credits: 3,
+        total: 300,
+        points18: clonePoints18(ZERO_18),
+        aliases: [item.ja, item.en],
+        equivalentCodes: item.codes.slice(),
+        sourceKind: 'manual'
+      };
+      selectCourse(course);
+    });
+    els.fixedCourseButtons.appendChild(button);
+  });
+}
+
+function getSelectableMaxRow() {
+  let maxRow = MIN_COURSE_END_ROW;
+  const highestPlanned = getHighestPlannedRow(normalizeCourseRowsForFixedLayout(getCurrentDraft().courseRows));
+  if (highestPlanned > 0) {
+    maxRow = Math.max(maxRow, highestPlanned + 1);
+  }
+  const sheetName = getSheetNameForMode(state.currentMode);
+  if (state.workbook && sheetName) {
+    try {
+      const sheet = state.workbook.sheet(sheetName);
+      const layout = detectSheetLayout(sheet);
+      maxRow = Math.max(maxRow, layout.courseEndRow + 1);
+    } catch (error) {
+      console.warn(error);
+    }
+  }
+  return Math.max(MIN_COURSE_END_ROW, maxRow);
+}
+
+function renderRowOptions(selectedValue = null) {
+  if (!els.targetRow) return;
+  const inferredFixedRow = getFixedCourseRowForCourse(state.selectedCourse)
+    || (isSpecialResearchRow(selectedValue) ? Number(selectedValue) : null)
+    || (isSpecialResearchRow(Number(els.targetRow.value || '')) ? Number(els.targetRow.value) : null);
+
+  const rows = inferredFixedRow ? [inferredFixedRow] : getAllowedRegularRows(getSelectableMaxRow());
+  const desired = Number(selectedValue ?? els.targetRow.value);
+  const safeSelected = rows.includes(desired) ? desired : rows[0];
+
+  els.targetRow.innerHTML = '';
+  rows.forEach(row => {
+    const option = document.createElement('option');
+    option.value = String(row);
+    option.textContent = getRowLabel(row);
+    els.targetRow.appendChild(option);
+  });
+  els.targetRow.value = String(safeSelected);
+  els.targetRow.disabled = rows.length === 1 && isSpecialResearchRow(rows[0]);
+}
+
+function getRowLabel(row) {
+  const numericRow = Number(row);
+  const planned = normalizeCourseRowsForFixedLayout(getCurrentDraft().courseRows)[numericRow];
+  if (planned) {
+    return `${numericRow}行: ${displayCourseName(planned)}`;
+  }
+
+  if (DEFAULT_ROW_LABELS[numericRow]) {
+    return DEFAULT_ROW_LABELS[numericRow];
+  }
+
+  const sheetName = getSheetNameForMode(state.currentMode);
+  if (state.workbook && sheetName) {
+    try {
+      const sheet = state.workbook.sheet(sheetName);
+      const layout = detectSheetLayout(sheet);
+      if (numericRow <= layout.courseEndRow) {
+        const courseName = String(sheet.cell(`A${numericRow}`).value() || '').trim();
+        const points18 = COLUMN_LETTERS.map(letter => asInt(sheet.cell(`${letter}${numericRow}`).value()));
+        if (courseName || points18.some(value => value > 0)) {
+          return `${numericRow}行: ${courseName || '入力済み科目'}`;
+        }
+      }
+    } catch (error) {
+      console.warn(error);
+    }
+  }
+  return `${numericRow}行: 空き行`;
+}
+
+function findPreferredRegularTargetRow() {
+  const currentRow = Number((els.targetRow && els.targetRow.value) || '');
+  const normalizedRows = normalizeCourseRowsForFixedLayout(getCurrentDraft().courseRows);
+  if (Number.isFinite(currentRow) && currentRow >= FIRST_REGULAR_COURSE_ROW && !isSpecialResearchRow(currentRow)) {
+    return currentRow;
+  }
+  return getNextAvailableRegularRow(normalizedRows, FIRST_REGULAR_COURSE_ROW);
+}
+
+function selectNextAvailableRow(currentRow) {
+  const rows = normalizeCourseRowsForFixedLayout(getCurrentDraft().courseRows);
+  const nextRow = getNextAvailableRegularRow(rows, Math.max(FIRST_REGULAR_COURSE_ROW, Number(currentRow || FIRST_REGULAR_COURSE_ROW) + 1));
+  renderRowOptions(nextRow);
+}
+
+function addSelectedCourseToDraft() {
+  if (!state.selectedCourse) return;
+  const draft = getCurrentDraft();
+  draft.courseRows = normalizeCourseRowsForFixedLayout(draft.courseRows);
+
+  const fixedRow = getFixedCourseRowForCourse(state.selectedCourse);
+  const row = fixedRow || Math.max(FIRST_REGULAR_COURSE_ROW, Number(els.targetRow.value || FIRST_REGULAR_COURSE_ROW));
+
+  draft.courseRows[row] = makePlanEntryFromSelection(row);
+  draft.courseRows = normalizeCourseRowsForFixedLayout(draft.courseRows);
+
+  renderRowOptions(row);
+  if (!fixedRow) {
+    selectNextAvailableRow(row);
+  }
+
+  const modeLabel = MODE_CONFIG[state.currentMode].label;
+  const statusText = fixedRow
+    ? `${modeLabel}の ${row} 行（固定欄）を更新しました。${MODE_CONFIG[state.currentMode].canWrite ? 'まだ Excel へは反映していません。' : '履修計画 UI 上でのみ更新しました。'}`
+    : `${modeLabel}の ${row} 行を更新しました。${MODE_CONFIG[state.currentMode].canWrite ? 'まだ Excel へは反映していません。' : '履修計画 UI 上でのみ更新しました。'}`;
+
+  state.selectedCourse = null;
+  state.previewPoints18 = clonePoints18(ZERO_18);
+  renderSelectedCourse(null);
+  updatePreviewInputs();
+  renderPlanSection();
+  updateActionStates();
+  setWorkbookStatus(statusText, currentStatusKindAfterChange());
+}
+
+function movePlanRow(row, delta) {
+  const numericRow = Number(row);
+  if (isSpecialResearchRow(numericRow)) {
+    setWorkbookStatus('11〜14行は情報理工前期特別研究 A〜D の固定欄なので移動できません。', 'warn');
+    return;
+  }
+
+  let targetRow = numericRow + delta;
+  if (targetRow < FIRST_REGULAR_COURSE_ROW) targetRow = FIRST_REGULAR_COURSE_ROW;
+  if (isSpecialResearchRow(targetRow)) targetRow = FIRST_REGULAR_COURSE_ROW;
+  if (targetRow === numericRow) return;
+
+  const draft = getCurrentDraft();
+  const entries = clonePlanRows(normalizeCourseRowsForFixedLayout(draft.courseRows));
+  const current = entries[numericRow];
+  if (!current) return;
+
+  const swap = entries[targetRow];
+  if (swap) {
+    entries[numericRow] = { ...swap, row: numericRow };
+  } else {
+    delete entries[numericRow];
+  }
+  entries[targetRow] = { ...current, row: targetRow };
+
+  draft.courseRows = normalizeCourseRowsForFixedLayout(entries);
+  renderRowOptions(targetRow);
+  if (state.selectedCourse) {
+    recomputePreview();
+  }
+  renderPlanSection();
+  setWorkbookStatus('授業科目ドラフトの並びを更新しました。', currentStatusKindAfterChange());
+}
+
+function editPlanRow(row) {
+  const entry = normalizeCourseRowsForFixedLayout(getCurrentDraft().courseRows)[Number(row)];
+  if (!entry) return;
+
+  state.selectedCourse = entry.sourceCourse ? cloneCourseSource(entry.sourceCourse) : {
+    code: entry.code,
+    nameJa: entry.nameJa,
+    nameEn: entry.nameEn,
+    credits: entry.credits,
+    total: sumPoints18(entry.points18),
+    points18: clonePoints18(entry.points18),
+    sourceKind: 'manual',
+    aliases: [entry.nameJa, entry.nameEn].filter(Boolean)
+  };
+  state.previewPoints18 = clonePoints18(entry.points18);
+  renderSelectedCourse(state.selectedCourse);
+  renderRowOptions(Number(row));
+  updatePreviewInputs();
+  updateActionStates();
+  setActiveWorkspaceTab('search');
+  setWorkbookStatus(`${row}行の内容を編集フォームへ読み込みました。`, currentStatusKindAfterChange());
+}
+
+function renderPlanList() {
+  const draft = getCurrentDraft();
+  draft.courseRows = normalizeCourseRowsForFixedLayout(draft.courseRows);
+  const entries = getPlanEntries(draft.courseRows);
+
+  if (!entries.length) {
+    els.planList.innerHTML = '<div class="status status--muted">まだ授業科目ドラフトはありません。科目検索タブで授業を選んで追加してください。</div>';
+  } else {
+    els.planList.innerHTML = entries.map(entry => {
+      const total = sumPoints18(entry.points18);
+      const fixed = isSpecialResearchRow(entry.row);
+      const tags = [
+        entry.code ? chip(entry.code) : '',
+        fixed ? chip('固定欄') : chip('通常科目'),
+        entry.isExternal ? chip('他研究群') : chip('シス情科目'),
+        chip(`${entry.credits ? `${entry.credits} 単位 / ` : ''}${total} 点`)
+      ].filter(Boolean).join('');
+
+      const schedule = getCourseScheduleInfo(entry.sourceCourse || entry);
+      const scheduleHtml = schedule
+        ? `<div class="plan-card__schedule"><div><strong>開講時限</strong> ${escapeHtml(formatScheduleSummaryText(schedule))}</div>${schedule.room ? `<div><strong>教室</strong> ${escapeHtml(schedule.room)}</div>` : ''}</div>`
+        : '';
+      const fixedHtml = fixed ? '<div class="plan-card__fixed"><span class="badge badge--pending">11〜14行の固定欄</span></div>' : '';
+
+      return `
+        <article class="plan-card">
+          <div class="plan-card__top">
+            <div>
+              <div class="plan-card__row">${entry.row}行</div>
+              <h3>${escapeHtml(displayCourseName(entry))}</h3>
+              <p>${escapeHtml(entry.nameEn || '')}</p>
+              <div class="plan-card__meta">${tags}</div>
+              ${fixedHtml}
+              ${scheduleHtml}
+            </div>
+            <div class="plan-card__total">${total} 点</div>
+          </div>
+          <div class="actions-row actions-row--compact">
+            <button class="button button--small" type="button" data-action="up" data-row="${entry.row}" ${fixed ? 'disabled' : ''}>上へ</button>
+            <button class="button button--small" type="button" data-action="down" data-row="${entry.row}" ${fixed ? 'disabled' : ''}>下へ</button>
+            <button class="button button--small" type="button" data-action="edit" data-row="${entry.row}">編集</button>
+            <button class="button button--small button--danger" type="button" data-action="remove" data-row="${entry.row}">削除</button>
+          </div>
+        </article>
+      `;
+    }).join('');
+
+    els.planList.querySelectorAll('button[data-action="remove"]').forEach(button => {
+      button.addEventListener('click', () => removePlanRow(Number(button.dataset.row)));
+    });
+    els.planList.querySelectorAll('button[data-action="edit"]').forEach(button => {
+      button.addEventListener('click', () => editPlanRow(Number(button.dataset.row)));
+    });
+    els.planList.querySelectorAll('button[data-action="up"]').forEach(button => {
+      button.addEventListener('click', () => movePlanRow(Number(button.dataset.row), -1));
+    });
+    els.planList.querySelectorAll('button[data-action="down"]').forEach(button => {
+      button.addEventListener('click', () => movePlanRow(Number(button.dataset.row), +1));
+    });
+  }
+
+  const metrics = getMetrics(draft);
+  els.planCourseCount.textContent = String(entries.length);
+  els.planCredits.textContent = String(entries.reduce((sum, entry) => sum + Number(entry.credits || 0), 0));
+  els.planPointsTotal.textContent = String(metrics.subtotalTotal);
+  els.extraItemCount.textContent = String((draft.extraItems || []).length);
+  els.extraPointsTotal.textContent = String(metrics.extraTotal);
+  els.projectedTotal.textContent = String(metrics.projectedTotal);
+  els.unmetCount.textContent = `${metrics.unmetCount} / 18`;
+}
+
+function removePlanRow(row) {
+  delete getCurrentDraft().courseRows[row];
+  getCurrentDraft().courseRows = normalizeCourseRowsForFixedLayout(getCurrentDraft().courseRows);
+  renderRowOptions();
+  if (state.selectedCourse) {
+    recomputePreview();
+  }
+  renderPlanSection();
+  setWorkbookStatus(`${row}行をドラフトから削除しました。`, currentStatusKindAfterChange());
+}
+
+function importDraftFromSheet(sheet) {
+  const layout = detectSheetLayout(sheet);
+  const courseRows = {};
+  const extraItems = [];
+
+  for (let row = 11; row <= layout.courseEndRow; row += 1) {
+    const defaultName = DEFAULT_ROW_NAMES[row] || '';
+    const name = String(sheet.cell(`A${row}`).value() || defaultName).trim();
+    const points18 = COLUMN_LETTERS.map(letter => asInt(sheet.cell(`${letter}${row}`).value()));
+    const hasAnyPoints = points18.some(value => value > 0);
+    if (!hasAnyPoints) {
+      continue;
+    }
+
+    const matched = findCourseByNameOrAlias(name);
+    const sourceCourse = matched
+      ? cloneCourseSource(matched)
+      : {
+          code: '',
+          nameJa: name || `Row ${row}`,
+          nameEn: '',
+          credits: 0,
+          total: sumPoints18(points18),
+          points18: clonePoints18(points18),
+          sourceKind: 'manual',
+          aliases: []
+        };
+
+    courseRows[row] = {
+      row,
+      code: matched?.code || '',
+      nameJa: name || matched?.nameJa || '',
+      nameEn: matched?.nameEn || '',
+      credits: Number(matched?.credits || 0),
+      sourceTotal: resolveCourseTotal(sourceCourse),
+      points18: clonePoints18(points18),
+      sourceCourse,
+      isExternal: Boolean(sourceCourse.isExternal),
+      sourceKind: sourceCourse.sourceKind || 'manual'
+    };
+  }
+
+  for (let row = layout.extraStartRow; row <= layout.extraEndRow; row += 1) {
+    const name = String(sheet.cell(`A${row}`).value() || '').trim();
+    const points18 = COLUMN_LETTERS.map(letter => asInt(sheet.cell(`${letter}${row}`).value()));
+    const hasAnyPoints = points18.some(value => value > 0);
+    if (!name && !hasAnyPoints) continue;
+    if (!hasAnyPoints) continue;
+
+    const templateKey = guessExtraTemplateKey(name, points18);
+    const snapshot = createDefaultExtraForm();
+    if (templateKey) {
+      snapshot.type = 'fixed';
+      snapshot.fixedKey = templateKey;
+    } else {
+      snapshot.type = 'custom';
+      snapshot.customTotal = sumPoints18(points18);
+    }
+    snapshot.label = name;
+    snapshot.points18 = clonePoints18(points18);
+
+    extraItems.push({
+      id: state.nextExtraId++,
+      type: templateKey ? 'fixed' : 'custom',
+      name,
+      note: '',
+      total: sumPoints18(points18),
+      points18: clonePoints18(points18),
+      formSnapshot: snapshot
+    });
+  }
+
+  return {
+    courseRows: normalizeCourseRowsForFixedLayout(courseRows),
+    extraItems
+  };
+}
+
+function applyCurrentModeToWorkbook() {
+  const config = MODE_CONFIG[state.currentMode];
+  if (!config.canWrite || !state.workbook) return;
+  const sheetName = getSheetNameForMode(state.currentMode);
+  if (!sheetName) {
+    setWorkbookStatus(`${config.label} シートが見つかりません。`, 'warn');
+    return;
+  }
+
+  try {
+    const sheet = state.workbook.sheet(sheetName);
+    const layout = detectSheetLayout(sheet);
+    const templates = prepareRowTemplates(sheet, layout);
+    const draft = getCurrentDraft();
+    draft.courseRows = normalizeCourseRowsForFixedLayout(draft.courseRows);
+    const targetCourseEndRow = expectedCourseEndRow(draft.courseRows);
+    const oldDeficitRow = layout.deficitRow;
+
+    ensureCourseRows(sheet, 11, targetCourseEndRow, layout.courseEndRow, templates.courseStyleRow);
+    for (let row = 11; row <= targetCourseEndRow; row += 1) {
+      clearCourseRow(sheet, row);
+    }
+    getPlanEntries(draft.courseRows).forEach(entry => {
+      writePoints18ToRow(sheet, entry.row, entry.nameJa || entry.nameEn || entry.code || '', entry.points18);
+    });
+
+    const newLayout = writeFooterStructure(sheet, targetCourseEndRow, templates, draft.extraItems);
+    clearTrailingArea(sheet, newLayout.deficitRow + 1, oldDeficitRow);
+
+    renderRowOptions();
+    renderModeInfo();
+    renderPlanSection();
+    updateActionStates();
+    setWorkbookStatus(`${config.label} を Excel に一括反映しました。授業科目欄は 11〜${targetCourseEndRow} 行、授業科目以外は ${Math.max(MIN_EXTRA_ROWS, draft.extraItems.length)} 行で再配置しています。`, 'ok');
+  } catch (error) {
+    console.error(error);
+    setWorkbookStatus('Excel への一括反映に失敗しました。テンプレート構造を確認してください。', 'warn');
+  }
+}
+
+function selectCourse(course) {
+  const fixedRow = getFixedCourseRowForCourse(course);
+  state.selectedCourse = cloneCourseSource(course);
+
+  if (fixedRow) {
+    const existing = normalizeCourseRowsForFixedLayout(getCurrentDraft().courseRows)[fixedRow];
+    renderRowOptions(fixedRow);
+    state.previewPoints18 = existing ? clonePoints18(existing.points18) : resolveCoursePoints18(state.selectedCourse, {
+      mode: els.splitMode.value,
+      positiveDeficits18: getPositiveDeficits18({ excludingCourseRow: fixedRow })
+    });
+    renderSelectedCourse(state.selectedCourse);
+    updatePreviewInputs();
+    updateActionStates();
+    renderTimetablePanel();
+    setActiveWorkspaceTab('search');
+    return;
+  }
+
+  const targetRow = findPreferredRegularTargetRow();
+  renderRowOptions(targetRow);
+  renderSelectedCourse(state.selectedCourse);
+  recomputePreview();
+  updateActionStates();
+  renderTimetablePanel();
+  setActiveWorkspaceTab('search');
+}
+
+function renderSearchResults(courses) {
+  if (!els.searchResults) return;
+  if (!courses.length) {
+    els.searchResults.innerHTML = '<div class="status status--warn">該当科目が見つかりません。</div>';
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+
+  courses.forEach(course => {
+    const card = document.createElement('article');
+    card.className = 'result-card';
+
+    const sourceKindLabel = course.sourceKind === 'exact8'
+      ? 'カリキュラム・マップ由来'
+      : (course.sourceKind === 'sequence'
+        ? '非ゼロ列を自動補完'
+        : (course.sourceKind === 'creditsOnly' ? '単位数ベースの初期配点' : 'カスタム'));
+    const fixedRow = getFixedCourseRowForCourse(course);
+    const schedule = getCourseScheduleInfo(course);
+    const rowLabel = fixedRow ? `${fixedRow}行の固定欄` : `${findPreferredRegularTargetRow()}行以降の通常欄`;
+    const metaChips = [
+      chip(course.code || 'コードなし'),
+      chip(`単位 ${course.credits ?? '—'}`),
+      chip(`合計 ${course.total ?? '—'} 点`),
+      chip(sourceKindLabel),
+      chip(rowLabel)
+    ].join('');
+
+    const scheduleHtml = schedule
+      ? `<div class="result-card__extra"><div><strong>開講</strong> ${escapeHtml(formatScheduleSummaryText(schedule))}</div>${schedule.room ? `<div><strong>教室</strong> ${escapeHtml(schedule.room)}</div>` : ''}${schedule.person ? `<div><strong>担当</strong> ${escapeHtml(schedule.person)}</div>` : ''}</div>`
+      : (state.scheduleStatus === 'loading'
+        ? '<div class="result-card__extra muted">開講時限データを読み込み中です。</div>'
+        : '<div class="result-card__extra muted">開講時限データが未読込または未登録です。</div>');
+
+    const fixedNote = fixedRow
+      ? `<div class="result-card__extra"><strong>配点</strong> ${fixedRow}行の固定欄で手動調整します。</div>`
+      : '';
+
+    card.innerHTML = `
+      <div class="result-card__body">
+        <div>
+          <strong>${escapeHtml(course.nameJa || course.nameEn || '名称未設定')}</strong>
+          ${course.nameEn ? `<div class="muted">${escapeHtml(course.nameEn)}</div>` : ''}
+        </div>
+        <div class="chips">${metaChips}</div>
+        ${scheduleHtml}
+        ${fixedNote}
+      </div>
+      <div class="result-card__actions">
+        <button type="button" class="button button--primary button--small">選択</button>
+      </div>
+    `;
+    card.querySelector('button').addEventListener('click', () => selectCourse(course));
+    fragment.appendChild(card);
+  });
+
+  els.searchResults.innerHTML = '';
+  els.searchResults.appendChild(fragment);
+}
+
+function extractKdbField(line, index, keys = []) {
+  if (Array.isArray(line)) return line[index];
+  if (line && typeof line === 'object') {
+    for (const key of keys) {
+      if (key in line) return line[key];
+    }
+  }
+  return undefined;
+}
+
+function registerScheduleName(nameMap, name, entry) {
+  const key = normalize(name);
+  if (!key) return;
+  if (!nameMap[key]) nameMap[key] = [];
+  if (!nameMap[key].some(item => item.code === entry.code)) {
+    nameMap[key].push(entry);
+  }
+}
+
+function mergeScheduleStrings(left, right) {
+  const values = [String(left || '').trim(), String(right || '').trim()].filter(Boolean);
+  return Array.from(new Set(values)).join(' / ');
+}
+
+function mergeScheduleEntries(target, source) {
+  if (!target) return source;
+  target.termStr = mergeScheduleStrings(target.termStr, source.termStr);
+  target.timeslotStr = mergeScheduleStrings(target.timeslotStr, source.timeslotStr);
+  target.room = mergeScheduleStrings(target.room, source.room);
+  target.person = mergeScheduleStrings(target.person, source.person);
+  target.note = mergeScheduleStrings(target.note, source.note);
+  target.classMethods = Array.from(new Set([...(target.classMethods || []), ...(source.classMethods || [])]));
+  const termCodes = new Set([...Object.keys(target.slotsByTerm || {}), ...Object.keys(source.slotsByTerm || {})]);
+  termCodes.forEach(termCode => {
+    const leftTable = target.slotsByTerm?.[termCode];
+    const rightTable = source.slotsByTerm?.[termCode];
+    if (!leftTable && rightTable) {
+      target.slotsByTerm[termCode] = rightTable.map(row => row.slice());
+    } else if (leftTable && rightTable) {
+      mergeScheduleTable(leftTable, rightTable);
+    }
+  });
+  target.specialKinds = {
+    concentration: Boolean(target.specialKinds?.concentration || source.specialKinds?.concentration),
+    negotiable: Boolean(target.specialKinds?.negotiable || source.specialKinds?.negotiable),
+    asneeded: Boolean(target.specialKinds?.asneeded || source.specialKinds?.asneeded),
+    nt: Boolean(target.specialKinds?.nt || source.specialKinds?.nt)
+  };
+  target.hasRegularSlot = Boolean(target.hasRegularSlot || source.hasRegularSlot);
+  return target;
+}
+
+function buildScheduleMapFromKdb(payload, allowedCodes) {
+  const map = {};
+  const nameMap = {};
+  const rows = Array.isArray(payload?.subject)
+    ? payload.subject
+    : (Array.isArray(payload?.subjects) ? payload.subjects : []);
+  const allowedNames = new Set();
+  state.courses.forEach(course => {
+    [course.nameJa, course.nameEn, ...(Array.isArray(course.aliases) ? course.aliases : [])]
+      .map(value => normalize(value))
+      .filter(Boolean)
+      .forEach(value => allowedNames.add(value));
+  });
+
+  rows.forEach(line => {
+    const code = String(extractKdbField(line, 0, ['code', 'courseCode', 'subjectCode']) || '').trim();
+    const name = String(extractKdbField(line, 1, ['name', 'courseName', 'subjectName']) || '').trim();
+    if (!code && !name) return;
+
+    const isAllowed = !allowedCodes?.size
+      || allowedCodes.has(code)
+      || allowedNames.has(normalize(name));
+    if (!isAllowed) return;
+
+    const termStr = String(extractKdbField(line, 5, ['term', 'termStr']) || '').trim();
+    const timeslotStr = String(extractKdbField(line, 6, ['timeslot', 'timeslotStr', 'schedule']) || '').trim();
+    const room = String(extractKdbField(line, 7, ['room', 'classroom']) || '').trim();
+    const person = String(extractKdbField(line, 8, ['person', 'teacher', 'instructor']) || '').trim();
+    const note = String(extractKdbField(line, 10, ['note', 'remarks']) || '').trim();
+    const parsed = parseScheduleInfoFromKdb(termStr, timeslotStr);
+
+    const entry = {
+      code,
+      name,
+      year: String(extractKdbField(line, 4, ['year']) || '').trim(),
+      termStr,
+      timeslotStr,
+      room,
+      person,
+      note,
+      classMethods: extractScheduleClassMethods(note),
+      slotsByTerm: parsed.slotsByTerm,
+      specialKinds: parsed.specialKinds,
+      hasRegularSlot: parsed.hasRegularSlot
+    };
+
+    if (map[code]) {
+      mergeScheduleEntries(map[code], entry);
+    } else {
+      map[code] = entry;
+    }
+    registerScheduleName(nameMap, name, map[code]);
+  });
+
+  state.scheduleNameMap = nameMap;
+  return map;
+}
+
+function rebuildScheduleNameMapFromEntries(entries) {
+  const nameMap = {};
+  Object.values(entries || {}).forEach(entry => {
+    registerScheduleName(nameMap, entry.name, entry);
+  });
+  state.scheduleNameMap = nameMap;
+}
+
+function getCourseScheduleInfo(courseLike) {
+  if (!courseLike) return null;
+  if (courseLike.schedule && typeof courseLike.schedule === 'object') {
+    return courseLike.schedule;
+  }
+
+  const codeCandidates = [
+    courseLike.code,
+    ...(Array.isArray(courseLike.equivalentCodes) ? courseLike.equivalentCodes : [])
+  ].map(value => String(value || '').trim()).filter(Boolean);
+
+  for (const code of codeCandidates) {
+    if (state.scheduleMap?.[code]) {
+      return state.scheduleMap[code];
+    }
+  }
+
+  const names = [
+    courseLike.nameJa,
+    courseLike.nameEn,
+    ...(Array.isArray(courseLike.aliases) ? courseLike.aliases : [])
+  ];
+  for (const name of names) {
+    const candidates = state.scheduleNameMap?.[normalize(name)] || [];
+    if (candidates.length) {
+      return candidates[0];
+    }
+  }
+
+  return null;
+}
+
+function saveScheduleCache(map, meta = {}) {
+  try {
+    const payload = {
+      updated: meta.updated || '',
+      source: meta.source || '',
+      map
+    };
+    localStorage.setItem(SCHEDULE_CACHE_KEY, JSON.stringify(payload));
+  } catch (error) {
+    console.warn('schedule cache save failed', error);
+  }
+}
+
+function loadScheduleCache() {
+  try {
+    const raw = localStorage.getItem(SCHEDULE_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object' || !parsed.map) return null;
+    return parsed;
+  } catch (error) {
+    console.warn('schedule cache read failed', error);
+    return null;
+  }
+}
+
+function applyScheduleMap(map, meta = {}) {
+  state.scheduleMap = map || {};
+  rebuildScheduleNameMapFromEntries(state.scheduleMap);
+  state.scheduleStatus = Object.keys(state.scheduleMap).length ? 'ready' : 'warn';
+  state.scheduleMessage = Object.keys(state.scheduleMap).length
+    ? '開講時限データの読み込みが完了しました。'
+    : '開講時限データは取得できましたが、現在の科目データと照合できる項目がありませんでした。';
+  state.scheduleMeta = {
+    updated: meta.updated || '',
+    source: meta.source || ''
+  };
+  renderScheduleStatus();
+  renderSearchResults(searchCourses(els.searchInput?.value || ''));
+  renderSelectedCourse(state.selectedCourse);
+  renderTimetablePanel();
+  renderPlanSection();
+  if (Object.keys(state.scheduleMap).length) {
+    saveScheduleCache(state.scheduleMap, state.scheduleMeta);
+  }
+}
+
+async function loadScheduleDataset(force = false) {
+  if (!state.courses.length) return;
+  if (!force && state.scheduleStatus === 'loading') return;
+  if (!force && state.scheduleStatus === 'ready' && Object.keys(state.scheduleMap || {}).length) {
+    renderTimetablePanel();
+    return;
+  }
+
+  const allowedCodes = new Set(
+    state.courses.flatMap(course => [course.code, ...(Array.isArray(course.equivalentCodes) ? course.equivalentCodes : [])])
+      .map(value => String(value || '').trim())
+      .filter(Boolean)
+  );
+
+  if (!force) {
+    const cached = loadScheduleCache();
+    if (cached?.map && Object.keys(cached.map).length) {
+      applyScheduleMap(cached.map, {
+        updated: cached.updated || '',
+        source: `${cached.source || 'ローカルキャッシュ'} / ローカルキャッシュ`
+      });
+      return;
+    }
+  }
+
+  state.scheduleStatus = 'loading';
+  state.scheduleMessage = 'alternative-tsukuba-kdb の大学院 KdB データを読み込んでいます。';
+  renderScheduleStatus();
+  renderTimetablePanel();
+
+  const errors = [];
+  const candidates = [
+    { url: './data/kdb-grad.json', label: '同梱 data/kdb-grad.json' },
+    { url: 'data/kdb-grad.json', label: '同梱 data/kdb-grad.json (relative)' },
+    { url: 'https://cdn.jsdelivr.net/gh/Make-IT-TSUKUBA/alternative-tsukuba-kdb@main/frontend/src/kdb/kdb-grad.json', label: 'jsDelivr / alternative-tsukuba-kdb kdb-grad.json' },
+    { url: 'https://github.com/Make-IT-TSUKUBA/alternative-tsukuba-kdb/raw/refs/heads/main/frontend/src/kdb/kdb-grad.json', label: 'GitHub raw download / alternative-tsukuba-kdb kdb-grad.json' },
+    { url: 'https://raw.githubusercontent.com/Make-IT-TSUKUBA/alternative-tsukuba-kdb/main/frontend/src/kdb/kdb-grad.json', label: 'raw.githubusercontent.com / alternative-tsukuba-kdb kdb-grad.json' }
+  ];
+
+  for (const candidate of candidates) {
+    try {
+      const response = await fetch(candidate.url, { cache: 'force-cache' });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const rawText = await response.text();
+      if (!rawText || !rawText.trim()) {
+        throw new Error('空のレスポンス');
+      }
+      if (/^\s*</.test(rawText)) {
+        throw new Error('JSON ではなく HTML が返りました');
+      }
+
+      const payload = JSON.parse(rawText);
+      const map = buildScheduleMapFromKdb(payload, allowedCodes);
+      if (!Object.keys(map).length) {
+        throw new Error('現在の科目データと照合できる開講時限がありませんでした');
+      }
+      applyScheduleMap(map, {
+        updated: payload.updated || '',
+        source: candidate.label
+      });
+      return;
+    } catch (error) {
+      errors.push(`${candidate.label}: ${error.message}`);
+    }
+  }
+
+  state.scheduleStatus = 'warn';
+  state.scheduleMessage = `開講時限データを取得できませんでした。${errors.join(' / ')}`;
+  state.scheduleMap = {};
+  state.scheduleNameMap = {};
+  renderScheduleStatus();
+  renderSearchResults(searchCourses(els.searchInput?.value || ''));
+  renderTimetablePanel();
+}
+
+async function onScheduleFileSelected(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  try {
+    const rawText = await file.text();
+    const payload = JSON.parse(rawText);
+    const allowedCodes = new Set(
+      state.courses.flatMap(course => [course.code, ...(Array.isArray(course.equivalentCodes) ? course.equivalentCodes : [])])
+        .map(value => String(value || '').trim())
+        .filter(Boolean)
+    );
+    const map = buildScheduleMapFromKdb(payload, allowedCodes);
+    if (!Object.keys(map).length) {
+      throw new Error('現在の科目データと照合できる開講時限がありませんでした。ファイルが kdb-grad.json か確認してください。');
+    }
+    applyScheduleMap(map, {
+      updated: payload.updated || '',
+      source: `手動読込: ${file.name}`
+    });
+    setWorkbookStatus(`開講時限データを ${file.name} から読み込みました。`, currentStatusKindAfterChange());
+  } catch (error) {
+    console.error(error);
+    state.scheduleStatus = 'warn';
+    state.scheduleMessage = `手動読込に失敗しました。${error.message}`;
+    renderScheduleStatus();
+    renderTimetablePanel();
+    setWorkbookStatus(`開講時限データの手動読込に失敗しました。${error.message}`, 'warn');
+  } finally {
+    event.target.value = '';
+  }
+}
+
+function renderScheduleStatus() {
+  if (!els.scheduleStatus || !els.scheduleUpdated) return;
+  let label = '未読込';
+  let className = 'badge';
+  if (state.scheduleStatus === 'loading') {
+    label = '読込中';
+    className = 'badge badge--pending';
+  } else if (state.scheduleStatus === 'ready') {
+    label = '利用可能';
+    className = 'badge badge--ok';
+  } else if (state.scheduleStatus === 'warn') {
+    label = '未取得';
+    className = 'badge badge--warn';
+  }
+  els.scheduleStatus.textContent = label;
+  els.scheduleStatus.className = className;
+
+  if (state.scheduleStatus === 'ready') {
+    const updatedLabel = state.scheduleMeta?.updated ? `更新日 ${escapeHtml(String(state.scheduleMeta.updated))}` : '更新日未取得';
+    const sourceLabel = state.scheduleMeta?.source ? ` / 読込元 ${escapeHtml(String(state.scheduleMeta.source))}` : '';
+    const countLabel = ` / 対応科目 ${Object.keys(state.scheduleMap || {}).length} 件`;
+    els.scheduleUpdated.innerHTML = `alternative-tsukuba-kdb 由来の大学院 KdB データを利用中です。<br>${updatedLabel}${sourceLabel}${countLabel}`;
+  } else if (state.scheduleStatus === 'loading') {
+    els.scheduleUpdated.textContent = state.scheduleMessage || '開講時限データを読み込み中です。';
+  } else {
+    els.scheduleUpdated.innerHTML = `${escapeHtml(state.scheduleMessage || '開講時限データを読み込めませんでした。')}<br>必要なら alternative-tsukuba-kdb の <code>kdb-grad.json</code> を手動読込してください。`;
+  }
+}
+
+function renderTimetablePanel() {
+  if (!els.timetableGrid || !els.timetableSummary || !els.timetableUnscheduled) return;
+  renderScheduleStatus();
+  renderScheduleTermTabs();
+
+  if (!Object.keys(state.scheduleMap || {}).length && state.scheduleStatus !== 'loading') {
+    els.timetableGrid.innerHTML = '<div class="status status--muted">開講時限データがまだありません。自動読込を待つか、必要なら KdB JSON を手動読込してください。</div>';
+    els.timetableSummary.innerHTML = '';
+    const unscheduled = buildUnscheduledCourseItems();
+    els.timetableUnscheduled.innerHTML = unscheduled.length
+      ? `<div class="unscheduled-list">${unscheduled.map(item => `<div class="unscheduled-chip"><strong>${escapeHtml(item.label)}</strong><div class="unscheduled-chip__meta">${escapeHtml(item.reason)}</div></div>`).join('')}</div>`
+      : '<div class="status status--muted">時間割へ載せられる科目がまだありません。</div>';
+    return;
+  }
+
+  const timetableItems = buildTimetableItemsForTerm(state.activeTermCode);
+  const cellMap = new Map();
+
+  timetableItems.forEach(item => {
+    item.cells.forEach(cell => {
+      const key = `${cell.dayIndex}-${cell.periodIndex}`;
+      if (!cellMap.has(key)) {
+        cellMap.set(key, []);
+      }
+      cellMap.get(key).push(item);
+    });
+  });
+
+  let conflictCellCount = 0;
+  const bodyHtml = Array.from({ length: SCHEDULE_PERIOD_TIMES.length }, (_, periodIndex) => {
+    const cellHtml = SCHEDULE_DAY_LABELS.map((dayLabel, dayIndex) => {
+      const key = `${dayIndex}-${periodIndex}`;
+      const items = cellMap.get(key) || [];
+      if (items.length > 1) {
+        conflictCellCount += 1;
+      }
+      const slotContent = items.length
+        ? `<div class="timetable-slotlist">${items.map(item => {
+            const classes = ['timetable-chip'];
+            if (items.length > 1) classes.push('timetable-chip--conflict');
+            if (item.kind === 'preview') classes.push('timetable-chip--preview');
+            return `
+              <div class="${classes.join(' ')}">
+                <strong>${escapeHtml(item.shortLabel)}</strong>
+                <div class="timetable-chip__meta">${escapeHtml(item.meta)}</div>
+              </div>
+            `;
+          }).join('')}</div>`
+        : '';
+      return `<td class="timetable-slot">${slotContent}</td>`;
+    }).join('');
+
+    return `
+      <tr>
+        <th class="timetable-table__time">
+          <strong>${periodIndex + 1}限</strong>
+          <span>${escapeHtml(SCHEDULE_PERIOD_TIMES[periodIndex][0])}<br>${escapeHtml(SCHEDULE_PERIOD_TIMES[periodIndex][1])}</span>
+        </th>
+        ${cellHtml}
+      </tr>
+    `;
+  }).join('');
+
+  els.timetableGrid.innerHTML = `
+    <table class="timetable-table">
+      <thead>
+        <tr>
+          <th class="timetable-table__time">時限</th>
+          ${SCHEDULE_DAY_LABELS.map(label => `<th>${escapeHtml(label)}</th>`).join('')}
+        </tr>
+      </thead>
+      <tbody>${bodyHtml}</tbody>
+    </table>
+  `;
+
+  const draftItems = timetableItems.filter(item => item.kind === 'draft').length;
+  const previewItem = timetableItems.find(item => item.kind === 'preview');
+  els.timetableSummary.innerHTML = `
+    <div class="timetable-summary__stats">
+      <span class="chip">表示ターム ${escapeHtml(SCHEDULE_TERM_OPTIONS.find(item => item.code === state.activeTermCode)?.label || '—')}</span>
+      <span class="chip">ドラフト掲載 ${draftItems} 件</span>
+      ${previewItem ? '<span class="chip">候補科目を重ね表示中</span>' : ''}
+      ${conflictCellCount > 0 ? `<span class="chip">重複セル ${conflictCellCount} 件</span>` : '<span class="chip">時限重複なし</span>'}
+    </div>
+  `;
+
+  const unscheduled = buildUnscheduledCourseItems();
+  els.timetableUnscheduled.innerHTML = unscheduled.length
+    ? `<div class="unscheduled-list">${unscheduled.map(item => `<div class="unscheduled-chip"><strong>${escapeHtml(item.label)}</strong><div class="unscheduled-chip__meta">${escapeHtml(item.reason)}</div></div>`).join('')}</div>`
+    : '<div class="status status--ok">集中・応談・随時などを除く、現在のドラフト科目は時間割へ反映できています。</div>';
+}
+
+function setActiveWorkspaceTab(tabKey) {
+  document.querySelectorAll('[data-workspace-panel]').forEach(panel => {
+    panel.classList.toggle('is-active', panel.dataset.workspacePanel === tabKey);
+  });
+  document.querySelectorAll('[data-workspace]').forEach(button => {
+    button.classList.toggle('is-active', button.dataset.workspace === tabKey);
+  });
+}
+
+function initCompactWorkspaceUi() {
+  document.querySelectorAll('[data-workspace]').forEach(button => {
+    button.addEventListener('click', () => {
+      setActiveWorkspaceTab(button.dataset.workspace);
+    });
+  });
+
+  const scheduleFile = document.getElementById('scheduleFile');
+  if (scheduleFile) {
+    scheduleFile.addEventListener('change', onScheduleFileSelected);
+  }
+
+  const reloadScheduleBtn = document.getElementById('reloadScheduleBtn');
+  if (reloadScheduleBtn) {
+    reloadScheduleBtn.addEventListener('click', () => {
+      state.scheduleStatus = 'idle';
+      state.scheduleMessage = '開講時限データを再取得します。';
+      void loadScheduleDataset(true);
+    });
+  }
+
+  setActiveWorkspaceTab('search');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initCompactWorkspaceUi();
+});

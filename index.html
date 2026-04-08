@@ -8,66 +8,105 @@
   <script defer src="https://cdn.jsdelivr.net/npm/xlsx-populate/browser/xlsx-populate.min.js"></script>
   <script defer src="./app.js"></script>
 </head>
-<body>
-  <header class="hero">
-    <div class="hero__text">
+<body class="app-body app-body--compact">
+  <header class="topbar">
+    <div class="topbar__brand">
       <p class="eyebrow">Tsukuba Achievement Helper</p>
       <h1>達成度評価シート入力支援</h1>
-      <p class="lead">
-        履修計画、M中間評価、M最終評価の 3 モードで使える版です。
-        システム情報工学研究群の科目検索、他研究群科目の登録、授業科目以外の加点、
-        18観点の手修正、Excel への最後の一括反映に対応しています。
-      </p>
+      <p class="lead">履修計画 / M中間評価 / M最終評価を、固定行・時間割・差分確認つきで省スクロール運用できる版です。</p>
     </div>
-    <div class="hero__badge">
-      <div><strong>今回の版で対応したこと</strong></div>
-      <div>・ 実際の様式に合わせて M中間評価 / M最終評価 を切替</div>
-      <div>・ 履修計画モードを追加</div>
-      <div>・ 最終評価を中間評価から初期化</div>
-      <div>・ 授業科目以外（論文、WG、TA、TOEIC/TOEFL 等）を追加</div>
-      <div>・ 11〜14 行は特別研究 A〜D、通常科目は 15 行目以降へ配置</div>
+    <div class="topbar__hint">
+      <div class="topbar__hint-title">この版の使い方</div>
+      <ol class="topbar__steps">
+        <li>Excel を読み込む</li>
+        <li>科目検索タブで授業を追加</li>
+        <li>追加項目タブで他研究群科目 / 授業科目以外を調整</li>
+        <li>ドラフトタブで差分を確認し、最後に Excel へ一括反映</li>
+      </ol>
     </div>
   </header>
 
-  <main class="layout">
-    <section class="card card--wide">
-      <div class="section-heading">
-        <div>
-          <h2>1. Excel とモード</h2>
-          <p>履修計画では UI 上のドラフトだけを更新し、M中間評価 / M最終評価でのみ Excel へ一括反映します。</p>
-        </div>
-      </div>
+  <main class="app-shell">
+    <section class="card control-card">
+      <div class="control-card__grid">
+        <label class="file-drop control-card__file">
+          <input id="xlsxFile" type="file" accept=".xlsx,.xlsm,.xls">
+          <span class="file-drop__title">達成度評価 Excel を選択</span>
+          <span class="file-drop__sub">対応: Achievement-Evaluation-Sheet（M-2026-Enrollees）.xlsx など</span>
+        </label>
 
-      <label class="file-drop">
-        <input id="xlsxFile" type="file" accept=".xlsx,.xlsm,.xls">
-        <span class="file-drop__title">達成度評価 Excel を選択</span>
-        <span class="file-drop__sub">対応: .xlsx / .xlsm / .xls</span>
-      </label>
-
-      <div class="mode-panel">
-        <div>
+        <div class="control-card__mode">
           <div class="mode-panel__label">利用モード</div>
           <div id="modeSwitch" class="mode-switch"></div>
         </div>
-        <div class="actions-row actions-row--compact mode-panel__actions">
-          <button id="seedFinalBtn" class="button button--small" type="button">中間評価の内容で最終評価を初期化</button>
+
+        <div class="control-card__actions">
+          <div class="actions-row actions-row--compact actions-row--wrap">
+            <button id="seedFinalBtn" class="button button--small" type="button">中間評価の内容で最終評価を初期化</button>
+            <button id="applyPlanBtn" class="button button--primary" type="button" disabled>現在のモードを Excel に一括反映</button>
+            <button id="downloadBtn" class="button" type="button" disabled>更新した Excel をダウンロード</button>
+            <button id="reloadPlanBtn" class="button" type="button" disabled>Excel から再読込</button>
+            <button id="clearPlanBtn" class="button button--danger" type="button" disabled>現在のモードのドラフトをクリア</button>
+          </div>
         </div>
       </div>
 
-      <div id="modeInfo" class="status status--muted">履修計画モードです。まだ Excel は更新しません。</div>
-      <div id="workbookStatus" class="status status--muted">まだ Excel は読み込まれていません。</div>
+      <div class="status-stack">
+        <div id="modeInfo" class="status status--muted">履修計画モードです。まだ Excel は更新しません。</div>
+        <div id="workbookStatus" class="status status--muted">まだ Excel は読み込まれていません。</div>
+        <div id="syncStatus" class="sync-status"></div>
+      </div>
     </section>
 
-    <section class="card card--wide">
-      <div class="section-heading">
-        <div>
-          <h2>2. システム情報工学研究群の科目を検索</h2>
-          <p>科目番号・日本語名・英語名で絞り込みます。開講ターム・曜日時限も併せて確認しながら、時間割を埋める形で履修計画を作れます。</p>
-        </div>
+    <section class="summary-strip summary-strip--wide sticky-overview compact-overview">
+      <div class="summary-card">
+        <span>授業科目数</span>
+        <strong id="planCourseCount">0</strong>
       </div>
+      <div class="summary-card">
+        <span>単位数</span>
+        <strong id="planCredits">0</strong>
+      </div>
+      <div class="summary-card">
+        <span>授業科目小計</span>
+        <strong id="planPointsTotal">0</strong>
+      </div>
+      <div class="summary-card">
+        <span>授業科目以外件数</span>
+        <strong id="extraItemCount">0</strong>
+      </div>
+      <div class="summary-card">
+        <span>授業科目以外小計</span>
+        <strong id="extraPointsTotal">0</strong>
+      </div>
+      <div class="summary-card">
+        <span>見込み合計</span>
+        <strong id="projectedTotal">0</strong>
+      </div>
+      <div class="summary-card summary-card--accent">
+        <span>未達観点</span>
+        <strong id="unmetCount">0 / 18</strong>
+      </div>
+    </section>
 
-      <div class="search-layout">
-        <div class="search-main">
+    <section class="workspace-switcher">
+      <div class="workspace-switcher__tabs" id="workspaceTabs">
+        <button type="button" class="workspace-tab is-active" data-workspace="search">科目検索・授業科目</button>
+        <button type="button" class="workspace-tab" data-workspace="extras">他研究群 / 授業科目以外</button>
+        <button type="button" class="workspace-tab" data-workspace="draft">ドラフト・差分</button>
+      </div>
+    </section>
+
+    <section class="workspace-panel is-active" data-workspace-panel="search">
+      <div class="compact-grid compact-grid--search">
+        <section class="card compact-card compact-card--search">
+          <div class="section-heading section-heading--compact">
+            <div>
+              <h2>システム情報工学研究群の科目を検索</h2>
+              <p>科目番号・日本語名・英語名で検索します。通常科目は 15 行目以降、情報理工前期特別研究 A〜D は 11〜14 行の固定欄です。</p>
+            </div>
+          </div>
+
           <div class="search-box">
             <input id="searchInput" type="search" placeholder="例: 0ALD512 / 情報理工前期特別研究A / Research in Computer Science A">
           </div>
@@ -75,259 +114,225 @@
             <div id="searchMeta" class="search-meta">科目データを読み込み中…</div>
             <div id="datasetInfo" class="dataset-info"></div>
           </div>
-          <div id="searchResults" class="results results--compact"></div>
-        </div>
+          <div id="searchResults" class="results results--compact results--scroll"></div>
+        </section>
 
-        <aside class="search-side">
-          <div class="side-card">
-            <div class="side-card__head">
+        <div class="stack stack--dense">
+          <section class="card compact-card compact-card--editor">
+            <div class="section-heading section-heading--compact">
               <div>
-                <strong>時間割プレビュー</strong>
-                <div class="muted">現在のモードのドラフトと、選択中の候補科目を時限で確認できます。</div>
+                <h2>授業科目の配点</h2>
+                <p>11〜14 行は情報理工前期特別研究 A〜D の固定欄です。通常の受講科目は 15 行目以降に追加されます。</p>
+              </div>
+            </div>
+
+            <div class="subsection-title">固定行のクイック選択（11〜14 行）</div>
+            <div id="fixedCourseButtons" class="quick-grid quick-grid--compact"></div>
+
+            <div id="selectedCourseBox" class="selected-course empty">まだ科目が選択されていません。</div>
+
+            <div class="controls-grid controls-grid--compact">
+              <label>
+                <span>初期配点ルール</span>
+                <select id="splitMode">
+                  <option value="smart">不足差分優先 smart（既定）</option>
+                  <option value="required">必要点比例</option>
+                  <option value="even">均等配分</option>
+                </select>
+              </label>
+              <label>
+                <span>配置先の行</span>
+                <select id="targetRow"></select>
+              </label>
+            </div>
+
+            <div class="preview-head preview-head--sticky">
+              <div>
+                <strong>18 観点プレビュー</strong>
+                <span class="muted">B〜S 列の 18 観点は手で微調整できます。</span>
+              </div>
+              <div class="preview-head__actions">
+                <div id="previewTotal" class="preview-total">合計 0 点</div>
+                <button id="courseRecomputeBtn" class="button button--small" type="button">差分に合わせて再提案</button>
+              </div>
+            </div>
+            <div id="previewGrid" class="preview-grid preview-grid--compact preview-grid--scroll"></div>
+
+            <div class="actions-row actions-row--end actions-row--compact">
+              <button id="planAddBtn" class="button button--primary" type="button" disabled>現在のモードの授業科目へ追加 / 更新</button>
+            </div>
+          </section>
+
+          <section class="card compact-card compact-card--timetable">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <h2>時間割プレビュー</h2>
+                <p>現在のドラフトと、選択中候補科目の開講時限を重ねて確認します。</p>
               </div>
               <span id="scheduleStatus" class="badge">未読込</span>
             </div>
-            <div id="scheduleUpdated" class="side-card__meta muted">alternative-tsukuba-kdb の大学院 KdB 参照データを読み込みます。</div>
+
+            <div class="inline-actions inline-actions--between">
+              <div id="scheduleUpdated" class="side-card__meta muted">alternative-tsukuba-kdb の大学院 KdB 参照データを読み込みます。</div>
+              <div class="button-group-inline">
+                <label class="button button--small file-inline">
+                  KdB JSON を手動読込
+                  <input id="scheduleFile" type="file" accept=".json,application/json">
+                </label>
+                <button id="reloadScheduleBtn" class="button button--small" type="button">再読込</button>
+              </div>
+            </div>
+
             <div id="scheduleTermTabs" class="term-tabs"></div>
             <div id="timetableGrid" class="timetable-table-wrap"></div>
             <div id="timetableSummary" class="timetable-summary"></div>
             <div id="timetableUnscheduled" class="timetable-unscheduled"></div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="workspace-panel" data-workspace-panel="extras">
+      <div class="compact-grid compact-grid--extras">
+        <section class="card compact-card">
+          <div class="section-heading section-heading--compact">
+            <div>
+              <h2>他研究群の科目を作る</h2>
+              <p>元のコンピテンスまたは観点を入力すると、1 単位 = 100 点で正規化し、現在の不足差分を見ながら 18 観点へ初期配点します。</p>
+            </div>
           </div>
-        </aside>
+
+          <div class="controls-grid controls-grid--triple controls-grid--compact">
+            <label>
+              <span>科目名</span>
+              <input id="customName" type="text" placeholder="例: ○○特論">
+            </label>
+            <label>
+              <span>科目番号（任意）</span>
+              <input id="customCode" type="text" placeholder="例: EXT-001">
+            </label>
+            <label>
+              <span>単位数</span>
+              <input id="customCredits" type="number" min="0" step="0.5" placeholder="例: 2">
+            </label>
+            <label>
+              <span>元データの形式</span>
+              <select id="customInputMode">
+                <option value="competence8">8 コンピテンス</option>
+                <option value="viewpoint18">18 観点</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="customValueMeta" class="status status--muted">元のコンピテンス / 観点を入力すると、1 単位 100 点へ正規化した上で不足差分を見ながら初期配点します。</div>
+          <div id="customValueGrid" class="preview-grid preview-grid--compact preview-grid--scroll"></div>
+
+          <div class="actions-row actions-row--end actions-row--compact">
+            <button id="customUseBtn" class="button button--primary" type="button">この内容を選択中の科目へセット</button>
+            <button id="customClearBtn" class="button" type="button">入力をクリア</button>
+          </div>
+        </section>
+
+        <section class="card compact-card">
+          <div class="section-heading section-heading--compact">
+            <div>
+              <h2>授業科目以外</h2>
+              <p>論文、特許、研究室 WG、CS スペシャルワークショップ、学位プログラム外活動、TA、TOEIC / TOEFL、固定項目を追加できます。</p>
+            </div>
+          </div>
+
+          <div class="controls-grid controls-grid--triple controls-grid--compact">
+            <label>
+              <span>種類</span>
+              <select id="extraType"></select>
+            </label>
+            <label>
+              <span>表示名（任意）</span>
+              <input id="extraLabel" type="text" placeholder="未入力なら種類から自動設定します">
+            </label>
+            <label>
+              <span>初期配点ルール</span>
+              <select id="extraSplitMode">
+                <option value="smart">不足差分優先 smart（既定）</option>
+                <option value="required">必要点比例</option>
+                <option value="even">均等配分</option>
+              </select>
+            </label>
+            <label>
+              <span>メモ（任意）</span>
+              <input id="extraNote" type="text" placeholder="例: 国際会議発表, 企業インターン など">
+            </label>
+          </div>
+
+          <div id="extraDynamicFields" class="dynamic-fields"></div>
+          <div id="extraMeta" class="status status--muted">種類と条件を指定すると、授業科目以外の点数と配点候補を表示します。</div>
+
+          <div>
+            <div class="subsection-title">固定項目のクイック追加</div>
+            <div id="fixedExtraButtons" class="quick-grid quick-grid--compact"></div>
+          </div>
+
+          <div class="preview-head preview-head--sticky">
+            <div>
+              <strong>授業科目以外の 18 観点配点</strong>
+              <span class="muted">固定項目は自動入力、その他の項目は必要に応じて手修正できます。</span>
+            </div>
+            <div class="preview-head__actions">
+              <div id="extraPreviewTotal" class="preview-total">合計 0 点</div>
+              <button id="extraRecomputeBtn" class="button button--small" type="button">差分に合わせて再提案</button>
+            </div>
+          </div>
+          <div id="extraPreviewGrid" class="preview-grid preview-grid--compact preview-grid--scroll"></div>
+
+          <div class="actions-row actions-row--end actions-row--compact">
+            <button id="extraAddBtn" class="button button--primary" type="button">現在のモードの授業科目以外へ追加 / 更新</button>
+            <button id="extraClearBtn" class="button" type="button">入力をクリア</button>
+          </div>
+
+          <div class="subsection-title">授業科目以外のドラフト</div>
+          <div id="extraList" class="plan-list plan-list--tight plan-list--scroll"></div>
+        </section>
       </div>
     </section>
 
-    <section class="card card--wide">
-      <div class="section-heading">
-        <div>
-          <h2>3. 他研究群の科目を作る</h2>
-          <p>元のコンピテンスまたは観点を入力すると、1 単位 = 100 点で正規化し、現在の不足差分を見ながら 18 観点へ初期配点します。</p>
-        </div>
+    <section class="workspace-panel" data-workspace-panel="draft">
+      <div class="compact-grid compact-grid--draft">
+        <section class="card compact-card">
+          <div class="section-heading section-heading--compact">
+            <div>
+              <h2>現在のモードの授業科目ドラフト</h2>
+              <p>11〜14 行は特別研究 A〜D、15 行目以降は通常科目として表示します。</p>
+            </div>
+          </div>
+          <div id="planList" class="plan-list plan-list--scroll"></div>
+        </section>
+
+        <section class="card compact-card">
+          <div class="section-heading section-heading--compact">
+            <div>
+              <h2>各観点の必要点との差分</h2>
+              <p>必要点 / 授業科目小計 / 授業科目以外 / 見込み合計 / 差分 を一覧表示します。</p>
+            </div>
+          </div>
+          <div class="table-scroll table-scroll--tall">
+            <table class="totals-table">
+              <thead>
+                <tr>
+                  <th>観点</th>
+                  <th>必要点</th>
+                  <th>授業科目小計</th>
+                  <th>授業科目以外</th>
+                  <th>見込み合計</th>
+                  <th>差分</th>
+                  <th>状態</th>
+                </tr>
+              </thead>
+              <tbody id="totalsBody"></tbody>
+              <tfoot id="totalsFoot"></tfoot>
+            </table>
+          </div>
+        </section>
       </div>
-
-      <div class="controls-grid controls-grid--triple">
-        <label>
-          <span>科目名</span>
-          <input id="customName" type="text" placeholder="例: ○○特論">
-        </label>
-        <label>
-          <span>科目番号（任意）</span>
-          <input id="customCode" type="text" placeholder="例: EXT-001">
-        </label>
-        <label>
-          <span>単位数</span>
-          <input id="customCredits" type="number" min="0" step="0.5" placeholder="例: 2">
-        </label>
-        <label>
-          <span>元データの形式</span>
-          <select id="customInputMode">
-            <option value="competence8">8 コンピテンス</option>
-            <option value="viewpoint18">18 観点</option>
-          </select>
-        </label>
-      </div>
-
-      <div id="customValueMeta" class="status status--muted">元のコンピテンス / 観点を入力すると、1単位 100 点へ正規化した上で不足差分を見ながら初期配点します。</div>
-      <div id="customValueGrid" class="preview-grid preview-grid--compact"></div>
-
-      <div class="actions-row actions-row--end">
-        <button id="customUseBtn" class="button button--primary" type="button">この内容を選択中の科目へセット</button>
-        <button id="customClearBtn" class="button" type="button">入力をクリア</button>
-      </div>
-    </section>
-
-    <section class="card card--wide">
-      <div class="section-heading">
-        <div>
-          <h2>4. 授業科目の配点</h2>
-          <p>11〜14 行は情報理工前期特別研究 A〜D の手動配点用です。通常の受講科目は 15 行目以降へ追加し、B〜S 列の 18 観点は手動で修正できます。</p>
-        </div>
-      </div>
-
-      <div>
-        <div class="mode-panel__label">固定行のクイック選択（11〜14行・情報理工前期特別研究A〜D）</div>
-        <div id="fixedCourseButtons" class="quick-grid"></div>
-      </div>
-
-      <div id="selectedCourseBox" class="selected-course empty">まだ科目が選択されていません。</div>
-
-      <div class="controls-grid">
-        <label>
-          <span>初期配点ルール</span>
-          <select id="splitMode">
-            <option value="smart">不足差分優先 smart（既定）</option>
-            <option value="required">必要点比例</option>
-            <option value="even">均等配分</option>
-          </select>
-        </label>
-        <label>
-          <span>配置先の行（通常科目は15行目以降）</span>
-          <select id="targetRow"></select>
-        </label>
-      </div>
-
-      <div class="preview-head">
-        <div>
-          <strong>18 観点プレビュー</strong>
-          <span class="muted">初期配点を入れたあと、必要なら手で微調整してください。</span>
-        </div>
-        <div class="preview-head__actions">
-          <div id="previewTotal" class="preview-total">合計 0 点</div>
-          <button id="courseRecomputeBtn" class="button button--small" type="button">差分に合わせて再提案</button>
-        </div>
-      </div>
-
-      <div id="previewGrid" class="preview-grid"></div>
-
-      <div class="actions-row actions-row--end">
-        <button id="planAddBtn" class="button button--primary" type="button" disabled>現在のモードの授業科目へ追加 / 更新</button>
-      </div>
-    </section>
-
-    <section class="card card--wide">
-      <div class="section-heading">
-        <div>
-          <h2>5. 授業科目以外</h2>
-          <p>論文、特許、研究室WG、CSスペシャルワークショップ、学位プログラム外活動、TA、TOEIC/TOEFL、固定項目を追加できます。</p>
-        </div>
-      </div>
-
-      <div class="controls-grid controls-grid--triple">
-        <label>
-          <span>種類</span>
-          <select id="extraType"></select>
-        </label>
-        <label>
-          <span>表示名（任意）</span>
-          <input id="extraLabel" type="text" placeholder="未入力なら種類から自動設定します">
-        </label>
-        <label>
-          <span>初期配点ルール</span>
-          <select id="extraSplitMode">
-            <option value="smart">不足差分優先 smart（既定）</option>
-            <option value="required">必要点比例</option>
-            <option value="even">均等配分</option>
-          </select>
-        </label>
-        <label>
-          <span>メモ（任意）</span>
-          <input id="extraNote" type="text" placeholder="例: 国際会議発表, 企業インターン など">
-        </label>
-      </div>
-
-      <div id="extraDynamicFields" class="dynamic-fields"></div>
-      <div id="extraMeta" class="status status--muted">種類と条件を指定すると、授業科目以外の点数と配点候補を表示します。</div>
-
-      <div>
-        <div class="mode-panel__label">固定項目のクイック追加</div>
-        <div id="fixedExtraButtons" class="quick-grid"></div>
-      </div>
-
-      <div class="preview-head">
-        <div>
-          <strong>授業科目以外の 18 観点配点</strong>
-          <span class="muted">固定項目は自動入力、その他の項目は必要に応じて手修正できます。</span>
-        </div>
-        <div class="preview-head__actions">
-          <div id="extraPreviewTotal" class="preview-total">合計 0 点</div>
-          <button id="extraRecomputeBtn" class="button button--small" type="button">差分に合わせて再提案</button>
-        </div>
-      </div>
-      <div id="extraPreviewGrid" class="preview-grid"></div>
-
-      <div class="actions-row actions-row--end">
-        <button id="extraAddBtn" class="button button--primary" type="button">現在のモードの授業科目以外へ追加 / 更新</button>
-        <button id="extraClearBtn" class="button" type="button">入力をクリア</button>
-      </div>
-
-      <div id="extraList" class="plan-list plan-list--tight"></div>
-    </section>
-
-    <section class="card card--wide">
-      <div class="section-heading">
-        <div>
-          <h2>6. 現在のモードのドラフト</h2>
-          <p>小計と各観点の必要点との差分を見ながら調整し、M中間評価 / M最終評価でだけ Excel に一括反映します。</p>
-        </div>
-      </div>
-
-      <div class="actions-row">
-        <button id="applyPlanBtn" class="button button--primary" type="button" disabled>現在のモードを Excel に一括反映</button>
-        <button id="downloadBtn" class="button" type="button" disabled>更新した Excel をダウンロード</button>
-        <button id="reloadPlanBtn" class="button" type="button" disabled>Excel から再読込</button>
-        <button id="clearPlanBtn" class="button button--danger" type="button" disabled>現在のモードのドラフトをクリア</button>
-      </div>
-      <div id="syncStatus" class="sync-status"></div>
-
-      <div class="summary-strip summary-strip--wide">
-        <div class="summary-card">
-          <span>授業科目数</span>
-          <strong id="planCourseCount">0</strong>
-        </div>
-        <div class="summary-card">
-          <span>単位数</span>
-          <strong id="planCredits">0</strong>
-        </div>
-        <div class="summary-card">
-          <span>授業科目小計</span>
-          <strong id="planPointsTotal">0</strong>
-        </div>
-        <div class="summary-card">
-          <span>授業科目以外件数</span>
-          <strong id="extraItemCount">0</strong>
-        </div>
-        <div class="summary-card">
-          <span>授業科目以外小計</span>
-          <strong id="extraPointsTotal">0</strong>
-        </div>
-        <div class="summary-card">
-          <span>見込み合計</span>
-          <strong id="projectedTotal">0</strong>
-        </div>
-        <div class="summary-card">
-          <span>未達観点</span>
-          <strong id="unmetCount">0 / 18</strong>
-        </div>
-      </div>
-
-      <div class="plan-layout">
-        <div>
-          <div class="subsection-title">授業科目</div>
-          <div id="planList" class="plan-list"></div>
-        </div>
-
-        <div class="table-scroll">
-          <table class="totals-table">
-            <thead>
-              <tr>
-                <th>観点</th>
-                <th>必要点</th>
-                <th>授業科目小計</th>
-                <th>授業科目以外</th>
-                <th>見込み合計</th>
-                <th>差分</th>
-                <th>状態</th>
-              </tr>
-            </thead>
-            <tbody id="totalsBody"></tbody>
-            <tfoot id="totalsFoot"></tfoot>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section class="card card--wide">
-      <div class="section-heading">
-        <div>
-          <h2>7. データと前提</h2>
-          <p>公開カリキュラム・マップは 8 コンピテンス配点なので、18 観点は初期案として展開し、必要に応じて手入力で修正してください。</p>
-        </div>
-      </div>
-      <ul class="notes">
-        <li>システム情報工学研究群の科目データは、公式の 2026 年度博士前期課程向け開設授業科目一覧と、大学院スタンダードの公開カリキュラム・マップを突き合わせた JSON を同梱しています。</li>
-        <li>授業科目以外は、論文・発表の最高点ルール、特許 300×貢献率、TA 1 コマ 4 点、TOEIC / TOEFL の離散点、固定項目を組み込んでいます。</li>
-        <li>11〜14 行は特別研究 A〜D の固定行、15 行目以降は通常科目の行として扱い、必要に応じてその下へ小計・授業科目以外・合計・不足分を再配置します。</li>
-      </ul>
     </section>
   </main>
 </body>
