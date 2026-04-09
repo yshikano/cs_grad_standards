@@ -4249,13 +4249,16 @@ function getSelectableMaxRow() {
 
 function renderRowOptions(selectedValue = null) {
   if (!els.targetRow) return;
-  const inferredFixedRow = getFixedCourseRowForCourse(state.selectedCourse)
-    || (isSpecialResearchRow(selectedValue) ? Number(selectedValue) : null)
-    || (isSpecialResearchRow(Number(els.targetRow.value || '')) ? Number(els.targetRow.value) : null);
 
-  const rows = inferredFixedRow ? [inferredFixedRow] : getAllowedRegularRows(getSelectableMaxRow());
   const desired = Number(selectedValue ?? els.targetRow.value);
-  const safeSelected = rows.includes(desired) ? desired : rows[0];
+  const fixedRowFromCourse = getFixedCourseRowForCourse(state.selectedCourse);
+  const fixedRowFromSelection = isSpecialResearchRow(desired) ? desired : null;
+  const inferredFixedRow = fixedRowFromCourse || fixedRowFromSelection || null;
+
+  const rows = inferredFixedRow
+    ? [inferredFixedRow]
+    : getAllowedRegularRows(getSelectableMaxRow());
+  const safeSelected = rows.includes(desired) ? desired : (rows[0] ?? FIRST_REGULAR_COURSE_ROW);
 
   els.targetRow.innerHTML = '';
   rows.forEach(row => {
@@ -4265,7 +4268,7 @@ function renderRowOptions(selectedValue = null) {
     els.targetRow.appendChild(option);
   });
   els.targetRow.value = String(safeSelected);
-  els.targetRow.disabled = rows.length === 1 && isSpecialResearchRow(rows[0]);
+  els.targetRow.disabled = Boolean(inferredFixedRow);
 }
 
 function getRowLabel(row) {
@@ -4337,6 +4340,9 @@ function addSelectedCourseToDraft() {
   state.selectedCourse = null;
   state.previewPoints18 = clonePoints18(ZERO_18);
   renderSelectedCourse(null);
+  if (fixedRow) {
+    renderRowOptions(findPreferredRegularTargetRow());
+  }
   updatePreviewInputs();
   renderPlanSection();
   updateActionStates();
