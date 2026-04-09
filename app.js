@@ -7048,3 +7048,1053 @@ getDefaultCatalogLabel20260408 = function getDefaultCatalogLabel20260409(course)
   if (course?.provenance && /kdb-grad/i.test(String(course.provenance))) return '筑波大学大学院開設科目';
   return explicit || '筑波大学大学院開設科目';
 };
+
+
+/* === 2026-04-09 bilingual English UI patch === */
+const UI_LANG_STORAGE_KEY_20260409 = 'tsukubaAchievementUiLang';
+const UI_SHEET_CANDIDATES_20260409 = {
+  midterm: {
+    ja: ['M中間評価', 'M Mid-term evaluation'],
+    en: ['M Mid-term evaluation', 'M中間評価']
+  },
+  final: {
+    ja: ['M最終評価', 'M final evaluation'],
+    en: ['M final evaluation', 'M最終評価']
+  }
+};
+
+const I18N_RES_20260409 = {
+  ja: {
+    appTitle: '筑波大学達成度評価シート入力・確認支援（非公式）情報理工学位プログラム（博士前期課程）用',
+    leadHtml: '履修計画 / M中間評価 / M最終評価に加えて、指導教員向けの確認機能も扱える情報理工学位プログラム（博士前期課程）向けの非公式ツールです。ChatGPT によりほとんどプログラムされました。また、<a href="https://make-it-tsukuba.github.io/alternative-tsukuba-kdb/#" target="_blank" rel="noopener noreferrer">KdB もどき</a>のデータベースを参考にさせていただきました。ありがとうございます。',
+    topbarHintTitle: 'この版の使い方',
+    topbarSteps: [
+      'Excel を読み込む',
+      '授業検索タブで授業を追加',
+      '授業科目以外タブで論文・TA などを追加',
+      'ドラフトタブで差分を確認し、最後に Excel へ一括反映'
+    ],
+    fileTitle: '達成度評価 Excel を選択',
+    fileSub: '対応: Achievement-Evaluation-Sheet（M-2026-Enrollees）.xlsx など',
+    modeLabel: '利用モード',
+    langLabel: '表示言語 / Language',
+    mode: {
+      plan: { label: '履修計画', description: 'UI 上で履修計画を検討するモードです。Excel への書き込みは行いません。', sheetLabel: '履修計画' },
+      midterm: { label: 'M中間評価', description: 'M中間評価シートを対象にした実運用モードです。', sheetLabel: 'M中間評価' },
+      final: { label: 'M最終評価', description: 'M最終評価シートを対象にした実運用モードです。中間評価の内容を初期値にできます。', sheetLabel: 'M最終評価' }
+    },
+    rowLabels: {
+      11: '11行: 情報理工前期特別研究A',
+      12: '12行: 情報理工前期特別研究B',
+      13: '13行: 情報理工前期特別研究C',
+      14: '14行: 情報理工前期特別研究D'
+    },
+    groupLabels: ['知の活用力', 'マネジメント能力', 'コミュニケーション能力', 'チームワーク力', '国際性', '研究力', '専門知識', '倫理観'],
+    columnLabels: ['知①', '知②', '管①', '管②', 'コ①', 'コ②', 'チ①', 'チ②', '国①', '国②', '研①', '研②', '研③', '専①', '専②', '専③', '倫①', '倫②'],
+    extraTypeLabels: {
+      paper: '論文・発表',
+      patent: '特許',
+      labwg: '研究室WG',
+      collabotics: 'CSスペシャルワークショップ',
+      outsideProgram: '学位プログラム外活動',
+      ta: 'TA',
+      language: 'TOEIC / TOEFL',
+      fixed: '固定項目',
+      custom: 'その他（自由入力）'
+    },
+    fixedExtra: {
+      report1: { label: '達成度自己点検レポート1（M1終了時）', note: '汎用コンピテンス II マネジメント能力① に 20 点を固定配分します。' },
+      report2: { label: '達成度自己点検レポート2（M2終了時）', note: '汎用コンピテンス II マネジメント能力① に 20 点を固定配分します。' },
+      infoss: { label: 'INFOSS情報倫理', note: '専門コンピテンス III 倫理観① に 50 点を固定配分します。' },
+      aprin: { label: 'APRIN eラーニングプログラム', note: '専門コンピテンス III 倫理観① に 30 点を固定配分します。' }
+    },
+    sheetRowLabels: {
+      extraHeader: '授業科目以外',
+      subtotal: '小計',
+      total: '合計',
+      deficit: '不足分'
+    },
+    sheetCourseHeader: '授業科目',
+    sheetRequiredHeader: '各観点の必要点'
+  },
+  en: {
+    appTitle: 'University of Tsukuba Achievement Evaluation Sheet Input / Review Support (Unofficial) for the Master\'s Program in Computer Science',
+    leadHtml: 'An unofficial tool for the Master\'s Program in Computer Science that supports course planning, M mid-term evaluation, M final evaluation, and advisor review. Most of the program was generated with ChatGPT. We also thank the <a href="https://make-it-tsukuba.github.io/alternative-tsukuba-kdb/#" target="_blank" rel="noopener noreferrer">Alternative Tsukuba KdB</a> project for its database.',
+    topbarHintTitle: 'How to use this version',
+    topbarSteps: [
+      'Load an Excel workbook',
+      'Add courses from the course search tab',
+      'Add papers, TA work, and other non-class activities',
+      'Review the gaps in the draft tab, then write everything to Excel at the end'
+    ],
+    fileTitle: 'Select achievement evaluation Excel',
+    fileSub: 'Supported: Achievement-Evaluation-Sheet (M-2026-Enrollees).xlsx etc.',
+    modeLabel: 'Mode',
+    langLabel: 'Display language / Language',
+    mode: {
+      plan: { label: 'Planning', description: 'This mode is for planning on the UI only. Nothing is written to Excel.', sheetLabel: 'Planning' },
+      midterm: { label: 'M Mid-term evaluation', description: 'Operational mode for the M Mid-term evaluation sheet.', sheetLabel: 'M Mid-term evaluation' },
+      final: { label: 'M Final evaluation', description: 'Operational mode for the M Final evaluation sheet. You can initialize it from the mid-term draft.', sheetLabel: 'M Final evaluation' }
+    },
+    rowLabels: {
+      11: 'Row 11: Research in Computer Science A',
+      12: 'Row 12: Research in Computer Science B',
+      13: 'Row 13: Research in Computer Science C',
+      14: 'Row 14: Research in Computer Science D'
+    },
+    groupLabels: ['Knowledge Application', 'Management', 'Communication', 'Teamwork', 'Internationality', 'Research', 'Specialized Knowledge', 'Ethics'],
+    columnLabels: ['Know①', 'Know②', 'Mgmt①', 'Mgmt②', 'Comm①', 'Comm②', 'Team①', 'Team②', 'Intl①', 'Intl②', 'Res①', 'Res②', 'Res③', 'Spec①', 'Spec②', 'Spec③', 'Eth①', 'Eth②'],
+    extraTypeLabels: {
+      paper: 'Paper / presentation',
+      patent: 'Patent',
+      labwg: 'Lab WG',
+      collabotics: 'CS Special Workshop',
+      outsideProgram: 'Extra-program activity',
+      ta: 'TA',
+      language: 'TOEIC / TOEFL',
+      fixed: 'Fixed item',
+      custom: 'Other (manual)'
+    },
+    fixedExtra: {
+      report1: { label: 'Achievement Evaluation Report 1 (End of M1)', note: 'Allocates 20 fixed points to Generic Competence II: Management ①.' },
+      report2: { label: 'Achievement Evaluation Report 2 (End of M2)', note: 'Allocates 20 fixed points to Generic Competence II: Management ①.' },
+      infoss: { label: 'INFOSS Information Ethics', note: 'Allocates 50 fixed points to Specialized Competence III: Ethics ①.' },
+      aprin: { label: 'APRIN e-Learning Program', note: 'Allocates 30 fixed points to Specialized Competence III: Ethics ①.' }
+    },
+    sheetRowLabels: {
+      extraHeader: 'Non-Class Activieties',
+      subtotal: 'Subtotal',
+      total: 'Total',
+      deficit: 'Rest'
+    },
+    sheetCourseHeader: 'Class',
+    sheetRequiredHeader: 'Required Point'
+  }
+};
+
+const FIXED_ROW_NAME_EN_20260409 = {
+  11: 'Research in Computer Science A',
+  12: 'Research in Computer Science B',
+  13: 'Research in Computer Science C',
+  14: 'Research in Computer Science D'
+};
+
+const EXACT_TEXT_MAP_20260409 = {
+  ja: {
+    '現在のモードを Excel に一括反映': '現在のモードを Excel に一括反映',
+    '更新した Excel をダウンロード': '更新した Excel をダウンロード',
+    'Excel から再読込': 'Excel から再読込',
+    '現在のモードのドラフトをクリア': '現在のモードのドラフトをクリア',
+    '中間評価の内容で最終評価を初期化': '中間評価の内容で最終評価を初期化',
+    '科目データを読み込み中…': '科目データを読み込み中…',
+    'まだ科目が選択されていません。': 'まだ科目が選択されていません。',
+    '不足差分優先 smart（既定）': '不足差分優先 smart（既定）',
+    '必要点比例': '必要点比例',
+    '均等配分': '均等配分',
+    '差分に合わせて再提案': '差分に合わせて再提案',
+    '現在のモードの授業科目へ追加 / 更新': '現在のモードの授業科目へ追加 / 更新',
+    'KdB JSON を手動読込': 'KdB JSON を手動読込',
+    '再読込': '再読込',
+    '未読込': '未読込',
+    '読込中': '読込中',
+    '利用可能': '利用可能',
+    '未取得': '未取得',
+    'この内容を選択中の科目へセット': 'この内容を選択中の科目へセット',
+    '入力をクリア': '入力をクリア',
+    '現在のモードの授業科目以外へ追加 / 更新': '現在のモードの授業科目以外へ追加 / 更新',
+    'まだ授業科目ドラフトはありません。科目検索タブで授業を選んで追加してください。': 'まだ授業科目ドラフトはありません。科目検索タブで授業を選んで追加してください。',
+    'まだ授業科目以外はありません。上のフォームから追加してください。': 'まだ授業科目以外はありません。上のフォームから追加してください。',
+    'このモードを確認': 'このモードを確認',
+    '選択': '選択',
+    '編集': '編集',
+    '削除': '削除',
+    '上へ': '上へ',
+    '下へ': '下へ',
+    '固定欄': '固定欄',
+    '通常科目': '通常科目',
+    '他研究群': '他研究群',
+    'シス情科目': 'シス情科目',
+    '授業科目以外': '授業科目以外',
+    '開講時限': '開講時限',
+    '開講ターム・時限': '開講ターム・時限',
+    '教室': '教室',
+    '担当': '担当',
+    '元データ': '元データ',
+    '公開 PDF から読める非ゼロ配点列': '公開 PDF から読める非ゼロ配点列',
+    '自動補完対象': '自動補完対象',
+    '単位数ベース': '単位数ベース',
+    '元配点あり': '元配点あり',
+    'カスタム': 'カスタム',
+    '該当科目が見つかりません。': '該当科目が見つかりません。',
+    '固定行の手動配点': '固定行の手動配点',
+    'システム情報工学研究群科目': 'システム情報工学研究群科目',
+    '他研究群科目': '他研究群科目',
+    '18観点入力 / 合計 0 点': '18観点入力 / 合計 0 点',
+    '読込中です。': '読込中です。',
+    '未登録または取得前です。': '未登録または取得前です。',
+    '必要点を満たしています。': '必要点を満たしています。',
+    '充足': '充足',
+    '不足': '不足',
+    '確認OK': '確認OK',
+    '別途確認あり': '別途確認あり',
+    '点数不足あり': '点数不足あり',
+    '確認結果': '確認結果',
+    '確認対象': '確認対象',
+    '不足観点': '不足観点',
+    '別途確認科目': '別途確認科目',
+    '見込み合計': '見込み合計',
+    'Excel': 'Excel',
+    '要確認': '要確認',
+    '確認可': '確認可',
+    '別途チェック': '別途チェック',
+    '総点 OK': '総点 OK'
+  },
+  en: {
+    '現在のモードを Excel に一括反映': 'Apply current mode to Excel',
+    '更新した Excel をダウンロード': 'Download updated Excel',
+    'Excel から再読込': 'Reload from Excel',
+    '現在のモードのドラフトをクリア': 'Clear current mode draft',
+    '中間評価の内容で最終評価を初期化': 'Seed final evaluation from mid-term draft',
+    '科目データを読み込み中…': 'Loading course data…',
+    'まだ科目が選択されていません。': 'No course selected yet.',
+    '不足差分優先 smart（既定）': 'Smart (prioritize current deficits, default)',
+    '必要点比例': 'Proportional to required points',
+    '均等配分': 'Even split',
+    '差分に合わせて再提案': 'Recompute from current deficits',
+    '現在のモードの授業科目へ追加 / 更新': 'Add / update course in current mode',
+    'KdB JSON を手動読込': 'Load KdB JSON manually',
+    '再読込': 'Reload',
+    '未読込': 'Not loaded',
+    '読込中': 'Loading',
+    '利用可能': 'Available',
+    '未取得': 'Unavailable',
+    'この内容を選択中の科目へセット': 'Use this as the selected course',
+    '入力をクリア': 'Clear inputs',
+    '現在のモードの授業科目以外へ追加 / 更新': 'Add / update non-class item in current mode',
+    'まだ授業科目ドラフトはありません。科目検索タブで授業を選んで追加してください。': 'No course draft yet. Add courses from the search tab.',
+    'まだ授業科目以外はありません。上のフォームから追加してください。': 'No non-class activities yet. Add them from the form above.',
+    'このモードを確認': 'Review this mode',
+    '選択': 'Select',
+    '編集': 'Edit',
+    '削除': 'Remove',
+    '上へ': 'Up',
+    '下へ': 'Down',
+    '固定欄': 'Fixed slot',
+    '通常科目': 'Regular course',
+    '他研究群': 'Other program',
+    'シス情科目': 'SIE course',
+    '授業科目以外': 'Non-class activity',
+    '開講時限': 'Schedule',
+    '開講ターム・時限': 'Term / time slot',
+    '教室': 'Room',
+    '担当': 'Instructor',
+    '元データ': 'Source data',
+    '公開 PDF から読める非ゼロ配点列': 'Non-zero values readable from the public PDF',
+    '自動補完対象': 'Auto-completion target',
+    '単位数ベース': 'Credit-based',
+    '元配点あり': 'Official points available',
+    'カスタム': 'Custom',
+    '該当科目が見つかりません。': 'No matching course found.',
+    '固定行の手動配点': 'Manual allocation for fixed row',
+    'システム情報工学研究群科目': 'Graduate School of Systems and Information Engineering course',
+    '他研究群科目': 'Course from another graduate school/program',
+    '18観点入力 / 合計 0 点': '18-item input / total 0 points',
+    '読込中です。': 'Loading…',
+    '未登録または取得前です。': 'Not registered or not loaded yet.',
+    '必要点を満たしています。': 'Requirement satisfied.',
+    '充足': 'Satisfied',
+    '不足': 'Short',
+    '確認OK': 'OK',
+    '別途確認あり': 'Separate review needed',
+    '点数不足あり': 'Point shortage detected',
+    '確認結果': 'Review result',
+    '確認対象': 'Target',
+    '不足観点': 'Unmet items',
+    '別途確認科目': 'Separately reviewed courses',
+    '見込み合計': 'Projected total',
+    'Excel': 'Excel',
+    '要確認': 'Needs review',
+    '確認可': 'Checkable',
+    '別途チェック': 'Separate check',
+    '総点 OK': 'Total OK'
+  }
+};
+
+const DYNAMIC_PATTERNS_20260409 = [
+  {
+    ja: /^合計\s*(\d+)\s*点$/,
+    en: 'Total $1 points',
+    jaOut: '合計 $1 点'
+  },
+  {
+    ja: /^最終合計\s*(\d+)\s*点$/,
+    en: 'Final total $1 points',
+    jaOut: '最終合計 $1 点'
+  },
+  {
+    ja: /^検索対象\s*(\d+)\s*件$/,
+    en: 'Search pool: $1 courses',
+    jaOut: '検索対象 $1 件'
+  },
+  {
+    ja: /^(\d+)行: 空き行$/,
+    en: 'Row $1: Empty',
+    jaOut: '$1行: 空き行'
+  },
+  {
+    ja: /^(\d+)行: 入力済み科目$/,
+    en: 'Row $1: Filled course',
+    jaOut: '$1行: 入力済み科目'
+  },
+  {
+    ja: /^(\d+)行$/,
+    en: 'Row $1',
+    jaOut: '$1行'
+  },
+  {
+    ja: /^あと\s*(\d+)\s*点必要です。$/,
+    en: '$1 more points are required.',
+    jaOut: 'あと $1 点必要です。'
+  },
+  {
+    ja: /^総点不足\s*(\d+)$/,
+    en: 'Total shortage $1',
+    jaOut: '総点不足 $1'
+  },
+  {
+    ja: /^(\d+)\s*単位\s*\/\s*(\d+)\s*点$/,
+    en: '$1 credits / $2 points',
+    jaOut: '$1 単位 / $2 点'
+  },
+  {
+    ja: /^(\d+)\s*単位$/,
+    en: '$1 credits',
+    jaOut: '$1 単位'
+  },
+  {
+    ja: /^(\d+)\s*点$/,
+    en: '$1 points',
+    jaOut: '$1 点'
+  }
+];
+
+function getUiLang20260409() {
+  return state.uiLang === 'en' ? 'en' : 'ja';
+}
+
+function safeGetUiLang20260409() {
+  try {
+    const saved = window.localStorage.getItem(UI_LANG_STORAGE_KEY_20260409);
+    return saved === 'en' ? 'en' : 'ja';
+  } catch (error) {
+    return 'ja';
+  }
+}
+
+function safeSetUiLang20260409(lang) {
+  try {
+    window.localStorage.setItem(UI_LANG_STORAGE_KEY_20260409, lang);
+  } catch (error) {
+    // ignore storage failure
+  }
+}
+
+function getUiRes20260409() {
+  return I18N_RES_20260409[getUiLang20260409()] || I18N_RES_20260409.ja;
+}
+
+function applyLanguageData20260409() {
+  const lang = getUiLang20260409();
+  const res = getUiRes20260409();
+
+  MODE_CONFIG.plan.label = res.mode.plan.label;
+  MODE_CONFIG.plan.description = res.mode.plan.description;
+  MODE_CONFIG.midterm.label = res.mode.midterm.label;
+  MODE_CONFIG.midterm.description = res.mode.midterm.description;
+  MODE_CONFIG.final.label = res.mode.final.label;
+  MODE_CONFIG.final.description = res.mode.final.description;
+
+  Object.entries(res.rowLabels).forEach(([row, label]) => {
+    DEFAULT_ROW_LABELS[Number(row)] = label;
+  });
+
+  res.groupLabels.forEach((label, index) => {
+    GROUP_LABELS[index] = label;
+    if (GROUP_CONFIG[index]) GROUP_CONFIG[index].label = label;
+  });
+  res.columnLabels.forEach((label, index) => {
+    COLUMN_LABELS[index] = label;
+  });
+
+  EXTRA_TYPE_OPTIONS.forEach(item => {
+    item.label = res.extraTypeLabels[item.key] || item.label;
+    EXTRA_TYPE_LABELS[item.key] = item.label;
+  });
+
+  Object.entries(res.fixedExtra).forEach(([key, value]) => {
+    if (FIXED_EXTRA_TEMPLATES[key]) {
+      FIXED_EXTRA_TEMPLATES[key].label = value.label;
+      FIXED_EXTRA_TEMPLATES[key].note = value.note;
+    }
+  });
+}
+
+function getFixedTemplateLocalizedLabel20260409(key, lang = getUiLang20260409()) {
+  const res = I18N_RES_20260409[lang] || I18N_RES_20260409.ja;
+  return res.fixedExtra?.[key]?.label || FIXED_EXTRA_TEMPLATES[key]?.label || '';
+}
+
+function getSheetLabels20260409(sheetOrName) {
+  const lang = isEnglishSheet20260409(sheetOrName) ? 'en' : 'ja';
+  return I18N_RES_20260409[lang].sheetRowLabels;
+}
+
+function isEnglishSheet20260409(sheetOrName) {
+  if (!sheetOrName) return false;
+  const name = typeof sheetOrName === 'string' ? sheetOrName : (typeof sheetOrName.name === 'function' ? sheetOrName.name() : '');
+  if (/^M Mid-term evaluation$/i.test(name) || /^M final evaluation$/i.test(name)) return true;
+  if (typeof sheetOrName === 'object' && sheetOrName.cell) {
+    try {
+      const a8 = String(sheetOrName.cell('A8').value() || '').trim().toLowerCase();
+      if (a8 === 'required point') return true;
+    } catch (error) {
+      // ignore
+    }
+  }
+  return false;
+}
+
+function translateExactText20260409(text) {
+  const lang = getUiLang20260409();
+  const currentMap = EXACT_TEXT_MAP_20260409[lang] || {};
+  if (currentMap[text] !== undefined) return currentMap[text];
+
+  const reverseMapSource = EXACT_TEXT_MAP_20260409[lang === 'en' ? 'ja' : 'en'] || {};
+  if (lang === 'ja') {
+    const reverse = Object.entries(EXACT_TEXT_MAP_20260409.en).find(([, enText]) => enText === text);
+    if (reverse) return reverse[0];
+  }
+
+  return text;
+}
+
+function applyPatternTranslation20260409(text) {
+  const lang = getUiLang20260409();
+  let output = text;
+  DYNAMIC_PATTERNS_20260409.forEach(pattern => {
+    if (lang === 'en') {
+      if (pattern.ja.test(output)) {
+        output = output.replace(pattern.ja, pattern.en);
+      }
+    } else {
+      const enRegex = new RegExp(pattern.en
+        .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        .replace(/\\\$1/g, '(\\d+)')
+        .replace(/\\\$2/g, '(\\d+)')
+        .replace(/\\\$3/g, '(\\d+)'));
+      if (enRegex.test(output)) {
+        output = output.replace(enRegex, pattern.jaOut);
+      }
+    }
+  });
+  return output;
+}
+
+function translateDynamicText20260409(text) {
+  if (!text || typeof text !== 'string') return text;
+  let output = translateExactText20260409(text);
+  output = applyPatternTranslation20260409(output);
+  output = output.replace(/M中間評価/g, getUiRes20260409().mode.midterm.label);
+  output = output.replace(/M最終評価/g, getUiRes20260409().mode.final.label);
+  output = output.replace(/履修計画/g, getUiRes20260409().mode.plan.label);
+  if (getUiLang20260409() === 'en') {
+    output = output
+      .replace(/UI 上で履修計画を検討するモードです。Excel への書き込みは行いません。/g, 'This mode is for planning on the UI only. Nothing is written to Excel.')
+      .replace(/履修計画モードです。まだ Excel は更新しません。/g, 'Planning mode. Excel is not updated yet.')
+      .replace(/まだ Excel は読み込まれていません。/g, 'No Excel workbook loaded yet.')
+      .replace(/M中間評価シートを対象にした実運用モードです。/g, 'Operational mode for the M Mid-term evaluation sheet.')
+      .replace(/M最終評価シートを対象にした実運用モードです。中間評価の内容を初期値にできます。/g, 'Operational mode for the M Final evaluation sheet. You can initialize it from the mid-term draft.')
+      .replace(/Excel を読み込むと /g, 'Once an Excel workbook is loaded, ')
+      .replace(/ シートの内容をドラフトへ取り込みます。/g, ' sheet contents are imported into the draft.')
+      .replace(/対象シート:/g, 'Target sheet:')
+      .replace(/同期済み/g, 'Synced')
+      .replace(/未反映/g, 'Not yet applied')
+      .replace(/中間評価ドラフトを初期値として使っています。/g, 'The mid-term draft is being used as the initial value.')
+      .replace(/読込完了:/g, 'Loaded:')
+      .replace(/現在モードの授業科目以外 /g, ' non-class items in current mode: ')
+      .replace(/ 件/g, ' items')
+      .replace(/ 行/g, ' rows')
+      .replace(/行をドラフトから削除しました。/g, ' row removed from the draft.')
+      .replace(/行の内容を編集フォームへ読み込みました。/g, ' row loaded into the edit form.')
+      .replace(/授業科目ドラフトの並びを更新しました。/g, 'Course draft order updated.')
+      .replace(/授業科目以外の内容を編集フォームへ読み込みました。/g, 'Loaded the non-class item into the edit form.')
+      .replace(/授業科目以外の項目を削除しました。/g, 'Removed the non-class item.')
+      .replace(/Excel の読込に失敗しました。ファイル形式を確認してください。/g, 'Failed to read the Excel file. Please check the file format.')
+      .replace(/XlsxPopulate の読込に失敗しています。ネットワーク接続を確認してください。/g, 'Failed to load XlsxPopulate. Please check your network connection.')
+      .replace(/先に一括反映してからダウンロードしてください。/g, 'Please apply the draft to Excel before downloading.')
+      .replace(/Excel の出力に失敗しました。/g, 'Failed to export the Excel file.')
+      .replace(/Excel への一括反映に失敗しました。テンプレート構造を確認してください。/g, 'Failed to apply the draft to Excel. Please check the workbook template structure.')
+      .replace(/授業科目以外の表示名を入力してください。/g, 'Please enter a label for the non-class item.')
+      .replace(/授業科目以外の総点が 0 点です。条件を見直してください。/g, 'The total points for the non-class item are 0. Please review the conditions.')
+      .replace(/中間評価ドラフトが空なので、最終評価を初期化できません。/g, 'The mid-term draft is empty, so the final draft cannot be initialized.')
+      .replace(/M中間評価のドラフト内容をもとに M最終評価ドラフトを初期化しました。/g, 'Initialized the M Final evaluation draft from the M Mid-term evaluation draft.')
+      .replace(/大学院科目 \/ 開講時限データを /g, 'Loaded graduate course / timetable data from ')
+      .replace(/から読み込みました。/g, '.')
+      .replace(/開講時限データを /g, 'Loaded timetable data from ')
+      .replace(/開講時限データの手動読込に失敗しました。/g, 'Failed to load timetable data manually. ')
+      .replace(/固定行の特別研究は、必要に応じて18観点を手動で割り振ってください。/g, 'For fixed-row research courses, allocate the 18 items manually if needed.')
+      .replace(/大学院スタンダードの公開カリキュラム・マップは 8 コンピテンス配点なので、下の 18 観点は初期案です。必要なら手動で修正してください。/g, 'The public curriculum map provides 8-competence values, so the 18-item allocation below is an initial proposal. Adjust it manually if needed.')
+      .replace(/不足差分を見ながら 8 コンピテンスへ補完し、その後 18 観点へ初期展開します。/g, 'The app complements the 8 competences while looking at current deficits, then expands them into the 18 items.')
+      .replace(/大学院スタンダード配点が未登録のため、単位数換算 /g, 'Official curriculum-map points are not bundled for this course, so an initial allocation is created from ')
+      .replace(/ 点をもとに初期配点します/g, ' points based on the credit count')
+      .replace(/元のコンピテンス \/ 観点を入力すると、1単位 100 点へ正規化した上で不足差分を見ながら初期配点します。/g, 'Enter the original competences or item points. They will be normalized to 100 points per credit and allocated while taking current deficits into account.')
+      .replace(/単位数を入れてください。外部科目は 1 単位 = 100 点で扱います。/g, 'Enter the number of credits. External courses are treated as 100 points per credit.')
+      .replace(/入力合計 /g, 'Input total ')
+      .replace(/ 点を /g, ' points will be normalized to ')
+      .replace(/ 点へ正規化して使います。smart 配点では不足差分を優先しつつ、この入力分布を尊重します。/g, ' points. Smart allocation prioritizes current deficits while respecting the input distribution.')
+      .replace(/ 点になります。元の配点を 1 つ以上入れてください。/g, ' points. Please enter at least one original value.')
+      .replace(/ 点。/g, ' points. ')
+      .replace(/ のドラフトをクリアしました。/g, ' draft cleared.')
+      .replace(/ を Excel から再読込しました。/g, ' reloaded from Excel.')
+      .replace(/ シートが見つかりません。/g, ' sheet not found.')
+      .replace(/ を Excel に一括反映しました。授業科目欄は 11〜/g, ' applied to Excel. Course rows are 11–')
+      .replace(/ 行、授業科目以外は /g, '; non-class rows are ')
+      .replace(/ 行で再配置しています。/g, '.')
+      .replace(/更新済みファイル「/g, 'Downloaded updated file "')
+      .replace(/」をダウンロードしました。/g, '".')
+      .replace(/現在のモードの内容について、不足観点とシステム情報工学研究群外の科目を確認します。/g, 'Review unmet items and courses taken outside the Graduate School of Systems and Information Engineering for the current mode.')
+      .replace(/不足している観点は赤系、満たしている観点は緑系で表示します。/g, 'Unmet items are shown in red; satisfied items are shown in green.')
+      .replace(/システム情報工学研究群外の科目は別途チェックが必要なため、色を変えて表示します。/g, 'Courses outside the Graduate School of Systems and Information Engineering are highlighted for separate review.')
+      .replace(/Excel が未読込です。確認は現在のドラフト内容に対して行います。学生から渡されたファイルをそのまま確認したい場合は Excel を読み込んでください。/g, 'No Excel workbook is loaded. Review is performed against the current draft. Load the student workbook if you want to review the file directly.')
+      .replace(/履修計画モードでは UI 上のドラフトを確認しています。実際の中間評価・最終評価シートの確認は M中間評価 \/ M最終評価 モードで行ってください。/g, 'Planning mode reviews the UI draft only. Use the M Mid-term evaluation or M Final evaluation mode to review the actual sheets.')
+      .replace(/必要点を満たしていない観点があります。不足観点: /g, 'Some required items are not satisfied. Unmet items: ')
+      .replace(/必要点の観点では、現在のモードの内容は充足しています。/g, 'All required items are satisfied in the current mode.')
+      .replace(/システム情報工学研究群外または未判定の科目があります。別途チェック対象: /g, 'There are courses outside the Graduate School of Systems and Information Engineering or courses that could not be classified. Separate review: ')
+      .replace(/システム情報工学研究群外の科目は見つかりませんでした。/g, 'No courses outside the Graduate School of Systems and Information Engineering were found.')
+      .replace(/まだ授業科目・授業科目以外の入力がありません。まず Excel を読み込むか、履修計画 \/ 評価内容を作成してください。/g, 'No course or non-class input exists yet. Load an Excel workbook first, or create a plan / evaluation draft.')
+      .replace(/11〜14行の固定欄です。配点は指導教員との確認対象ですが、システム情報工学研究群外科目ではありません。/g, 'This is a fixed slot in rows 11–14. The allocation should still be checked with the advisor, but it is not an external course.')
+      .replace(/システム情報工学研究群の科目です。通常の達成度確認で扱えます。/g, 'This is a course from the Graduate School of Systems and Information Engineering. It can be handled in the standard review flow.')
+      .replace(/システム情報工学研究群外の科目として扱われるため、配点根拠の別途確認が必要です。/g, 'This course is treated as outside the Graduate School of Systems and Information Engineering, so its point allocation requires separate confirmation.')
+      .replace(/システム情報工学研究群外または未判定の科目です。配点根拠を別途確認してください。/g, 'This course is outside the Graduate School of Systems and Information Engineering or could not be classified. Please confirm the basis of the point allocation separately.')
+      .replace(/読込済み Excel/g, 'Loaded Excel')
+      .replace(/未読込/g, 'Not loaded');
+  } else {
+    output = output
+      .replace(/Planning mode\. Excel is not updated yet\./g, '履修計画モードです。まだ Excel は更新しません。')
+      .replace(/No Excel workbook loaded yet\./g, 'まだ Excel は読み込まれていません。')
+      .replace(/Loaded:/g, '読込完了:')
+      .replace(/No course selected yet\./g, 'まだ科目が選択されていません。')
+      .replace(/Search pool:/g, '検索対象')
+      .replace(/courses/g, '件')
+      .replace(/points/g, '点')
+      .replace(/credits/g, '単位');
+  }
+  return output;
+}
+
+function translateTextNodes20260409(root = document.body) {
+  if (!root) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      if (!node || !node.parentElement) return NodeFilter.FILTER_REJECT;
+      const tag = node.parentElement.tagName;
+      if (['SCRIPT', 'STYLE', 'TEXTAREA'].includes(tag)) return NodeFilter.FILTER_REJECT;
+      const value = node.nodeValue;
+      if (!value || !value.trim()) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node => {
+    const before = node.nodeValue;
+    const trimmed = before.trim();
+    const leading = before.match(/^\s*/)?.[0] || '';
+    const trailing = before.match(/\s*$/)?.[0] || '';
+    const after = translateDynamicText20260409(trimmed);
+    if (after !== trimmed) node.nodeValue = `${leading}${after}${trailing}`;
+  });
+}
+
+function applyStaticUiText20260409() {
+  const res = getUiRes20260409();
+  document.documentElement.lang = getUiLang20260409();
+  document.title = res.appTitle;
+
+  const title = document.querySelector('.topbar__brand h1');
+  if (title) title.textContent = res.appTitle;
+  const lead = document.querySelector('.topbar__brand .lead');
+  if (lead) lead.innerHTML = res.leadHtml;
+  const hintTitle = document.querySelector('.topbar__hint-title');
+  if (hintTitle) hintTitle.textContent = res.topbarHintTitle;
+  document.querySelectorAll('.topbar__steps li').forEach((li, index) => {
+    if (res.topbarSteps[index]) li.textContent = res.topbarSteps[index];
+  });
+  const fileTitle = document.querySelector('.file-drop__title');
+  if (fileTitle) fileTitle.textContent = res.fileTitle;
+  const fileSub = document.querySelector('.file-drop__sub');
+  if (fileSub) fileSub.textContent = res.fileSub;
+  const modePanelLabel = document.querySelector('.mode-panel__label');
+  if (modePanelLabel) modePanelLabel.textContent = res.modeLabel;
+  const langLabel = document.querySelector('.lang-switch-inline span');
+  if (langLabel) langLabel.textContent = res.langLabel;
+
+  const workspaceTabs = {
+    search: getUiLang20260409() === 'en' ? 'Course search / courses' : '授業検索・授業科目',
+    extras: getUiLang20260409() === 'en' ? 'Non-class activities' : '授業科目以外',
+    draft: getUiLang20260409() === 'en' ? 'Draft / gaps' : 'ドラフト・差分',
+    check: getUiLang20260409() === 'en' ? 'Review' : '確認'
+  };
+  document.querySelectorAll('.workspace-tab[data-workspace]').forEach(tab => {
+    const key = tab.dataset.workspace;
+    if (workspaceTabs[key]) tab.textContent = workspaceTabs[key];
+  });
+
+  const searchHeading = document.querySelector('[data-workspace-panel="search"] .section-heading h2');
+  if (searchHeading) searchHeading.textContent = res.appTitle;
+  const searchLead = document.querySelector('[data-workspace-panel="search"] .section-heading p');
+  if (searchLead) {
+    searchLead.textContent = getUiLang20260409() === 'en'
+      ? 'Search by course code, Japanese title, or English title. Regular courses are placed from row 15 onward; Research in Computer Science A–D are fixed in rows 11–14.'
+      : '科目番号・日本語名・英語名で検索します。通常科目は 15 行目以降、情報理工前期特別研究 A〜D は 11〜14 行の固定欄です。';
+  }
+  if (els.searchInput) {
+    els.searchInput.placeholder = getUiLang20260409() === 'en'
+      ? 'e.g. 0ALD512 / 情報理工前期特別研究A / Research in Computer Science A'
+      : '例: 0ALD512 / 情報理工前期特別研究A / Research in Computer Science A';
+  }
+
+  const summaryLabels = getUiLang20260409() === 'en'
+    ? ['Courses', 'Credits', 'Course subtotal', 'Extra item count', 'Extra subtotal', 'Projected total', 'Unmet items']
+    : ['授業科目数', '単位数', '授業科目小計', '授業科目以外件数', '授業科目以外小計', '見込み合計', '未達観点'];
+  document.querySelectorAll('.summary-card > span').forEach((span, index) => {
+    if (summaryLabels[index]) span.textContent = summaryLabels[index];
+  });
+
+  const searchSideTitles = document.querySelectorAll('[data-side-view-card] .section-heading h2');
+  if (searchSideTitles[0]) searchSideTitles[0].textContent = getUiLang20260409() === 'en' ? 'Course point allocation' : '授業科目の配点';
+  if (searchSideTitles[1]) searchSideTitles[1].textContent = getUiLang20260409() === 'en' ? 'Timetable preview' : '時間割プレビュー';
+  const searchSideLeads = document.querySelectorAll('[data-side-view-card] .section-heading p');
+  if (searchSideLeads[0]) searchSideLeads[0].textContent = getUiLang20260409() === 'en'
+    ? 'Rows 11–14 are fixed for Research in Computer Science A–D. Regular courses are added from row 15 onward.'
+    : '11〜14 行は情報理工前期特別研究 A〜D の固定欄です。通常の受講科目は 15 行目以降に追加されます。';
+  if (searchSideLeads[1]) searchSideLeads[1].textContent = getUiLang20260409() === 'en'
+    ? 'View scheduled slots for the current draft together with the selected candidate course.'
+    : '現在のドラフトと、選択中候補科目の開講時限を重ねて確認します。';
+
+  const subsectionTitles = document.querySelectorAll('.subsection-title');
+  if (subsectionTitles[0]) subsectionTitles[0].textContent = getUiLang20260409() === 'en' ? 'Quick selection for fixed rows (11–14)' : '固定行のクイック選択（11〜14 行）';
+  if (subsectionTitles[1]) subsectionTitles[1].textContent = getUiLang20260409() === 'en' ? 'Quick add for fixed items' : '固定項目のクイック追加';
+  if (subsectionTitles[2]) subsectionTitles[2].textContent = getUiLang20260409() === 'en' ? 'Draft of non-class activities' : '授業科目以外のドラフト';
+
+  const controlsLabels = document.querySelectorAll('.controls-grid label > span');
+  const replacements = getUiLang20260409() === 'en'
+    ? {
+        '初期配点ルール': 'Initial allocation rule',
+        '配置先の行': 'Destination row',
+        '科目名': 'Course name',
+        '科目番号（任意）': 'Course code (optional)',
+        '単位数': 'Credits',
+        '元データの形式': 'Input format',
+        '種類': 'Type',
+        '表示名（任意）': 'Label (optional)',
+        'メモ（任意）': 'Note (optional)'
+      }
+    : {
+        'Initial allocation rule': '初期配点ルール',
+        'Destination row': '配置先の行',
+        'Course name': '科目名',
+        'Course code (optional)': '科目番号（任意）',
+        'Credits': '単位数',
+        'Input format': '元データの形式',
+        'Type': '種類',
+        'Label (optional)': '表示名（任意）',
+        'Note (optional)': 'メモ（任意）'
+      };
+  controlsLabels.forEach(span => {
+    const txt = span.textContent.trim();
+    if (replacements[txt]) span.textContent = replacements[txt];
+  });
+
+  if (els.customName) els.customName.placeholder = getUiLang20260409() === 'en' ? 'e.g. Special Topics in ○○' : '例: ○○特論';
+  if (els.customCode) els.customCode.placeholder = getUiLang20260409() === 'en' ? 'e.g. EXT-001' : '例: EXT-001';
+  if (els.customCredits) els.customCredits.placeholder = getUiLang20260409() === 'en' ? 'e.g. 2' : '例: 2';
+  if (els.extraLabel) els.extraLabel.placeholder = getUiLang20260409() === 'en' ? 'If left blank, it is generated automatically from the type' : '未入力なら種類から自動設定します';
+  if (els.extraNote) els.extraNote.placeholder = getUiLang20260409() === 'en' ? 'e.g. international conference presentation, company internship' : '例: 国際会議発表, 企業インターン など';
+
+  const draftHeadings = document.querySelectorAll('[data-workspace-panel="draft"] .section-heading h2');
+  if (draftHeadings[0]) draftHeadings[0].textContent = getUiLang20260409() === 'en' ? 'Course draft for current mode' : '現在のモードの授業科目ドラフト';
+  if (draftHeadings[1]) draftHeadings[1].textContent = getUiLang20260409() === 'en' ? 'Gap from required points by item' : '各観点の必要点との差分';
+  const draftLeads = document.querySelectorAll('[data-workspace-panel="draft"] .section-heading p');
+  if (draftLeads[0]) draftLeads[0].textContent = getUiLang20260409() === 'en' ? 'Rows 11–14 are Research in Computer Science A–D; row 15 onward is shown as regular courses.' : '11〜14 行は特別研究 A〜D、15 行目以降は通常科目として表示します。';
+  if (draftLeads[1]) draftLeads[1].textContent = getUiLang20260409() === 'en' ? 'Shows required points, course subtotal, non-class subtotal, projected total, and gap for each item.' : '必要点 / 授業科目小計 / 授業科目以外 / 見込み合計 / 差分 を一覧表示します。';
+
+  const totalsHeaders = document.querySelectorAll('.totals-table thead th');
+  const totalsHeaderLabels = getUiLang20260409() === 'en' ? ['Item', 'Required', 'Courses', 'Extra', 'Projected', 'Gap', 'Status'] : ['観点', '必要点', '授業小計', '授業外', '見込み', '差分', '状態'];
+  totalsHeaders.forEach((th, index) => { if (totalsHeaderLabels[index]) th.textContent = totalsHeaderLabels[index]; });
+
+  const checkHeadings = document.querySelectorAll('[data-workspace-panel="check"] .section-heading h2');
+  if (checkHeadings[0]) checkHeadings[0].textContent = getUiLang20260409() === 'en' ? 'Review' : '確認';
+  if (checkHeadings[1]) checkHeadings[1].textContent = getUiLang20260409() === 'en' ? 'Unmet item check' : '不足観点のチェック';
+  if (checkHeadings[2]) checkHeadings[2].textContent = getUiLang20260409() === 'en' ? 'Course review' : '授業科目の確認';
+  const checkLeads = document.querySelectorAll('[data-workspace-panel="check"] .section-heading p');
+  if (checkLeads[0]) checkLeads[0].textContent = getUiLang20260409() === 'en' ? 'Review unmet items and courses taken outside the Graduate School of Systems and Information Engineering for the current mode.' : '現在のモードの内容について、不足観点とシステム情報工学研究群外の科目を確認します。';
+  if (checkLeads[1]) checkLeads[1].textContent = getUiLang20260409() === 'en' ? 'Unmet items are shown in red; satisfied items are shown in green.' : '不足している観点は赤系、満たしている観点は緑系で表示します。';
+  if (checkLeads[2]) checkLeads[2].textContent = getUiLang20260409() === 'en' ? 'Courses outside the Graduate School of Systems and Information Engineering are highlighted for separate review.' : 'システム情報工学研究群外の科目は別途チェックが必要なため、色を変えて表示します。';
+
+  const reviewDeficitHeaders = document.querySelectorAll('.review-table--deficit thead th');
+  const reviewDeficitLabels = getUiLang20260409() === 'en' ? ['Item', 'Required', 'Current', 'Gap', 'Comment'] : ['観点', '必要点', '現在点', '差分', 'コメント'];
+  reviewDeficitHeaders.forEach((th, index) => { if (reviewDeficitLabels[index]) th.textContent = reviewDeficitLabels[index]; });
+  const reviewCourseHeaders = document.querySelectorAll('.review-table--courses thead th');
+  const reviewCourseLabels = getUiLang20260409() === 'en' ? ['Row', 'Course name', 'Course code', 'Category', 'Result'] : ['行', '科目名', '科目番号', '区分', '確認結果'];
+  reviewCourseHeaders.forEach((th, index) => { if (reviewCourseLabels[index]) th.textContent = reviewCourseLabels[index]; });
+
+  const extrasHeadings = document.querySelectorAll('[data-workspace-panel="extras"] .section-heading h2');
+  if (extrasHeadings[0]) extrasHeadings[0].textContent = getUiLang20260409() === 'en' ? 'Create a course from another program/group' : '他研究群の科目を作る';
+  if (extrasHeadings[1]) extrasHeadings[1].textContent = getUiLang20260409() === 'en' ? 'Non-class activities' : '授業科目以外';
+  const extrasLeads = document.querySelectorAll('[data-workspace-panel="extras"] .section-heading p');
+  if (extrasLeads[0]) extrasLeads[0].textContent = getUiLang20260409() === 'en' ? 'Enter original competences or item points. They are normalized to 100 points per credit and allocated across 18 items while taking current deficits into account.' : '元のコンピテンスまたは観点を入力すると、1 単位 = 100 点で正規化し、現在の不足差分を見ながら 18 観点へ初期配点します。';
+  if (extrasLeads[1]) extrasLeads[1].textContent = getUiLang20260409() === 'en' ? 'Add papers, patents, lab WG, CS Special Workshop, extra-program activities, TA, TOEIC/TOEFL, and fixed items.' : '論文、特許、研究室 WG、CS スペシャルワークショップ、学位プログラム外活動、TA、TOEIC / TOEFL、固定項目を追加できます。';
+
+  const previewStrongs = document.querySelectorAll('.preview-head strong');
+  if (previewStrongs[0]) previewStrongs[0].textContent = getUiLang20260409() === 'en' ? '18-item preview' : '18 観点プレビュー';
+  if (previewStrongs[1]) previewStrongs[1].textContent = getUiLang20260409() === 'en' ? '18-item allocation for non-class activities' : '授業科目以外の 18 観点配点';
+  const previewMuted = document.querySelectorAll('.preview-head .muted');
+  if (previewMuted[0]) previewMuted[0].textContent = getUiLang20260409() === 'en' ? 'You can fine-tune the 18 items in columns B–S manually.' : 'B〜S 列の 18 観点は手で微調整できます。';
+  if (previewMuted[1]) previewMuted[1].textContent = getUiLang20260409() === 'en' ? 'Fixed items are filled automatically; other items can be edited manually if needed.' : '固定項目は自動入力、その他の項目は必要に応じて手修正できます。';
+
+  const langSelect = document.getElementById('uiLangSelect');
+  if (langSelect) langSelect.value = getUiLang20260409();
+}
+
+function translateSelectOptions20260409() {
+  const splitLabels = getUiLang20260409() === 'en'
+    ? { smart: 'Smart (prioritize current deficits, default)', required: 'Proportional to required points', even: 'Even split' }
+    : { smart: '不足差分優先 smart（既定）', required: '必要点比例', even: '均等配分' };
+  ['splitMode', 'extraSplitMode'].forEach(id => {
+    const select = document.getElementById(id);
+    if (!select) return;
+    Array.from(select.options).forEach(option => {
+      option.textContent = splitLabels[option.value] || option.textContent;
+    });
+  });
+  const customInput = document.getElementById('customInputMode');
+  if (customInput) {
+    Array.from(customInput.options).forEach(option => {
+      if (option.value === 'competence8') option.textContent = getUiLang20260409() === 'en' ? '8 competences' : '8 コンピテンス';
+      if (option.value === 'viewpoint18') option.textContent = getUiLang20260409() === 'en' ? '18 items' : '18 観点';
+    });
+  }
+  const extraType = document.getElementById('extraType');
+  if (extraType) {
+    Array.from(extraType.options).forEach(option => {
+      option.textContent = EXTRA_TYPE_LABELS[option.value] || option.textContent;
+    });
+  }
+}
+
+function translateGeneratedUi20260409() {
+  if (els.modeInfo) els.modeInfo.textContent = translateDynamicText20260409(els.modeInfo.textContent || '');
+  if (els.workbookStatus) els.workbookStatus.textContent = translateDynamicText20260409(els.workbookStatus.textContent || '');
+  if (els.searchMeta) els.searchMeta.textContent = translateDynamicText20260409(els.searchMeta.textContent || '');
+  if (els.scheduleStatus) els.scheduleStatus.textContent = translateDynamicText20260409(els.scheduleStatus.textContent || '');
+  if (els.previewTotal) els.previewTotal.textContent = translateDynamicText20260409(els.previewTotal.textContent || '');
+  if (els.extraPreviewTotal) els.extraPreviewTotal.textContent = translateDynamicText20260409(els.extraPreviewTotal.textContent || '');
+  if (els.selectedCourseBox && state.selectedCourse) {
+    const h3 = els.selectedCourseBox.querySelector('h3');
+    if (h3) h3.textContent = getUiLang20260409() === 'en'
+      ? (state.selectedCourse.nameEn || state.selectedCourse.nameJa || 'Untitled')
+      : (state.selectedCourse.nameJa || state.selectedCourse.nameEn || '名称未設定');
+  }
+  document.querySelectorAll('#searchResults button, #planList button, #extraList button, #workspaceTabs button, #searchSideSwitcher button, #scheduleTermTabs button, .badge, .chip, .help-text, .status, .muted, .plan-card__row, .plan-card__total, .result-card__meta, .selected-course__source, .selected-course__schedule, .review-summary-card, .review-note, table td, table th, select option, #targetRow option').forEach(el => {
+    if (el.children.length === 0) {
+      const text = el.textContent.trim();
+      const translated = translateDynamicText20260409(text);
+      if (translated !== text) el.textContent = translated;
+    }
+  });
+
+  document.querySelectorAll('#fixedCourseButtons button').forEach(button => {
+    const row = Number(button.dataset.row || '');
+    if (!Number.isFinite(row)) return;
+    const label = getUiRes20260409().rowLabels[row] || DEFAULT_ROW_LABELS[row] || button.textContent;
+    button.textContent = label;
+  });
+
+  document.querySelectorAll('#planList .plan-card h3').forEach((heading, index) => {
+    const entries = getPlanEntries(getCurrentDraft().courseRows);
+    const entry = entries[index];
+    if (!entry) return;
+    heading.textContent = displayCourseName(entry);
+  });
+
+  document.querySelectorAll('#fixedExtraButtons button').forEach(button => {
+    const key = button.dataset.key;
+    if (!key) return;
+    button.textContent = getFixedTemplateLocalizedLabel20260409(key);
+  });
+
+  document.querySelectorAll('#scheduleTermTabs button').forEach(button => {
+    button.textContent = translateDynamicText20260409(button.textContent.trim());
+  });
+}
+
+let I18N_APPLYING_20260409 = false;
+let I18N_SCHEDULED_20260409 = false;
+let I18N_OBSERVER_20260409 = null;
+
+function applyUiLanguage20260409() {
+  if (I18N_APPLYING_20260409) return;
+  I18N_APPLYING_20260409 = true;
+  try {
+    applyLanguageData20260409();
+    applyStaticUiText20260409();
+    translateSelectOptions20260409();
+    translateGeneratedUi20260409();
+    translateTextNodes20260409(document.body);
+  } finally {
+    I18N_APPLYING_20260409 = false;
+  }
+}
+
+function scheduleApplyUiLanguage20260409() {
+  if (I18N_SCHEDULED_20260409) return;
+  I18N_SCHEDULED_20260409 = true;
+  window.requestAnimationFrame(() => {
+    I18N_SCHEDULED_20260409 = false;
+    applyUiLanguage20260409();
+  });
+}
+
+function setupUiLanguageObserver20260409() {
+  if (I18N_OBSERVER_20260409 || !document.body) return;
+  I18N_OBSERVER_20260409 = new MutationObserver(() => {
+    if (I18N_APPLYING_20260409) return;
+    scheduleApplyUiLanguage20260409();
+  });
+  I18N_OBSERVER_20260409.observe(document.body, { childList: true, subtree: true, characterData: true });
+}
+
+function refreshAvailableSheetsForLanguage20260409() {
+  if (!state.workbook) return;
+  state.availableSheets.midterm = detectSheetNameForMode(state.workbook, 'midterm');
+  state.availableSheets.final = detectSheetNameForMode(state.workbook, 'final');
+}
+
+function onUiLanguageChanged20260409(lang) {
+  state.uiLang = lang === 'en' ? 'en' : 'ja';
+  safeSetUiLang20260409(state.uiLang);
+  refreshAvailableSheetsForLanguage20260409();
+  renderModeSwitch();
+  renderModeInfo();
+  renderRowOptions();
+  renderPreviewGrid();
+  renderCustomValueGrid();
+  renderExtraTypeOptions();
+  renderExtraDynamicFields();
+  renderExtraPreviewGrid();
+  renderFixedCourseButtons();
+  renderFixedExtraButtons();
+  renderSelectedCourse(state.selectedCourse);
+  renderPlanSection();
+  renderAdvisorCheckPanel20260409();
+  updateActionStates();
+  scheduleApplyUiLanguage20260409();
+}
+
+function initUiLanguage20260409() {
+  state.uiLang = safeGetUiLang20260409();
+  const select = document.getElementById('uiLangSelect');
+  if (select && !select.dataset.bound) {
+    select.dataset.bound = 'true';
+    select.value = state.uiLang;
+    select.addEventListener('change', event => {
+      onUiLanguageChanged20260409(event.target.value);
+    });
+  }
+  scheduleApplyUiLanguage20260409();
+  setupUiLanguageObserver20260409();
+}
+
+document.addEventListener('DOMContentLoaded', initUiLanguage20260409);
+window.addEventListener('load', scheduleApplyUiLanguage20260409);
+
+displayCourseName = function displayCourseName20260409(entry) {
+  if (getUiLang20260409() === 'en') {
+    return String(entry?.nameEn || entry?.nameJa || entry?.code || 'Untitled');
+  }
+  return String(entry?.nameJa || entry?.nameEn || entry?.code || '名称未設定');
+};
+
+guessExtraTemplateKey = function guessExtraTemplateKey20260409(name, points18) {
+  const normalizedName = normalize(name);
+  const matchedByName = Object.values(FIXED_EXTRA_TEMPLATES).find(template => {
+    const labels = [
+      getFixedTemplateLocalizedLabel20260409(template.key, 'ja'),
+      getFixedTemplateLocalizedLabel20260409(template.key, 'en'),
+      template.label
+    ].filter(Boolean).map(normalize);
+    return labels.includes(normalizedName);
+  });
+  if (matchedByName) return matchedByName.key;
+  const matchedByPoints = Object.values(FIXED_EXTRA_TEMPLATES).find(template => points18.every((value, index) => asInt(value) === asInt(template.fixedPoints18[index])));
+  return matchedByPoints?.key || null;
+};
+
+detectSheetNameForMode = function detectSheetNameForMode20260409(workbook, mode) {
+  if (!workbook || !MODE_CONFIG[mode]) return null;
+  const names = workbook.sheets().map(sheet => sheet.name());
+  const lang = getUiLang20260409();
+  const candidates = UI_SHEET_CANDIDATES_20260409[mode]?.[lang] || MODE_CONFIG[mode].sheetCandidates || [];
+  return candidates.find(name => names.includes(name))
+    || (MODE_CONFIG[mode].sheetCandidates || []).find(name => names.includes(name))
+    || null;
+};
+
+detectSheetLayout = function detectSheetLayout20260409(sheet) {
+  const scanMax = 800;
+  const labelRows = [];
+  const normalizeLabelKind = (value) => {
+    const raw = String(value || '').trim().toLowerCase();
+    const norm = normalize(value);
+    if ([normalize('小計'), normalize('Subtotal')].includes(norm)) return 'subtotal';
+    if ([normalize('授業科目以外'), normalize('Non-Class Activieties'), normalize('Non-Class Activities')].includes(norm)) return 'extraHeader';
+    if ([normalize('合計'), normalize('Total')].includes(norm)) return 'total';
+    if ([normalize('不足分'), normalize('Rest'), normalize('Deficit')].includes(norm)) return 'deficit';
+    return raw === 'subtotal' ? 'subtotal' : null;
+  };
+
+  for (let row = 1; row <= scanMax; row += 1) {
+    const kind = normalizeLabelKind(sheet.cell(`A${row}`).value());
+    if (!kind) continue;
+    labelRows.push({ row, kind });
+  }
+
+  const courseSubtotal = labelRows.find(item => item.kind === 'subtotal' && item.row >= 11);
+  const extraHeader = labelRows.find(item => item.kind === 'extraHeader' && item.row > (courseSubtotal?.row || 11));
+  const extraSubtotal = labelRows.find(item => item.kind === 'subtotal' && item.row > (extraHeader?.row || Number.MAX_SAFE_INTEGER));
+  const totalRow = labelRows.find(item => item.kind === 'total' && item.row > (extraSubtotal?.row || Number.MAX_SAFE_INTEGER));
+  const deficitRow = labelRows.find(item => item.kind === 'deficit' && item.row > (totalRow?.row || Number.MAX_SAFE_INTEGER));
+
+  const courseSubtotalRow = courseSubtotal?.row || 21;
+  const extraHeaderRow = extraHeader?.row || 23;
+  const extraSubtotalRow = extraSubtotal?.row || 27;
+  const total = totalRow?.row || 29;
+  const deficit = deficitRow?.row || 30;
+  const extraStartRow = extraHeaderRow + 1;
+  const extraEndRow = extraSubtotalRow - 1;
+
+  return {
+    courseStartRow: 11,
+    courseEndRow: courseSubtotalRow - 1,
+    courseSubtotalRow,
+    blankAfterCourseSubtotalRow: courseSubtotalRow + 1,
+    extraHeaderRow,
+    extraStartRow,
+    extraEndRow,
+    extraSubtotalRow,
+    blankAfterExtraSubtotalRow: extraSubtotalRow + 1,
+    totalRow: total,
+    deficitRow: deficit
+  };
+};
+
+writeCourseSubtotalRow = function writeCourseSubtotalRow20260409(sheet, row, courseEndRow) {
+  clearRowContents(sheet, row);
+  sheet.cell(`A${row}`).value(getSheetLabels20260409(sheet).subtotal);
+  COLUMN_LETTERS.forEach(letter => {
+    sheet.cell(`${letter}${row}`).formula(`SUM(${letter}11:${letter}${courseEndRow})`);
+  });
+  sheet.cell(`T${row}`).formula(`SUM(B${row}:S${row})`);
+};
+
+writeExtraSubtotalRow = function writeExtraSubtotalRow20260409(sheet, row, extraStartRow, extraEndRow) {
+  clearRowContents(sheet, row);
+  sheet.cell(`A${row}`).value(getSheetLabels20260409(sheet).subtotal);
+  COLUMN_LETTERS.forEach(letter => {
+    sheet.cell(`${letter}${row}`).formula(`SUM(${letter}${extraStartRow}:${letter}${extraEndRow})`);
+  });
+  sheet.cell(`T${row}`).formula(`SUM(T${extraStartRow}:T${extraEndRow})`);
+};
+
+writeTotalRow = function writeTotalRow20260409(sheet, row, courseSubtotalRow, extraSubtotalRow) {
+  clearRowContents(sheet, row);
+  sheet.cell(`A${row}`).value(getSheetLabels20260409(sheet).total);
+  COLUMN_LETTERS.forEach(letter => {
+    sheet.cell(`${letter}${row}`).formula(`${letter}${courseSubtotalRow}+${letter}${extraSubtotalRow}`);
+  });
+  sheet.cell(`T${row}`).formula(`T${courseSubtotalRow}+T${extraSubtotalRow}`);
+};
+
+writeDeficitRow = function writeDeficitRow20260409(sheet, row, totalRow) {
+  clearRowContents(sheet, row);
+  sheet.cell(`A${row}`).value(getSheetLabels20260409(sheet).deficit);
+  COLUMN_LETTERS.forEach(letter => {
+    sheet.cell(`${letter}${row}`).formula(`${letter}8-${letter}${totalRow}`);
+  });
+  sheet.cell(`T${row}`).formula(`T8-T${totalRow}`);
+};
+
+writeFooterStructure = function writeFooterStructure20260409(sheet, courseEndRow, templates, extraItems) {
+  const courseSubtotalRow = courseEndRow + 1;
+  const blank1Row = courseSubtotalRow + 1;
+  const extraHeaderRow = blank1Row + 1;
+  const extraStartRow = extraHeaderRow + 1;
+  const extraCount = Math.max(MIN_EXTRA_ROWS, extraItems.length);
+  const extraEndRow = extraStartRow + extraCount - 1;
+  const extraSubtotalRow = extraEndRow + 1;
+  const blank2Row = extraSubtotalRow + 1;
+  const totalRow = blank2Row + 1;
+  const deficitRow = totalRow + 1;
+  const labels = getSheetLabels20260409(sheet);
+
+  applyStyleRow(sheet, courseSubtotalRow, templates.courseSubtotalStyle);
+  writeCourseSubtotalRow(sheet, courseSubtotalRow, courseEndRow);
+
+  applyStyleRow(sheet, blank1Row, templates.blank1Style);
+  clearRowContents(sheet, blank1Row);
+
+  applyStyleRow(sheet, extraHeaderRow, templates.extraHeaderStyle);
+  clearRowContents(sheet, extraHeaderRow);
+  sheet.cell(`A${extraHeaderRow}`).value(labels.extraHeader);
+
+  for (let index = 0; index < extraCount; index += 1) {
+    const row = extraStartRow + index;
+    const item = extraItems[index];
+    applyStyleRow(sheet, row, templates.extraItemStyle);
+    clearRowContents(sheet, row);
+    if (item) {
+      const fixedKey = item.fixedKey || item.formSnapshot?.fixedKey || guessExtraTemplateKey(item.name || '', item.points18 || ZERO_18);
+      const localizedFixedName = fixedKey ? getFixedTemplateLocalizedLabel20260409(fixedKey, isEnglishSheet20260409(sheet) ? 'en' : 'ja') : '';
+      sheet.cell(`A${row}`).value(localizedFixedName || item.name || '');
+      COLUMN_LETTERS.forEach((letter, colIndex) => {
+        sheet.cell(`${letter}${row}`).value(asInt(item.points18[colIndex]));
+      });
+    }
+    sheet.cell(`T${row}`).formula(`SUM(B${row}:S${row})`);
+  }
+
+  applyStyleRow(sheet, extraSubtotalRow, templates.extraSubtotalStyle);
+  writeExtraSubtotalRow(sheet, extraSubtotalRow, extraStartRow, extraEndRow);
+
+  applyStyleRow(sheet, blank2Row, templates.blank2Style);
+  clearRowContents(sheet, blank2Row);
+
+  applyStyleRow(sheet, totalRow, templates.totalStyle);
+  writeTotalRow(sheet, totalRow, courseSubtotalRow, extraSubtotalRow);
+
+  applyStyleRow(sheet, deficitRow, templates.deficitStyle);
+  writeDeficitRow(sheet, deficitRow, totalRow);
+
+  return {
+    courseSubtotalRow,
+    blankAfterCourseSubtotalRow: blank1Row,
+    extraHeaderRow,
+    extraStartRow,
+    extraEndRow,
+    extraSubtotalRow,
+    blankAfterExtraSubtotalRow: blank2Row,
+    totalRow,
+    deficitRow
+  };
+};
