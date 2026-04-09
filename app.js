@@ -3401,7 +3401,7 @@ async function loadScheduleDataset() {
   if (state.scheduleStatus === 'loading' || state.scheduleStatus === 'ready') return;
 
   state.scheduleStatus = 'loading';
-  state.scheduleMessage = 'alternative-tsukuba-kdb の大学院 KdB データを読み込んでいます。';
+  state.scheduleMessage = `同じリポジトリの ${LOCAL_KDB_EXPECTED_PATH_20260409} を読み込んでいます。`;
   renderScheduleStatus();
 
   const allowedCodes = new Set(state.courses.map(course => String(course.code || '').trim()).filter(Boolean));
@@ -3991,7 +3991,7 @@ async function loadScheduleDataset() {
   if (state.scheduleStatus === 'loading' || state.scheduleStatus === 'ready') return;
 
   state.scheduleStatus = 'loading';
-  state.scheduleMessage = 'alternative-tsukuba-kdb の大学院 KdB データを読み込んでいます。';
+  state.scheduleMessage = `同じリポジトリの ${LOCAL_KDB_EXPECTED_PATH_20260409} を読み込んでいます。`;
   renderScheduleStatus();
 
   const allowedCodes = new Set(state.courses.map(course => String(course.code || '').trim()).filter(Boolean));
@@ -4876,7 +4876,7 @@ async function loadScheduleDataset(force = false) {
   }
 
   state.scheduleStatus = 'loading';
-  state.scheduleMessage = 'alternative-tsukuba-kdb の大学院 KdB データを読み込んでいます。';
+  state.scheduleMessage = `同じリポジトリの ${LOCAL_KDB_EXPECTED_PATH_20260409} を読み込んでいます。`;
   renderScheduleStatus();
   renderTimetablePanel();
 
@@ -4980,7 +4980,7 @@ function renderScheduleStatus() {
     const updatedLabel = state.scheduleMeta?.updated ? `更新日 ${escapeHtml(String(state.scheduleMeta.updated))}` : '更新日未取得';
     const sourceLabel = state.scheduleMeta?.source ? ` / 読込元 ${escapeHtml(String(state.scheduleMeta.source))}` : '';
     const countLabel = ` / 対応科目 ${Object.keys(state.scheduleMap || {}).length} 件`;
-    els.scheduleUpdated.innerHTML = `alternative-tsukuba-kdb 由来の大学院 KdB データを利用中です。<br>${updatedLabel}${sourceLabel}${countLabel}`;
+    els.scheduleUpdated.innerHTML = `同じリポジトリの <code>${escapeHtml(LOCAL_KDB_EXPECTED_PATH_20260409)}</code> を利用中です。<br>${updatedLabel}${sourceLabel}${countLabel}`;
   } else if (state.scheduleStatus === 'loading') {
     els.scheduleUpdated.textContent = state.scheduleMessage || '開講時限データを読み込み中です。';
   } else {
@@ -5916,7 +5916,7 @@ async function loadScheduleDataset(force = false) {
   }
 
   state.scheduleStatus = 'loading';
-  state.scheduleMessage = 'alternative-tsukuba-kdb の大学院 KdB データを読み込んでいます。';
+  state.scheduleMessage = `同じリポジトリの ${LOCAL_KDB_EXPECTED_PATH_20260409} を読み込んでいます。`;
   renderScheduleStatus();
   renderTimetablePanel();
 
@@ -5933,7 +5933,7 @@ async function loadScheduleDataset(force = false) {
 
   for (const candidate of candidates) {
     try {
-      const response = await fetch(candidate.url, { cache: 'force-cache', mode: 'cors' });
+      const response = await fetch(candidate.url, { cache: 'no-store' });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const rawText = await response.text();
       if (!rawText || !rawText.trim()) throw new Error('空のレスポンス');
@@ -5978,11 +5978,11 @@ function renderScheduleStatus() {
     const updatedLabel = state.scheduleMeta?.updated ? `更新日 ${escapeHtml(String(state.scheduleMeta.updated))}` : '更新日未取得';
     const sourceLabel = state.scheduleMeta?.source ? ` / 読込元 ${escapeHtml(String(state.scheduleMeta.source))}` : '';
     const countLabel = ` / 対応科目 ${Object.keys(state.scheduleMap || {}).length} 件`;
-    els.scheduleUpdated.innerHTML = `alternative-tsukuba-kdb 由来の大学院 KdB データを利用中です。<br>${updatedLabel}${sourceLabel}${countLabel}`;
+    els.scheduleUpdated.innerHTML = `同じリポジトリの <code>${escapeHtml(LOCAL_KDB_EXPECTED_PATH_20260409)}</code> を利用中です。<br>${updatedLabel}${sourceLabel}${countLabel}`;
   } else if (state.scheduleStatus === 'loading') {
     els.scheduleUpdated.textContent = state.scheduleMessage || '開講時限データを読み込み中です。';
   } else {
-    els.scheduleUpdated.innerHTML = `${escapeHtml(state.scheduleMessage || '開講時限データを読み込めませんでした。')}<br>必要なら <code>kdb-grad.json</code> を手動読込してください。`;
+    els.scheduleUpdated.innerHTML = `${escapeHtml(state.scheduleMessage || '開講時限データを読み込めませんでした。')}<br><code>${escapeHtml(LOCAL_KDB_EXPECTED_PATH_20260409)}</code> を同じリポジトリに置くか、必要なら <code>kdb-grad.json</code> を手動読込してください。`;
   }
 }
 
@@ -6002,15 +6002,41 @@ state.kdbCatalogMeta = state.kdbCatalogMeta || { status: 'idle', updated: '', so
 
 const FULL_GRAD_COURSE_LIST_URL_20260408 = 'https://www.tsukuba.ac.jp/education/g-courses-g-tsukuba-tokyo/2026-2.html';
 const GRAD_STANDARD_INDEX_URL_20260408 = 'https://www.tsukuba.ac.jp/education/policy-tstandard/gstandard/';
-const KDB_GRAD_CANDIDATES_20260408 = [
-  { url: './data/kdb-grad.json', label: '同梱 data/kdb-grad.json' },
-  { url: 'data/kdb-grad.json', label: '同梱 data/kdb-grad.json (relative)' },
-  { url: 'https://cdn.jsdelivr.net/gh/Make-IT-TSUKUBA/alternative-tsukuba-kdb@main/frontend/src/kdb/kdb-grad.json', label: 'jsDelivr / alternative-tsukuba-kdb' },
-  { url: 'https://cdn.jsdelivr.net/gh/make-it-tsukuba/alternative-tsukuba-kdb@main/frontend/src/kdb/kdb-grad.json', label: 'jsDelivr / alternative-tsukuba-kdb (lowercase)' },
-  { url: 'https://raw.githubusercontent.com/Make-IT-TSUKUBA/alternative-tsukuba-kdb/main/frontend/src/kdb/kdb-grad.json', label: 'raw.githubusercontent.com / Make-IT-TSUKUBA' },
-  { url: 'https://raw.githubusercontent.com/make-it-tsukuba/alternative-tsukuba-kdb/main/frontend/src/kdb/kdb-grad.json', label: 'raw.githubusercontent.com / make-it-tsukuba' },
-  { url: 'https://github.com/Make-IT-TSUKUBA/alternative-tsukuba-kdb/raw/refs/heads/main/frontend/src/kdb/kdb-grad.json', label: 'GitHub raw download / Make-IT-TSUKUBA' }
-];
+const LOCAL_KDB_EXPECTED_PATH_20260409 = 'data/kdb-grad.json';
+const KDB_GRAD_CANDIDATES_20260408 = buildSameRepoKdbCandidates20260409();
+
+function buildSameRepoKdbCandidates20260409() {
+  const seen = new Set();
+  const candidates = [];
+
+  const pushCandidate = (value, label) => {
+    if (!value) return;
+    try {
+      const url = new URL(value, document.baseURI).href;
+      if (seen.has(url)) return;
+      seen.add(url);
+      candidates.push({ url, label });
+    } catch (error) {
+      // ignore invalid URL candidate
+    }
+  };
+
+  pushCandidate('./data/kdb-grad.json', '同梱 data/kdb-grad.json');
+  pushCandidate('data/kdb-grad.json', '同梱 data/kdb-grad.json (relative)');
+  pushCandidate(new URL('./data/kdb-grad.json', document.baseURI).href, 'document.baseURI 基準');
+
+  const appScript = Array.from(document.scripts).find(script => /(^|\/)app\.js(\?|$)/.test(script.src || ''));
+  if (appScript?.src) {
+    pushCandidate(new URL('./data/kdb-grad.json', appScript.src).href, 'app.js の場所基準');
+  }
+
+  const pagePath = window.location.pathname.replace(/[^/]*$/, '');
+  if (window.location.origin && pagePath) {
+    pushCandidate(`${window.location.origin}${pagePath}data/kdb-grad.json`, '現在のページ基準');
+  }
+
+  return candidates;
+}
 
 function asTrimmedString20260408(value) {
   return String(value == null ? '' : value).trim();
@@ -6311,7 +6337,7 @@ function updateUnifiedDatasetInfo20260408() {
     const notes = (state.officialDataset?.meta?.notes || []).map(text => escapeHtml(text)).join(' / ');
     const sourceParts = [
       `<div><strong>公式配点つき科目:</strong> ${mappedCount} 件</div>`,
-      `<div><strong>全大学院科目カタログ:</strong> ${kdbCount ? `${kdbCount} 件` : '未取得'}</div>`,
+      `<div><strong>全大学院科目カタログ:</strong> ${kdbCount ? `${kdbCount} 件` : '未取得'}</div><div><strong>期待する配置:</strong> <code>${escapeHtml(LOCAL_KDB_EXPECTED_PATH_20260409)}</code></div>`,
       `<div><strong>読込元:</strong> ${escapeHtml(state.datasetLoadSource || '不明')}</div>`,
       `<div><strong>大学院開設授業科目一覧:</strong> <a href="${FULL_GRAD_COURSE_LIST_URL_20260408}" target="_blank" rel="noreferrer">公式ページ</a></div>`,
       `<div><strong>大学院スタンダード:</strong> <a href="${GRAD_STANDARD_INDEX_URL_20260408}" target="_blank" rel="noreferrer">公式ページ</a></div>`
@@ -6325,7 +6351,7 @@ function updateUnifiedDatasetInfo20260408() {
       sourceParts.push(`<div><strong>KdB 由来カタログ:</strong> 取得失敗 (${escapeHtml(state.kdbCatalogMeta.error || '詳細不明')})</div>`);
     }
 
-    sourceParts.push('<div><strong>検索対象:</strong> 筑波大学大学院で開講される全科目（kdb-grad 由来）+ 公式配点つき科目データ</div>');
+    sourceParts.push('<div><strong>検索対象:</strong> 同梱 <code>data/kdb-grad.json</code> 由来の筑波大学大学院全科目 + 公式配点つき科目データ</div>');
     sourceParts.push('<div><strong>配点ルール:</strong> 公式配点つき科目は同梱データを優先し、それ以外は単位数×100点を総点として smart / required / even と手動修正で扱います。</div>');
     sourceParts.push(`<div><strong>メモ:</strong> ${notes || 'なし'}</div>`);
     els.datasetInfo.innerHTML = sourceParts.join('');
@@ -6443,7 +6469,7 @@ async function loadScheduleDataset(force = false) {
     count: (state.kdbCatalogCourses || []).length
   };
   state.scheduleStatus = 'loading';
-  state.scheduleMessage = '筑波大学大学院の全科目カタログと開講時限データを読み込んでいます。';
+  state.scheduleMessage = `同じリポジトリの ${LOCAL_KDB_EXPECTED_PATH_20260409} を読み込んでいます。`;
   updateUnifiedDatasetInfo20260408();
   renderScheduleStatus();
   renderTimetablePanel();
@@ -6451,7 +6477,7 @@ async function loadScheduleDataset(force = false) {
   const errors = [];
   for (const candidate of KDB_GRAD_CANDIDATES_20260408) {
     try {
-      const response = await fetch(candidate.url, { cache: 'force-cache', mode: 'cors' });
+      const response = await fetch(candidate.url, { cache: 'no-store' });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const rawText = await response.text();
       if (!rawText || !rawText.trim()) throw new Error('空のレスポンス');
@@ -6497,12 +6523,12 @@ async function loadScheduleDataset(force = false) {
 
   if (!hadCachedSchedule && !Object.keys(state.scheduleMap || {}).length) {
     state.scheduleStatus = 'warn';
-    state.scheduleMessage = `大学院科目 / 開講時限データを取得できませんでした。${errors.join(' / ')}`;
+    state.scheduleMessage = `同じリポジトリの ${LOCAL_KDB_EXPECTED_PATH_20260409} を読み込めませんでした。${errors.join(' / ')}`;
     renderScheduleStatus();
     renderSearchResults(searchCourses(els.searchInput?.value || ''));
     renderTimetablePanel();
   } else {
-    state.scheduleMessage = '大学院科目カタログの再取得には失敗しましたが、既存の開講時限データを継続利用しています。';
+    state.scheduleMessage = `同じリポジトリの ${LOCAL_KDB_EXPECTED_PATH_20260409} の再読込には失敗しましたが、既存の開講時限データを継続利用しています。`; 
     renderScheduleStatus();
   }
 }
@@ -6512,6 +6538,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (searchHeading) searchHeading.textContent = '筑波大学大学院の全科目を検索（非公式）';
   const searchLead = document.querySelector('[data-workspace-panel="search"] .section-heading p');
   if (searchLead) {
-    searchLead.textContent = '科目番号・日本語名・英語名で検索します。全大学院科目は kdb-grad を母集団にし、公式配点つき科目データを重ねて使います。通常科目は 15 行目以降、情報理工前期特別研究 A〜D は 11〜14 行の固定欄です。';
+    searchLead.textContent = '科目番号・日本語名・英語名で検索します。全大学院科目は同じリポジトリの data/kdb-grad.json を母集団にし、公式配点つき科目データを重ねて使います。通常科目は 15 行目以降、情報理工前期特別研究 A〜D は 11〜14 行の固定欄です。';
   }
 });
