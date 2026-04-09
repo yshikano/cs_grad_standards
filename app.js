@@ -5992,3 +5992,526 @@ document.addEventListener('DOMContentLoaded', () => {
   if (h1 && !/非公式/.test(h1.textContent || '')) h1.textContent = `${h1.textContent.trim()}（非公式）`;
   document.title = '筑波大学達成度評価シート入力支援（非公式）';
 });
+
+
+/* === 2026-04-08 full graduate catalog patch === */
+state.officialDataset = state.officialDataset || null;
+state.officialCourses = state.officialCourses || [];
+state.kdbCatalogCourses = state.kdbCatalogCourses || [];
+state.kdbCatalogMeta = state.kdbCatalogMeta || { status: 'idle', updated: '', source: '', error: '', count: 0 };
+
+const FULL_GRAD_COURSE_LIST_URL_20260408 = 'https://www.tsukuba.ac.jp/education/g-courses-g-tsukuba-tokyo/2026-2.html';
+const GRAD_STANDARD_INDEX_URL_20260408 = 'https://www.tsukuba.ac.jp/education/policy-tstandard/gstandard/';
+const KDB_GRAD_CANDIDATES_20260408 = [
+  { url: './data/kdb-grad.json', label: '同梱 data/kdb-grad.json' },
+  { url: 'data/kdb-grad.json', label: '同梱 data/kdb-grad.json (relative)' },
+  { url: 'https://cdn.jsdelivr.net/gh/Make-IT-TSUKUBA/alternative-tsukuba-kdb@main/frontend/src/kdb/kdb-grad.json', label: 'jsDelivr / alternative-tsukuba-kdb' },
+  { url: 'https://cdn.jsdelivr.net/gh/make-it-tsukuba/alternative-tsukuba-kdb@main/frontend/src/kdb/kdb-grad.json', label: 'jsDelivr / alternative-tsukuba-kdb (lowercase)' },
+  { url: 'https://raw.githubusercontent.com/Make-IT-TSUKUBA/alternative-tsukuba-kdb/main/frontend/src/kdb/kdb-grad.json', label: 'raw.githubusercontent.com / Make-IT-TSUKUBA' },
+  { url: 'https://raw.githubusercontent.com/make-it-tsukuba/alternative-tsukuba-kdb/main/frontend/src/kdb/kdb-grad.json', label: 'raw.githubusercontent.com / make-it-tsukuba' },
+  { url: 'https://github.com/Make-IT-TSUKUBA/alternative-tsukuba-kdb/raw/refs/heads/main/frontend/src/kdb/kdb-grad.json', label: 'GitHub raw download / Make-IT-TSUKUBA' }
+];
+
+function asTrimmedString20260408(value) {
+  return String(value == null ? '' : value).trim();
+}
+
+function asUpperCode20260408(value) {
+  return asTrimmedString20260408(value).toUpperCase();
+}
+
+function uniqueStrings20260408(values) {
+  return Array.from(new Set((values || []).map(asTrimmedString20260408).filter(Boolean)));
+}
+
+function parsePositiveNumber20260408(value) {
+  const num = Number(value);
+  return Number.isFinite(num) && num > 0 ? num : 0;
+}
+
+function hasOfficialPointMapping20260408(course) {
+  return Boolean(
+    Array.isArray(course?.points18) && course.points18.length === 18
+      || course?.points8 && Object.keys(course.points8).length
+      || Array.isArray(course?.rawCompetenceValues) && course.rawCompetenceValues.length
+      || course?.circle8 && typeof course.circle8 === 'object'
+  );
+}
+
+function getDefaultCatalogLabel20260408(course) {
+  if (course?.catalog) return String(course.catalog);
+  if (course?.provenance && /kdb-grad/i.test(String(course.provenance))) return '筑波大学大学院開設科目';
+  const code = asUpperCode20260408(course?.code);
+  if (code.startsWith('0A')) return '大学院共通 / 他研究群';
+  return 'システム情報工学研究群';
+}
+
+function getSourceRuleLabel20260408(course) {
+  if (course?.sourceRule === 'graduate-kdb-catalog') return '全大学院KdB';
+  if (course?.sourceRule === 'numeric-generic-5-mapped-to-current-program') return '数値配点（汎用5）';
+  if (course?.sourceKind === 'circle8') return '〇配点（自動配分）';
+  if (course?.sourceKind === 'exact8') return '数値配点';
+  if (course?.sourceKind === 'sequence') return '非ゼロ列を自動補完';
+  if (course?.sourceKind === 'creditsOnly') return '単位数ベース';
+  return '手動 / 個別';
+}
+
+function buildKdbScheduleEntry20260408(line) {
+  const code = asUpperCode20260408(extractKdbField(line, 0, ['code', 'courseCode', 'subjectCode']));
+  const name = asTrimmedString20260408(extractKdbField(line, 1, ['name', 'courseName', 'subjectName']));
+  const year = asTrimmedString20260408(extractKdbField(line, 4, ['year']));
+  const termStr = asTrimmedString20260408(extractKdbField(line, 5, ['term', 'termStr']));
+  const timeslotStr = asTrimmedString20260408(extractKdbField(line, 6, ['timeslot', 'timeslotStr', 'schedule']));
+  const room = asTrimmedString20260408(extractKdbField(line, 7, ['room', 'classroom']));
+  const person = asTrimmedString20260408(extractKdbField(line, 8, ['person', 'teacher', 'instructor']));
+  const note = asTrimmedString20260408(extractKdbField(line, 10, ['note', 'remarks']));
+  const parsed = parseScheduleInfoFromKdb(termStr, timeslotStr);
+  return {
+    code,
+    name,
+    year,
+    termStr,
+    timeslotStr,
+    room,
+    person,
+    note,
+    classMethods: extractScheduleClassMethods(note),
+    slotsByTerm: parsed.slotsByTerm,
+    specialKinds: parsed.specialKinds,
+    hasRegularSlot: parsed.hasRegularSlot
+  };
+}
+
+function parseKdbCredit20260408(line) {
+  const raw = extractKdbField(line, 3, ['credit', 'credits']);
+  const text = asTrimmedString20260408(raw).replace(/[^\d.\-]/g, '');
+  const num = Number.parseFloat(text || '0');
+  return Number.isFinite(num) && num > 0 ? num : 0;
+}
+
+function normalizeKdbGraduateCourse20260408(line) {
+  const code = asUpperCode20260408(extractKdbField(line, 0, ['code', 'courseCode', 'subjectCode']));
+  const nameJa = asTrimmedString20260408(extractKdbField(line, 1, ['name', 'courseName', 'subjectName']));
+  const credits = parseKdbCredit20260408(line);
+  const total = credits > 0 ? Math.round(credits * 100) : 0;
+  const year = asTrimmedString20260408(extractKdbField(line, 4, ['year']));
+  const termStr = asTrimmedString20260408(extractKdbField(line, 5, ['term', 'termStr']));
+  const timeslotStr = asTrimmedString20260408(extractKdbField(line, 6, ['timeslot', 'timeslotStr', 'schedule']));
+  const room = asTrimmedString20260408(extractKdbField(line, 7, ['room', 'classroom']));
+  const person = asTrimmedString20260408(extractKdbField(line, 8, ['person', 'teacher', 'instructor']));
+  const abstract = asTrimmedString20260408(extractKdbField(line, 9, ['abstract', 'summary', 'outline']));
+  const note = asTrimmedString20260408(extractKdbField(line, 10, ['note', 'remarks']));
+  return {
+    code,
+    nameJa,
+    nameEn: '',
+    credits,
+    total,
+    year,
+    termStr,
+    timeslotStr,
+    room,
+    person,
+    abstract,
+    note,
+    aliases: uniqueStrings20260408([nameJa]),
+    equivalentCodes: uniqueStrings20260408([code]),
+    sourceKind: 'creditsOnly',
+    sourceRule: 'graduate-kdb-catalog',
+    catalog: '筑波大学大学院開設科目',
+    offeringSource: 'alternative-tsukuba-kdb / kdb-grad.json',
+    provenance: 'kdb-grad',
+    syllabusUrl: code ? `https://kdb.tsukuba.ac.jp/syllabi/2026/${code}/jpn` : '',
+    schedule: buildKdbScheduleEntry20260408(line)
+  };
+}
+
+function cloneMaybeSchedule20260408(schedule) {
+  if (!schedule || typeof schedule !== 'object') return null;
+  try {
+    return JSON.parse(JSON.stringify(schedule));
+  } catch (error) {
+    return schedule;
+  }
+}
+
+function mergeCourseRecords20260408(baseCourse, overrideCourse) {
+  const base = baseCourse || {};
+  const over = overrideCourse || {};
+  const merged = { ...base, ...over };
+  merged.code = asUpperCode20260408(over.code || base.code);
+  merged.nameJa = asTrimmedString20260408(over.nameJa || base.nameJa);
+  merged.nameEn = asTrimmedString20260408(over.nameEn || base.nameEn);
+
+  const credits = parsePositiveNumber20260408(over.credits) || parsePositiveNumber20260408(base.credits);
+  merged.credits = credits;
+  const total = parsePositiveNumber20260408(over.total) || parsePositiveNumber20260408(base.total) || (credits > 0 ? Math.round(credits * 100) : 0);
+  merged.total = total;
+
+  merged.year = asTrimmedString20260408(over.year || base.year);
+  merged.termStr = asTrimmedString20260408(over.termStr || base.termStr);
+  merged.timeslotStr = asTrimmedString20260408(over.timeslotStr || base.timeslotStr);
+  merged.room = asTrimmedString20260408(over.room || base.room);
+  merged.person = asTrimmedString20260408(over.person || base.person);
+  merged.abstract = asTrimmedString20260408(over.abstract || base.abstract);
+  merged.note = asTrimmedString20260408(over.note || base.note);
+
+  merged.aliases = uniqueStrings20260408([
+    ...(Array.isArray(base.aliases) ? base.aliases : []),
+    ...(Array.isArray(over.aliases) ? over.aliases : []),
+    base.nameJa,
+    base.nameEn,
+    over.nameJa,
+    over.nameEn,
+    base.catalog,
+    over.catalog
+  ]);
+  merged.equivalentCodes = uniqueStrings20260408([
+    ...(Array.isArray(base.equivalentCodes) ? base.equivalentCodes : []),
+    ...(Array.isArray(over.equivalentCodes) ? over.equivalentCodes : []),
+    merged.code
+  ]);
+
+  if (base.schedule && over.schedule) {
+    const schedule = cloneMaybeSchedule20260408(base.schedule);
+    mergeScheduleEntries(schedule, cloneMaybeSchedule20260408(over.schedule));
+    merged.schedule = schedule;
+  } else {
+    merged.schedule = cloneMaybeSchedule20260408(over.schedule || base.schedule);
+  }
+
+  merged.catalog = getDefaultCatalogLabel20260408({ ...base, ...over, provenance: over.provenance || base.provenance });
+  if (!merged.sourceKind) merged.sourceKind = total > 0 ? 'creditsOnly' : '';
+  if (!merged.sourceRule) merged.sourceRule = over.sourceRule || base.sourceRule || '';
+  if (!merged.offeringSource) merged.offeringSource = over.offeringSource || base.offeringSource || '';
+  if (!merged.provenance) merged.provenance = over.provenance || base.provenance || '';
+  if (!merged.syllabusUrl) merged.syllabusUrl = over.syllabusUrl || base.syllabusUrl || '';
+  return merged;
+}
+
+function buildKdbGraduateCoursesFromPayload20260408(payload) {
+  const rows = Array.isArray(payload?.subject)
+    ? payload.subject
+    : (Array.isArray(payload?.subjects) ? payload.subjects : []);
+  const map = new Map();
+
+  rows.forEach(line => {
+    const course = normalizeKdbGraduateCourse20260408(line);
+    if (!course.code && !course.nameJa) return;
+    if (map.has(course.code)) {
+      const existing = map.get(course.code);
+      const merged = mergeCourseRecords20260408(existing, course);
+      merged.termStr = mergeScheduleStrings(existing.termStr || '', course.termStr || '');
+      merged.timeslotStr = mergeScheduleStrings(existing.timeslotStr || '', course.timeslotStr || '');
+      merged.room = mergeScheduleStrings(existing.room || '', course.room || '');
+      merged.person = mergeScheduleStrings(existing.person || '', course.person || '');
+      merged.note = mergeScheduleStrings(existing.note || '', course.note || '');
+      map.set(course.code, merged);
+    } else {
+      map.set(course.code, course);
+    }
+  });
+
+  return Array.from(map.values()).sort((a, b) => {
+    const codeDiff = asUpperCode20260408(a.code).localeCompare(asUpperCode20260408(b.code), 'ja');
+    if (codeDiff) return codeDiff;
+    return asTrimmedString20260408(a.nameJa).localeCompare(asTrimmedString20260408(b.nameJa), 'ja');
+  });
+}
+
+function buildCourseLookupMap20260408(courses) {
+  const map = new Map();
+  (courses || []).forEach(course => {
+    if (course?.code) map.set(asUpperCode20260408(course.code), course);
+    (Array.isArray(course?.equivalentCodes) ? course.equivalentCodes : []).forEach(code => {
+      if (code) map.set(asUpperCode20260408(code), course);
+    });
+  });
+  return map;
+}
+
+function relinkDraftSourceCourses20260408() {
+  const lookup = buildCourseLookupMap20260408(state.courses || []);
+  MODE_KEYS.forEach(modeKey => {
+    const draft = state.modeDrafts?.[modeKey];
+    if (!draft?.courseRows) return;
+    draft.courseRows = draft.courseRows.map(row => {
+      if (!row) return row;
+      const match = lookup.get(asUpperCode20260408(row.code));
+      if (!match) return row;
+      row.sourceCourse = cloneCourseSource(match);
+      row.catalog = row.catalog || getDefaultCatalogLabel20260408(match);
+      row.sourceRule = row.sourceRule || match.sourceRule || '';
+      row.provenance = row.provenance || match.provenance || '';
+      return row;
+    });
+  });
+
+  if (state.selectedCourse?.code) {
+    const next = lookup.get(asUpperCode20260408(state.selectedCourse.code));
+    if (next) state.selectedCourse = next;
+  }
+}
+
+function rebuildUnifiedCourseCatalog20260408() {
+  const kdbMap = new Map();
+  (state.kdbCatalogCourses || []).forEach(course => {
+    if (course?.code) kdbMap.set(asUpperCode20260408(course.code), course);
+  });
+
+  const mergedMap = new Map();
+  kdbMap.forEach((course, code) => {
+    mergedMap.set(code, mergeCourseRecords20260408(null, course));
+  });
+
+  (state.officialCourses || []).forEach(course => {
+    if (!course?.code) return;
+    const normalized = normalizeUnofficialCourse20260408(course);
+    const code = asUpperCode20260408(normalized.code);
+    const existing = mergedMap.get(code);
+    mergedMap.set(code, mergeCourseRecords20260408(existing, normalized));
+  });
+
+  state.courses = Array.from(mergedMap.values()).sort((a, b) => {
+    const codeDiff = asUpperCode20260408(a.code).localeCompare(asUpperCode20260408(b.code), 'ja');
+    if (codeDiff) return codeDiff;
+    return asTrimmedString20260408(a.nameJa).localeCompare(asTrimmedString20260408(b.nameJa), 'ja');
+  });
+
+  relinkDraftSourceCourses20260408();
+  updateUnifiedDatasetInfo20260408();
+  renderSearchResults(searchCourses(els.searchInput?.value || ''));
+  renderSelectedCourse(state.selectedCourse);
+  renderFixedCourseButtons();
+  renderTimetablePanel();
+  renderPlanSection();
+}
+
+function updateUnifiedDatasetInfo20260408() {
+  const officialCount = (state.officialCourses || []).length;
+  const fullCount = (state.courses || []).length;
+  const kdbCount = (state.kdbCatalogCourses || []).length;
+  const mappedCount = (state.courses || []).filter(hasOfficialPointMapping20260408).length;
+  const status = state.kdbCatalogMeta?.status || 'idle';
+  const sourceTag = state.datasetLoadSource ? `（${state.datasetLoadSource}）` : '';
+
+  if (els.searchMeta) {
+    if (status === 'ready' && kdbCount > 0) {
+      els.searchMeta.textContent = `全大学院科目 ${fullCount} 件を検索できます${sourceTag}。公式配点つき ${mappedCount} 件 / KdB由来 ${kdbCount} 件。`;
+    } else if (status === 'loading') {
+      els.searchMeta.textContent = `公式配点つき ${officialCount} 件を読み込みました${sourceTag}。全大学院科目カタログを追加読込中です。`;
+    } else if (status === 'warn') {
+      els.searchMeta.textContent = `公式配点つき ${officialCount} 件を読み込みました${sourceTag}。全大学院科目カタログは未取得のため、この時点では一部科目のみ検索できます。`;
+    } else {
+      els.searchMeta.textContent = `${officialCount} 件の科目データを読み込みました${sourceTag}。`;
+    }
+  }
+
+  if (els.datasetInfo) {
+    const notes = (state.officialDataset?.meta?.notes || []).map(text => escapeHtml(text)).join(' / ');
+    const sourceParts = [
+      `<div><strong>公式配点つき科目:</strong> ${mappedCount} 件</div>`,
+      `<div><strong>全大学院科目カタログ:</strong> ${kdbCount ? `${kdbCount} 件` : '未取得'}</div>`,
+      `<div><strong>読込元:</strong> ${escapeHtml(state.datasetLoadSource || '不明')}</div>`,
+      `<div><strong>大学院開設授業科目一覧:</strong> <a href="${FULL_GRAD_COURSE_LIST_URL_20260408}" target="_blank" rel="noreferrer">公式ページ</a></div>`,
+      `<div><strong>大学院スタンダード:</strong> <a href="${GRAD_STANDARD_INDEX_URL_20260408}" target="_blank" rel="noreferrer">公式ページ</a></div>`
+    ];
+
+    if (state.kdbCatalogMeta?.status === 'ready') {
+      sourceParts.push(`<div><strong>KdB 由来カタログ:</strong> ${escapeHtml(state.kdbCatalogMeta.source || '不明')} / 更新日 ${escapeHtml(state.kdbCatalogMeta.updated || '不明')}</div>`);
+    } else if (state.kdbCatalogMeta?.status === 'loading') {
+      sourceParts.push('<div><strong>KdB 由来カタログ:</strong> 読込中</div>');
+    } else if (state.kdbCatalogMeta?.status === 'warn') {
+      sourceParts.push(`<div><strong>KdB 由来カタログ:</strong> 取得失敗 (${escapeHtml(state.kdbCatalogMeta.error || '詳細不明')})</div>`);
+    }
+
+    sourceParts.push('<div><strong>検索対象:</strong> 筑波大学大学院で開講される全科目（kdb-grad 由来）+ 公式配点つき科目データ</div>');
+    sourceParts.push('<div><strong>配点ルール:</strong> 公式配点つき科目は同梱データを優先し、それ以外は単位数×100点を総点として smart / required / even と手動修正で扱います。</div>');
+    sourceParts.push(`<div><strong>メモ:</strong> ${notes || 'なし'}</div>`);
+    els.datasetInfo.innerHTML = sourceParts.join('');
+  }
+}
+
+const __old_cloneCourseSource_20260408_allgrad = cloneCourseSource;
+function cloneCourseSource(course) {
+  const cloned = __old_cloneCourseSource_20260408_allgrad(course);
+  cloned.catalog = course?.catalog || '';
+  cloned.sourceRule = course?.sourceRule || '';
+  cloned.provenance = course?.provenance || '';
+  cloned.termStr = course?.termStr || '';
+  cloned.timeslotStr = course?.timeslotStr || '';
+  cloned.room = course?.room || '';
+  cloned.person = course?.person || '';
+  cloned.abstract = course?.abstract || '';
+  cloned.note = course?.note || '';
+  cloned.syllabusUrl = course?.syllabusUrl || '';
+  cloned.schedule = cloneMaybeSchedule20260408(course?.schedule);
+  cloned.equivalentCodes = Array.isArray(course?.equivalentCodes) ? course.equivalentCodes.slice() : [];
+  return cloned;
+}
+
+function applyDataset(data, loadSource) {
+  const merged = mergeUnofficialCourseDatasets20260408(data);
+  state.dataset = merged;
+  state.officialDataset = merged;
+  state.datasetLoadSource = loadSource || '';
+  state.officialCourses = state.dataset.courses || [];
+  rebuildUnifiedCourseCatalog20260408();
+  renderScheduleStatus();
+  renderTimetablePanel();
+  void loadScheduleDataset();
+}
+
+async function onScheduleFileSelected(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  try {
+    const rawText = await file.text();
+    if (!rawText || !rawText.trim()) throw new Error('空のファイルです。');
+    if (/^\s*</.test(rawText)) throw new Error('JSON ではなく HTML が返りました。');
+    const payload = JSON.parse(rawText);
+    const kdbCourses = buildKdbGraduateCoursesFromPayload20260408(payload);
+    if (!kdbCourses.length) {
+      throw new Error('大学院科目データを読み取れませんでした。kdb-grad.json を指定してください。');
+    }
+    state.kdbCatalogCourses = kdbCourses;
+    state.kdbCatalogMeta = {
+      status: 'ready',
+      updated: payload.updated || '',
+      source: `手動読込: ${file.name}`,
+      error: '',
+      count: kdbCourses.length
+    };
+    rebuildUnifiedCourseCatalog20260408();
+
+    const allowedCodes = new Set(
+      state.courses.flatMap(course => [course.code, ...(Array.isArray(course.equivalentCodes) ? course.equivalentCodes : [])])
+        .map(value => String(value || '').trim())
+        .filter(Boolean)
+    );
+    const map = buildScheduleMapFromKdb(payload, allowedCodes);
+    applyScheduleMap(map, {
+      updated: payload.updated || '',
+      source: `手動読込: ${file.name}`
+    });
+    setWorkbookStatus(`大学院科目 / 開講時限データを ${file.name} から読み込みました。`, currentStatusKindAfterChange());
+  } catch (error) {
+    console.error(error);
+    state.kdbCatalogMeta = {
+      status: 'warn',
+      updated: '',
+      source: '',
+      error: error.message || '不明なエラー',
+      count: (state.kdbCatalogCourses || []).length
+    };
+    updateUnifiedDatasetInfo20260408();
+    state.scheduleStatus = 'warn';
+    state.scheduleMessage = `手動読込に失敗しました。${error.message}`;
+    renderScheduleStatus();
+    renderTimetablePanel();
+    setWorkbookStatus(`開講時限データの手動読込に失敗しました。${error.message}`, 'warn');
+  } finally {
+    event.target.value = '';
+  }
+}
+
+async function loadScheduleDataset(force = false) {
+  if (!(state.officialCourses?.length || state.courses?.length)) return;
+  if (!force && state.kdbCatalogMeta?.status === 'loading') return;
+  if (!force && state.kdbCatalogMeta?.status === 'ready' && Object.keys(state.scheduleMap || {}).length) {
+    renderTimetablePanel();
+    return;
+  }
+
+  let hadCachedSchedule = false;
+  if (!force) {
+    const cached = loadScheduleCache();
+    if (cached?.map && Object.keys(cached.map).length && !Object.keys(state.scheduleMap || {}).length) {
+      hadCachedSchedule = true;
+      applyScheduleMap(cached.map, {
+        updated: cached.updated || '',
+        source: `${cached.source || 'ローカルキャッシュ'} / ローカルキャッシュ`
+      });
+    }
+  }
+
+  state.kdbCatalogMeta = {
+    status: 'loading',
+    updated: state.kdbCatalogMeta?.updated || '',
+    source: state.kdbCatalogMeta?.source || '',
+    error: '',
+    count: (state.kdbCatalogCourses || []).length
+  };
+  state.scheduleStatus = 'loading';
+  state.scheduleMessage = '筑波大学大学院の全科目カタログと開講時限データを読み込んでいます。';
+  updateUnifiedDatasetInfo20260408();
+  renderScheduleStatus();
+  renderTimetablePanel();
+
+  const errors = [];
+  for (const candidate of KDB_GRAD_CANDIDATES_20260408) {
+    try {
+      const response = await fetch(candidate.url, { cache: 'force-cache', mode: 'cors' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const rawText = await response.text();
+      if (!rawText || !rawText.trim()) throw new Error('空のレスポンス');
+      if (/^\s*</.test(rawText)) throw new Error('JSON ではなく HTML が返りました');
+      const payload = JSON.parse(rawText);
+      const kdbCourses = buildKdbGraduateCoursesFromPayload20260408(payload);
+      if (!kdbCourses.length) throw new Error('kdb-grad の科目データを読み取れませんでした');
+
+      state.kdbCatalogCourses = kdbCourses;
+      state.kdbCatalogMeta = {
+        status: 'ready',
+        updated: payload.updated || '',
+        source: candidate.label,
+        error: '',
+        count: kdbCourses.length
+      };
+      rebuildUnifiedCourseCatalog20260408();
+
+      const allowedCodes = new Set(
+        state.courses.flatMap(course => [course.code, ...(Array.isArray(course.equivalentCodes) ? course.equivalentCodes : [])])
+          .map(value => String(value || '').trim())
+          .filter(Boolean)
+      );
+      const map = buildScheduleMapFromKdb(payload, allowedCodes);
+      applyScheduleMap(map, {
+        updated: payload.updated || '',
+        source: candidate.label
+      });
+      return;
+    } catch (error) {
+      errors.push(`${candidate.label}: ${error.message}`);
+    }
+  }
+
+  state.kdbCatalogMeta = {
+    status: 'warn',
+    updated: '',
+    source: '',
+    error: errors.join(' / '),
+    count: (state.kdbCatalogCourses || []).length
+  };
+  updateUnifiedDatasetInfo20260408();
+
+  if (!hadCachedSchedule && !Object.keys(state.scheduleMap || {}).length) {
+    state.scheduleStatus = 'warn';
+    state.scheduleMessage = `大学院科目 / 開講時限データを取得できませんでした。${errors.join(' / ')}`;
+    renderScheduleStatus();
+    renderSearchResults(searchCourses(els.searchInput?.value || ''));
+    renderTimetablePanel();
+  } else {
+    state.scheduleMessage = '大学院科目カタログの再取得には失敗しましたが、既存の開講時限データを継続利用しています。';
+    renderScheduleStatus();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const searchHeading = document.querySelector('[data-workspace-panel="search"] .section-heading h2');
+  if (searchHeading) searchHeading.textContent = '筑波大学大学院の全科目を検索（非公式）';
+  const searchLead = document.querySelector('[data-workspace-panel="search"] .section-heading p');
+  if (searchLead) {
+    searchLead.textContent = '科目番号・日本語名・英語名で検索します。全大学院科目は kdb-grad を母集団にし、公式配点つき科目データを重ねて使います。通常科目は 15 行目以降、情報理工前期特別研究 A〜D は 11〜14 行の固定欄です。';
+  }
+});
