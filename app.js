@@ -6661,3 +6661,384 @@ renderScheduleStatus = function renderScheduleStatus20260409Final() {
 
 document.addEventListener('DOMContentLoaded', applyFinalStaticLabels20260409);
 window.addEventListener('load', applyFinalStaticLabels20260409);
+
+/* === 2026-04-09 advisor review final patch === */
+const FINAL_APP_TITLE_REVIEW_20260409 = '筑波大学達成度評価シート入力・確認支援（非公式）情報理工学位プログラム（博士前期課程）用';
+
+function applyFinalReviewStaticLabels20260409() {
+  document.title = FINAL_APP_TITLE_REVIEW_20260409;
+  const brandTitle = document.querySelector('.topbar__brand h1');
+  if (brandTitle) brandTitle.textContent = FINAL_APP_TITLE_REVIEW_20260409;
+
+  const lead = document.querySelector('.topbar__brand .lead');
+  if (lead) {
+    lead.textContent = '履修計画 / M中間評価 / M最終評価に加えて、指導教員向けの確認機能も扱える情報理工学位プログラム（博士前期課程）向けの非公式ツールです。';
+  }
+
+  const searchHeading = document.querySelector('[data-workspace-panel="search"] .section-heading h2');
+  if (searchHeading) searchHeading.textContent = FINAL_APP_TITLE_REVIEW_20260409;
+
+  const searchLead = document.querySelector('[data-workspace-panel="search"] .section-heading p');
+  if (searchLead) {
+    searchLead.textContent = '科目番号・日本語名・英語名で検索します。通常科目は 15 行目以降、情報理工前期特別研究 A〜D は 11〜14 行の固定欄です。';
+  }
+}
+
+function bindAdvisorReviewElements20260409() {
+  els.reviewRefreshBtn = document.getElementById('reviewRefreshBtn');
+  els.reviewOverview = document.getElementById('reviewOverview');
+  els.reviewNotes = document.getElementById('reviewNotes');
+  els.reviewDeficitBody = document.getElementById('reviewDeficitBody');
+  els.reviewCourseBody = document.getElementById('reviewCourseBody');
+
+  if (els.reviewRefreshBtn && !els.reviewRefreshBtn.dataset.bound) {
+    els.reviewRefreshBtn.dataset.bound = 'true';
+    els.reviewRefreshBtn.addEventListener('click', () => {
+      renderAdvisorCheckPanel20260409();
+      setActiveWorkspaceTab('check');
+    });
+  }
+}
+
+function normalizeCodeForReview20260409(value) {
+  if (typeof asUpperCode20260408 === 'function') return asUpperCode20260408(value);
+  return String(value || '').trim().toUpperCase();
+}
+
+function getReviewColumnGroupLabel20260409(index) {
+  let cursor = 0;
+  for (const group of GROUP_CONFIG) {
+    const next = cursor + group.cols.length;
+    if (index < next) return group.label;
+    cursor = next;
+  }
+  return '';
+}
+
+function getOfficialCourseLookup20260409() {
+  const officialCourses = state.officialCourses || [];
+  const signature = officialCourses.length;
+  if (state.__advisorOfficialLookup20260409 && state.__advisorOfficialLookup20260409.signature === signature) {
+    return state.__advisorOfficialLookup20260409;
+  }
+
+  const byCode = new Map();
+  const byName = new Map();
+
+  officialCourses.forEach(course => {
+    const normalizedCourse = course || {};
+    const codeCandidates = [normalizedCourse.code, ...(Array.isArray(normalizedCourse.equivalentCodes) ? normalizedCourse.equivalentCodes : [])]
+      .map(normalizeCodeForReview20260409)
+      .filter(Boolean);
+    codeCandidates.forEach(code => byCode.set(code, normalizedCourse));
+
+    const nameCandidates = [
+      normalizedCourse.nameJa,
+      normalizedCourse.nameEn,
+      ...(Array.isArray(normalizedCourse.aliases) ? normalizedCourse.aliases : [])
+    ].map(value => normalize(value)).filter(Boolean);
+
+    nameCandidates.forEach(name => {
+      if (!byName.has(name)) byName.set(name, normalizedCourse);
+    });
+  });
+
+  state.__advisorOfficialLookup20260409 = { signature, byCode, byName };
+  return state.__advisorOfficialLookup20260409;
+}
+
+function getSystemInfoCodePrefixes20260409() {
+  const lookup = getOfficialCourseLookup20260409();
+  if (lookup.prefixes) return lookup.prefixes;
+
+  const prefixes = new Set();
+  (state.officialCourses || []).forEach(course => {
+    if (getDefaultCatalogLabel20260408(course) !== 'システム情報工学研究群') return;
+    const code = normalizeCodeForReview20260409(course?.code);
+    const matched = code.match(/^(0A[A-Z]+)/);
+    if (matched?.[1]) prefixes.add(matched[1]);
+  });
+
+  lookup.prefixes = Array.from(prefixes).sort((a, b) => b.length - a.length || a.localeCompare(b, 'ja'));
+  return lookup.prefixes;
+}
+
+function findOfficialCourseForReview20260409(entry) {
+  const lookup = getOfficialCourseLookup20260409();
+  const source = entry?.sourceCourse || entry || {};
+  const codeCandidates = [entry?.code, source?.code, ...(Array.isArray(source?.equivalentCodes) ? source.equivalentCodes : [])]
+    .map(normalizeCodeForReview20260409)
+    .filter(Boolean);
+  for (const code of codeCandidates) {
+    if (lookup.byCode.has(code)) return lookup.byCode.get(code);
+  }
+
+  const nameCandidates = [
+    entry?.nameJa,
+    entry?.nameEn,
+    source?.nameJa,
+    source?.nameEn,
+    ...(Array.isArray(source?.aliases) ? source.aliases : [])
+  ].map(value => normalize(value)).filter(Boolean);
+
+  for (const name of nameCandidates) {
+    if (lookup.byName.has(name)) return lookup.byName.get(name);
+  }
+  return null;
+}
+
+function classifyCourseForReview20260409(entry) {
+  if (!entry) {
+    return {
+      statusClass: 'is-review',
+      badgeClass: 'review-pill review-pill--warn',
+      badgeText: '要確認',
+      catalogLabel: '未判定',
+      comment: '授業科目データが見つかりません。',
+      separateCheckNeeded: true
+    };
+  }
+
+  if (isSpecialResearchRow(entry.row)) {
+    return {
+      statusClass: 'is-fixed',
+      badgeClass: 'review-pill review-pill--muted',
+      badgeText: '固定欄',
+      catalogLabel: '情報理工前期特別研究',
+      comment: '11〜14行の固定欄です。配点は指導教員との確認対象ですが、システム情報工学研究群外科目ではありません。',
+      separateCheckNeeded: false
+    };
+  }
+
+  const source = entry.sourceCourse || findCourseByNameOrAlias(entry.nameJa || entry.nameEn || '') || entry;
+  const official = findOfficialCourseForReview20260409(entry);
+  const code = normalizeCodeForReview20260409(entry.code || source?.code);
+  const prefixes = getSystemInfoCodePrefixes20260409();
+  const hasSystemPrefix = Boolean(code && prefixes.some(prefix => code.startsWith(prefix)));
+  const sourceCatalog = source ? getDefaultCatalogLabel20260408(source) : (entry.catalog || '');
+
+  if (official) {
+    const officialCatalog = getDefaultCatalogLabel20260408(official);
+    if (officialCatalog === 'システム情報工学研究群') {
+      return {
+        statusClass: 'is-ok',
+        badgeClass: 'review-pill review-pill--ok',
+        badgeText: '確認可',
+        catalogLabel: officialCatalog,
+        comment: 'システム情報工学研究群の科目です。通常の達成度確認で扱えます。',
+        separateCheckNeeded: false
+      };
+    }
+    return {
+      statusClass: 'is-review',
+      badgeClass: 'review-pill review-pill--warn',
+      badgeText: '別途チェック',
+      catalogLabel: officialCatalog,
+      comment: 'システム情報工学研究群外の科目として扱われるため、配点根拠の別途確認が必要です。',
+      separateCheckNeeded: true
+    };
+  }
+
+  if (hasSystemPrefix) {
+    return {
+      statusClass: 'is-ok',
+      badgeClass: 'review-pill review-pill--ok',
+      badgeText: '確認可',
+      catalogLabel: 'システム情報工学研究群',
+      comment: 'システム情報工学研究群コードとして判定しました。必要に応じて配点根拠を追加確認してください。',
+      separateCheckNeeded: false
+    };
+  }
+
+  return {
+    statusClass: 'is-review',
+    badgeClass: 'review-pill review-pill--warn',
+    badgeText: '別途チェック',
+    catalogLabel: sourceCatalog || '要確認',
+    comment: 'システム情報工学研究群外または未判定の科目です。配点根拠を別途確認してください。',
+    separateCheckNeeded: true
+  };
+}
+
+function buildAdvisorReviewState20260409() {
+  const draft = getCurrentDraft();
+  const metrics = getMetrics(draft);
+  const entries = getPlanEntries(draft.courseRows);
+  const courseReviews = entries.map(entry => ({ entry, review: classifyCourseForReview20260409(entry) }));
+  const deficitRows = REQUIRED_POINTS18.map((required, index) => {
+    const current = metrics.projected18[index];
+    const diff = current - required;
+    return {
+      index,
+      shortLabel: COLUMN_LABELS[index],
+      groupLabel: getReviewColumnGroupLabel20260409(index),
+      required,
+      current,
+      diff,
+      comment: diff >= 0 ? '必要点を満たしています。' : `あと ${Math.abs(diff)} 点必要です。`,
+      rowClass: diff >= 0 ? 'is-ok' : 'is-deficit',
+      badgeClass: diff >= 0 ? 'review-pill review-pill--ok' : 'review-pill review-pill--danger',
+      badgeText: diff >= 0 ? '充足' : '不足'
+    };
+  });
+
+  const deficits = deficitRows.filter(item => item.diff < 0);
+  const separateChecks = courseReviews.filter(item => item.review.separateCheckNeeded);
+  const modeConfig = MODE_CONFIG[state.currentMode];
+  const sheetName = getSheetNameForMode(state.currentMode);
+  const workbookLoaded = Boolean(state.workbook);
+
+  return {
+    draft,
+    metrics,
+    courseReviews,
+    deficitRows,
+    deficits,
+    separateChecks,
+    modeConfig,
+    sheetName,
+    workbookLoaded,
+    hasContent: hasDraftContent(draft)
+  };
+}
+
+function renderAdvisorReviewOverview20260409(reviewState) {
+  if (!els.reviewOverview) return;
+
+  const { deficits, separateChecks, metrics, modeConfig, sheetName, workbookLoaded } = reviewState;
+  const statusModifier = deficits.length > 0 ? 'danger' : (separateChecks.length > 0 ? 'warn' : 'ok');
+  const statusLabel = deficits.length > 0
+    ? '点数不足あり'
+    : (separateChecks.length > 0 ? '別途確認あり' : '確認OK');
+  const targetLabel = state.currentMode === 'plan'
+    ? '履修計画ドラフト'
+    : `${modeConfig.label}${sheetName ? ` / ${sheetName}` : ''}`;
+  const workbookLabel = workbookLoaded ? (state.workbookFileName || '読込済み Excel') : '未読込';
+
+  const cards = [
+    { label: '確認結果', value: statusLabel, modifier: statusModifier },
+    { label: '確認対象', value: targetLabel, modifier: 'info' },
+    { label: '不足観点', value: `${deficits.length} / 18`, modifier: deficits.length > 0 ? 'danger' : 'ok' },
+    { label: '別途確認科目', value: `${separateChecks.length} 件`, modifier: separateChecks.length > 0 ? 'warn' : 'ok' },
+    { label: '見込み合計', value: `${metrics.projectedTotal} / ${REQUIRED_TOTAL} 点`, modifier: deficits.length > 0 ? 'warn' : 'ok' },
+    { label: 'Excel', value: workbookLabel, modifier: workbookLoaded ? 'info' : 'warn' }
+  ];
+
+  els.reviewOverview.innerHTML = cards.map(card => `
+    <div class="review-summary-card review-summary-card--${card.modifier}">
+      <span>${escapeHtml(card.label)}</span>
+      <strong>${escapeHtml(card.value)}</strong>
+    </div>
+  `).join('');
+}
+
+function renderAdvisorReviewNotes20260409(reviewState) {
+  if (!els.reviewNotes) return;
+  const notes = [];
+
+  if (!reviewState.workbookLoaded) {
+    notes.push({ modifier: 'warn', text: 'Excel が未読込です。確認は現在のドラフト内容に対して行います。学生から渡されたファイルをそのまま確認したい場合は Excel を読み込んでください。' });
+  }
+
+  if (state.currentMode === 'plan') {
+    notes.push({ modifier: 'warn', text: '履修計画モードでは UI 上のドラフトを確認しています。実際の中間評価・最終評価シートの確認は M中間評価 / M最終評価 モードで行ってください。' });
+  }
+
+  if (reviewState.deficits.length > 0) {
+    const labels = reviewState.deficits.map(item => item.shortLabel).join('、');
+    notes.push({ modifier: 'danger', text: `必要点を満たしていない観点があります。不足観点: ${labels}` });
+  } else if (reviewState.hasContent) {
+    notes.push({ modifier: 'ok', text: '必要点の観点では、現在のモードの内容は充足しています。' });
+  }
+
+  if (reviewState.separateChecks.length > 0) {
+    const names = reviewState.separateChecks.slice(0, 5).map(item => displayCourseName(item.entry)).join('、');
+    const suffix = reviewState.separateChecks.length > 5 ? ' ほか' : '';
+    notes.push({ modifier: 'warn', text: `システム情報工学研究群外または未判定の科目があります。別途チェック対象: ${names}${suffix}` });
+  } else if (reviewState.hasContent) {
+    notes.push({ modifier: 'ok', text: 'システム情報工学研究群外の科目は見つかりませんでした。' });
+  }
+
+  if (!reviewState.hasContent) {
+    notes.push({ modifier: 'warn', text: 'まだ授業科目・授業科目以外の入力がありません。まず Excel を読み込むか、履修計画 / 評価内容を作成してください。' });
+  }
+
+  els.reviewNotes.innerHTML = notes.map(note => `<div class="review-note review-note--${note.modifier}">${escapeHtml(note.text)}</div>`).join('');
+}
+
+function renderAdvisorDeficitTable20260409(reviewState) {
+  if (!els.reviewDeficitBody) return;
+  els.reviewDeficitBody.innerHTML = reviewState.deficitRows.map(item => `
+    <tr class="${item.rowClass}">
+      <td><strong>${escapeHtml(item.shortLabel)}</strong><br><span class="muted">${escapeHtml(item.groupLabel)}</span></td>
+      <td class="num">${item.required}</td>
+      <td class="num">${item.current}</td>
+      <td class="num">${item.diff >= 0 ? '+' : ''}${item.diff}</td>
+      <td><span class="${item.badgeClass}">${escapeHtml(item.badgeText)}</span><div class="muted" style="margin-top:6px;">${escapeHtml(item.comment)}</div></td>
+    </tr>
+  `).join('');
+}
+
+function renderAdvisorCourseTable20260409(reviewState) {
+  if (!els.reviewCourseBody) return;
+  if (!reviewState.courseReviews.length) {
+    els.reviewCourseBody.innerHTML = '<tr><td colspan="5"><div class="status status--muted">まだ授業科目ドラフトがありません。</div></td></tr>';
+    return;
+  }
+
+  els.reviewCourseBody.innerHTML = reviewState.courseReviews.map(({ entry, review }) => `
+    <tr class="${review.statusClass}">
+      <td class="num">${entry.row}</td>
+      <td><strong>${escapeHtml(displayCourseName(entry))}</strong>${entry.nameEn ? `<div class="muted">${escapeHtml(entry.nameEn)}</div>` : ''}</td>
+      <td>${escapeHtml(entry.code || entry.sourceCourse?.code || '—')}</td>
+      <td>${escapeHtml(review.catalogLabel)}</td>
+      <td><span class="${review.badgeClass}">${escapeHtml(review.badgeText)}</span><div class="muted" style="margin-top:6px;">${escapeHtml(review.comment)}</div></td>
+    </tr>
+  `).join('');
+}
+
+function renderAdvisorCheckPanel20260409() {
+  bindAdvisorReviewElements20260409();
+  if (!els.reviewOverview || !els.reviewNotes || !els.reviewDeficitBody || !els.reviewCourseBody) return;
+
+  const reviewState = buildAdvisorReviewState20260409();
+  renderAdvisorReviewOverview20260409(reviewState);
+  renderAdvisorReviewNotes20260409(reviewState);
+  renderAdvisorDeficitTable20260409(reviewState);
+  renderAdvisorCourseTable20260409(reviewState);
+}
+
+const __old_renderPlanSection_advisorReview_20260409 = renderPlanSection;
+renderPlanSection = function renderPlanSectionAdvisorReview20260409() {
+  __old_renderPlanSection_advisorReview_20260409();
+  renderAdvisorCheckPanel20260409();
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  bindAdvisorReviewElements20260409();
+  applyFinalReviewStaticLabels20260409();
+  renderAdvisorCheckPanel20260409();
+});
+window.addEventListener('load', () => {
+  applyFinalReviewStaticLabels20260409();
+  renderAdvisorCheckPanel20260409();
+});
+
+/* === 2026-04-09 catalog classification fix === */
+const SYSTEM_INFO_CODE_PREFIXES_20260409 = ['0AXA', '0ALA', '0ALB', '0ALC', '0ALD', '0ALE', '0ALF', '0AL', '0AH', '0AS'];
+
+function hasSystemInfoCodePrefix20260409(code) {
+  const normalized = normalizeCodeForReview20260409(code);
+  return SYSTEM_INFO_CODE_PREFIXES_20260409.some(prefix => normalized.startsWith(prefix));
+}
+
+getDefaultCatalogLabel20260408 = function getDefaultCatalogLabel20260409(course) {
+  const explicit = String(course?.catalog || '').trim();
+  if (explicit && explicit !== '大学院共通 / 他研究群') return explicit;
+
+  const code = normalizeCodeForReview20260409(course?.code);
+  if (hasSystemInfoCodePrefix20260409(code)) return 'システム情報工学研究群';
+  if (code.startsWith('0A00')) return '大学院共通 / 他研究群';
+  if (course?.provenance && /kdb-grad/i.test(String(course.provenance))) return '筑波大学大学院開設科目';
+  return explicit || '筑波大学大学院開設科目';
+};

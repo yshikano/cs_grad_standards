@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>筑波大学達成度評価シート入力支援（非公式）情報理工学位プログラム（博士前期課程）用</title>
+  <title>筑波大学達成度評価シート入力・確認支援（非公式）情報理工学位プログラム（博士前期課程）用</title>
   <link rel="stylesheet" href="./styles.css">
   <script defer src="https://cdn.jsdelivr.net/npm/xlsx-populate/browser/xlsx-populate.min.js"></script>
   <script defer src="./app.js"></script>
@@ -12,8 +12,8 @@
   <header class="topbar">
     <div class="topbar__brand">
       <p class="eyebrow">Unofficial Tsukuba Achievement Helper</p>
-      <h1>筑波大学達成度評価シート入力支援（非公式）情報理工学位プログラム（博士前期課程）用</h1>
-      <p class="lead">履修計画 / M中間評価 / M最終評価を、固定行・時間割・差分確認つきで扱える情報理工学位プログラム（博士前期課程）向けの非公式ツールです。</p>
+      <h1>筑波大学達成度評価シート入力・確認支援（非公式）情報理工学位プログラム（博士前期課程）用</h1>
+      <p class="lead">履修計画 / M中間評価 / M最終評価に加えて、指導教員向けの確認機能も扱える情報理工学位プログラム（博士前期課程）向けの非公式ツールです。</p>
     </div>
     <div class="topbar__hint">
       <div class="topbar__hint-title">この版の使い方</div>
@@ -94,6 +94,7 @@
         <button type="button" class="workspace-tab is-active" data-workspace="search">授業検索・授業科目</button>
         <button type="button" class="workspace-tab" data-workspace="extras">授業科目以外</button>
         <button type="button" class="workspace-tab" data-workspace="draft">ドラフト・差分</button>
+        <button type="button" class="workspace-tab" data-workspace="check">確認</button>
       </div>
     </section>
 
@@ -102,7 +103,7 @@
         <section class="card compact-card compact-card--search">
           <div class="section-heading section-heading--compact">
             <div>
-              <h2>筑波大学達成度評価シート入力支援（非公式）情報理工学位プログラム（博士前期課程）用</h2>
+              <h2>筑波大学達成度評価シート入力・確認支援（非公式）情報理工学位プログラム（博士前期課程）用</h2>
               <p>科目番号・日本語名・英語名で検索します。通常科目は 15 行目以降、情報理工前期特別研究 A〜D は 11〜14 行の固定欄です。</p>
             </div>
           </div>
@@ -330,6 +331,68 @@
               </thead>
               <tbody id="totalsBody"></tbody>
               <tfoot id="totalsFoot"></tfoot>
+            </table>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="workspace-panel" data-workspace-panel="check">
+      <div class="compact-grid compact-grid--review">
+        <section class="card compact-card">
+          <div class="section-heading section-heading--compact">
+            <div>
+              <h2>確認</h2>
+              <p>現在のモードの内容について、不足観点とシステム情報工学研究群外の科目を確認します。</p>
+            </div>
+            <button id="reviewRefreshBtn" class="button button--small button--primary" type="button">このモードを確認</button>
+          </div>
+          <div id="reviewOverview" class="review-overview"></div>
+          <div id="reviewNotes" class="review-note-list"></div>
+        </section>
+
+        <section class="card compact-card">
+          <div class="section-heading section-heading--compact">
+            <div>
+              <h2>不足観点のチェック</h2>
+              <p>不足している観点は赤系、満たしている観点は緑系で表示します。</p>
+            </div>
+          </div>
+          <div class="table-scroll table-scroll--tall">
+            <table class="review-table review-table--deficit">
+              <thead>
+                <tr>
+                  <th>観点</th>
+                  <th>必要点</th>
+                  <th>現在点</th>
+                  <th>差分</th>
+                  <th>コメント</th>
+                </tr>
+              </thead>
+              <tbody id="reviewDeficitBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="card compact-card card--wide">
+          <div class="section-heading section-heading--compact">
+            <div>
+              <h2>授業科目の確認</h2>
+              <p>システム情報工学研究群外の科目は別途チェックが必要なため、色を変えて表示します。</p>
+            </div>
+          </div>
+          <div class="table-scroll table-scroll--tall">
+            <table class="review-table review-table--courses">
+              <thead>
+                <tr>
+                  <th>行</th>
+                  <th>科目名</th>
+                  <th>科目番号</th>
+                  <th>区分</th>
+                  <th>確認結果</th>
+                </tr>
+              </thead>
+              <tbody id="reviewCourseBody"></tbody>
             </table>
           </div>
         </section>

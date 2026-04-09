@@ -1908,3 +1908,204 @@ hr {
     grid-template-columns: minmax(260px, 0.72fr) minmax(680px, 1.28fr);
   }
 }
+
+/* === 2026-04-09 advisor review panel === */
+.compact-grid--review {
+  grid-template-columns: minmax(320px, 0.88fr) minmax(420px, 1.12fr);
+}
+
+.review-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.review-summary-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: #f8fbff;
+  display: grid;
+  gap: 6px;
+}
+
+.review-summary-card span {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.review-summary-card strong {
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+.review-summary-card--ok {
+  background: var(--ok-bg);
+  border-color: #bfe6cf;
+}
+
+.review-summary-card--warn {
+  background: var(--warn-bg);
+  border-color: #f0d2a4;
+}
+
+.review-summary-card--danger {
+  background: var(--danger-bg);
+  border-color: #f2b7b1;
+}
+
+.review-summary-card--info {
+  background: #f3f6fd;
+}
+
+.review-note-list {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.review-note {
+  border-left: 4px solid var(--border);
+  border-radius: 10px;
+  background: #f8fbff;
+  padding: 10px 12px;
+  font-size: 0.92rem;
+}
+
+.review-note--ok {
+  border-left-color: var(--ok);
+  background: var(--ok-bg);
+}
+
+.review-note--warn {
+  border-left-color: var(--warn);
+  background: var(--warn-bg);
+}
+
+.review-note--danger {
+  border-left-color: var(--danger);
+  background: var(--danger-bg);
+}
+
+.review-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.review-table th,
+.review-table td {
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  word-break: break-word;
+}
+
+.review-table thead th {
+  background: #f5f8ff;
+  font-weight: 700;
+}
+
+.review-table tbody tr.is-ok {
+  background: #fbfffd;
+}
+
+.review-table tbody tr.is-deficit {
+  background: var(--danger-bg);
+}
+
+.review-table tbody tr.is-review {
+  background: var(--warn-bg);
+}
+
+.review-table tbody tr.is-fixed {
+  background: #f4f7ff;
+}
+
+.review-table .num {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.review-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.2;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+
+.review-pill--ok {
+  color: var(--ok);
+  background: var(--ok-bg);
+  border-color: #bfe6cf;
+}
+
+.review-pill--warn {
+  color: var(--warn);
+  background: var(--warn-bg);
+  border-color: #f0d2a4;
+}
+
+.review-pill--danger {
+  color: var(--danger);
+  background: var(--danger-bg);
+  border-color: #f2b7b1;
+}
+
+.review-pill--muted {
+  color: var(--muted);
+  background: #f4f7fb;
+}
+
+.review-table--deficit th:nth-child(1),
+.review-table--deficit td:nth-child(1) {
+  width: 74px;
+}
+
+.review-table--deficit th:nth-child(2),
+.review-table--deficit td:nth-child(2),
+.review-table--deficit th:nth-child(3),
+.review-table--deficit td:nth-child(3),
+.review-table--deficit th:nth-child(4),
+.review-table--deficit td:nth-child(4) {
+  width: 76px;
+}
+
+.review-table--courses th:nth-child(1),
+.review-table--courses td:nth-child(1) {
+  width: 54px;
+}
+
+.review-table--courses th:nth-child(3),
+.review-table--courses td:nth-child(3) {
+  width: 100px;
+}
+
+.review-table--courses th:nth-child(4),
+.review-table--courses td:nth-child(4) {
+  width: 132px;
+}
+
+.review-table--courses th:nth-child(5),
+.review-table--courses td:nth-child(5) {
+  width: 180px;
+}
+
+@media (max-width: 1180px) {
+  .compact-grid--review {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 820px) {
+  .review-overview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
