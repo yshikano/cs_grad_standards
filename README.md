@@ -1,14 +1,15 @@
-# cs_grad_standards startup-fix (2026-04-09)
+# 筑波大学達成度評価シート入力支援（非公式）情報理工学位プログラム（博士前期課程）用
 
-GitHub Pages で `科目データを読み込み中…` のまま止まる症状に対する修正版です。
+GitHub Pages で動く最終版です。
 
-変更点:
-- 起動直後に内蔵データで必ず画面を初期化
-- `data/courses.sample.json` と `data/kdb-grad.json` は同じリポジトリ内の固定パスを優先
-- `document.scripts` 依存の候補 URL 生成を廃止
-- 起動失敗時に画面へエラーを表示
+主な修正点:
+- 画面タイトルを「筑波大学達成度評価シート入力支援（非公式）情報理工学位プログラム（博士前期課程）用」に統一
+- 検索欄下の長いデータソース説明を非表示化
+- 時間割プレビュー上部の `data/kdb-grad.json` 説明行を非表示化
+- 「各観点の必要点との差分」表を、横スクロールしなくても見やすい幅に再調整
+- `data/kdb-grad.json` は同じリポジトリ内の `data/` から読み込み
 
 反映方法:
 1. GitHub Pages 用リポジトリの公開フォルダを、この zip の中身で置き換える
-2. `data/kdb-grad.json` と `data/courses.sample.json` が同じリポジトリにあることを確認する
+2. `data/kdb-grad.json` と `data/courses.sample.json` が同じリポジトリ内の `data/` にあることを確認する
 3. ページをハードリロードする

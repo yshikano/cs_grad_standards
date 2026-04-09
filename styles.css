@@ -1829,3 +1829,82 @@ hr {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+
+/* === 2026-04-09 final UI polish === */
+.topbar__brand h1 {
+  font-size: clamp(1.28rem, 2vw, 1.9rem);
+  line-height: 1.22;
+}
+
+.section-heading--compact h2 {
+  line-height: 1.25;
+}
+
+.dataset-info--hidden,
+.schedule-updated--hidden {
+  display: none !important;
+}
+
+.search-meta-stack {
+  min-height: 1.4rem;
+}
+
+.compact-card--timetable .inline-actions--between {
+  justify-content: flex-end;
+}
+
+.compact-grid--draft {
+  grid-template-columns: minmax(280px, 0.68fr) minmax(760px, 1.32fr);
+}
+
+.table-scroll--tall {
+  overflow-y: auto;
+  overflow-x: visible;
+}
+
+.totals-table {
+  min-width: 0;
+  width: 100%;
+  table-layout: fixed;
+  font-size: 0.86rem;
+}
+
+.totals-table th,
+.totals-table td {
+  padding: 8px 6px;
+  line-height: 1.25;
+}
+
+.totals-table thead th,
+.totals-table tbody th,
+.totals-table tfoot th {
+  white-space: normal;
+}
+
+.totals-table th:first-child,
+.totals-table td:first-child {
+  width: 70px;
+}
+
+.totals-table th:last-child,
+.totals-table td:last-child {
+  width: 84px;
+}
+
+.totals-table .badge {
+  padding: 4px 7px;
+  font-size: 0.74rem;
+  gap: 4px;
+  white-space: normal;
+}
+
+.totals-table .num {
+  white-space: nowrap;
+}
+
+@media (max-width: 1440px) {
+  .compact-grid--draft {
+    grid-template-columns: minmax(260px, 0.72fr) minmax(680px, 1.28fr);
+  }
+}

@@ -6583,3 +6583,81 @@ document.addEventListener('DOMContentLoaded', () => {
     searchLead.textContent = '科目番号・日本語名・英語名で検索します。全大学院科目は同じリポジトリの data/kdb-grad.json を母集団にし、公式配点つき科目データを重ねて使います。通常科目は 15 行目以降、情報理工前期特別研究 A〜D は 11〜14 行の固定欄です。';
   }
 });
+
+
+/* === 2026-04-09 final delivery patch === */
+const FINAL_APP_TITLE_20260409 = '筑波大学達成度評価シート入力支援（非公式）情報理工学位プログラム（博士前期課程）用';
+
+function applyFinalStaticLabels20260409() {
+  document.title = FINAL_APP_TITLE_20260409;
+  const brandTitle = document.querySelector('.topbar__brand h1');
+  if (brandTitle) brandTitle.textContent = FINAL_APP_TITLE_20260409;
+
+  const searchHeading = document.querySelector('[data-workspace-panel="search"] .section-heading h2');
+  if (searchHeading) searchHeading.textContent = FINAL_APP_TITLE_20260409;
+
+  const searchLead = document.querySelector('[data-workspace-panel="search"] .section-heading p');
+  if (searchLead) {
+    searchLead.textContent = '科目番号・日本語名・英語名で検索します。通常科目は 15 行目以降、情報理工前期特別研究 A〜D は 11〜14 行の固定欄です。';
+  }
+
+  const datasetInfo = document.getElementById('datasetInfo');
+  if (datasetInfo) {
+    datasetInfo.innerHTML = '';
+    datasetInfo.setAttribute('aria-hidden', 'true');
+  }
+
+  const scheduleUpdated = document.getElementById('scheduleUpdated');
+  if (scheduleUpdated) {
+    scheduleUpdated.innerHTML = '';
+    scheduleUpdated.setAttribute('aria-hidden', 'true');
+  }
+}
+
+updateUnifiedDatasetInfo20260408 = function updateUnifiedDatasetInfo20260409Final() {
+  const officialCount = (state.officialCourses || []).length;
+  const fullCount = (state.courses || []).length;
+  const kdbCount = (state.kdbCatalogCourses || []).length;
+  const status = state.kdbCatalogMeta?.status || 'idle';
+
+  if (els.searchMeta) {
+    if (status === 'loading') {
+      els.searchMeta.textContent = '科目データを読み込み中…';
+    } else if (fullCount > 0 && kdbCount > 0) {
+      els.searchMeta.textContent = `検索対象 ${fullCount} 件`;
+    } else if (officialCount > 0) {
+      els.searchMeta.textContent = `検索対象 ${officialCount} 件`;
+    } else {
+      els.searchMeta.textContent = '科目データを読み込み中…';
+    }
+  }
+
+  if (els.datasetInfo) {
+    els.datasetInfo.innerHTML = '';
+  }
+};
+
+renderScheduleStatus = function renderScheduleStatus20260409Final() {
+  if (!els.scheduleStatus) return;
+  let label = '未読込';
+  let className = 'badge';
+  if (state.scheduleStatus === 'loading') {
+    label = '読込中';
+    className = 'badge badge--pending';
+  } else if (state.scheduleStatus === 'ready') {
+    label = '利用可能';
+    className = 'badge badge--ok';
+  } else if (state.scheduleStatus === 'warn') {
+    label = '未取得';
+    className = 'badge badge--warn';
+  }
+  els.scheduleStatus.textContent = label;
+  els.scheduleStatus.className = className;
+
+  if (els.scheduleUpdated) {
+    els.scheduleUpdated.innerHTML = '';
+  }
+};
+
+document.addEventListener('DOMContentLoaded', applyFinalStaticLabels20260409);
+window.addEventListener('load', applyFinalStaticLabels20260409);
