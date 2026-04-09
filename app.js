@@ -6592,7 +6592,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 /* === 2026-04-09 final delivery patch === */
-const FINAL_APP_TITLE_20260409 = '筑波大学達成度評価シート入力支援（非公式）情報理工学位プログラム（博士前期課程）用';
+const FINAL_APP_TITLE_20260409 = '筑波大学達成度評価シート入力・確認支援（非公式）情報理工学位プログラム（博士前期課程）用';
 
 function applyFinalStaticLabels20260409() {
   document.title = FINAL_APP_TITLE_20260409;
@@ -6678,7 +6678,7 @@ function applyFinalReviewStaticLabels20260409() {
 
   const lead = document.querySelector('.topbar__brand .lead');
   if (lead) {
-    lead.textContent = '履修計画 / M中間評価 / M最終評価に加えて、指導教員向けの確認機能も扱える情報理工学位プログラム（博士前期課程）向けの非公式ツールです。';
+    lead.innerHTML = '履修計画 / M中間評価 / M最終評価に加えて、指導教員向けの確認機能も扱える情報理工学位プログラム（博士前期課程）向けの非公式ツールです。ChatGPT によりほとんどプログラムされました。また、<a href="https://make-it-tsukuba.github.io/alternative-tsukuba-kdb/#" target="_blank" rel="noopener noreferrer">KdB もどき</a>のデータベースを参考にさせていただきました。ありがとうございます。';
   }
 
   const searchHeading = document.querySelector('[data-workspace-panel="search"] .section-heading h2');
