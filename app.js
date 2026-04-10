@@ -8227,3 +8227,771 @@ if (document.readyState === 'loading') {
   initLanguageButtonPatch20260410();
 }
 window.addEventListener('load', initLanguageButtonPatch20260410);
+
+
+/* === 2026-04-10 final one-button language + English coverage patch === */
+(function(){
+  const UI_FINAL_20260410 = {
+    ja: {
+      buttonTitle: 'English に切り替え / Switch to English',
+      searchSide: { editor: '配点編集', timetable: '時間割' },
+      compact: {
+        hideGuide: '使い方を隠す',
+        showGuide: '使い方を表示',
+        denseOn: '説明を省略',
+        denseOff: '説明を戻す',
+        collapseAll: '全パネルを縮小',
+        expandAll: '全パネルを展開',
+        collapse: '縮小',
+        expand: '展開'
+      },
+      timetable: {
+        dayLabels: ['月','火','水','木','金','土'],
+        termLabels: { '0':'春A','1':'春B','2':'春C','3':'秋A','4':'秋B','5':'秋C','intensive':'集中' },
+        timeHeader: '時限',
+        noData: '開講時限データがまだありません。自動読込を待つか、必要なら KdB JSON を手動読込してください。',
+        noCourse: '時間割へ載せられる科目がまだありません。',
+        intensiveEmpty: '集中として扱う科目はまだありません。',
+        intensiveOtherHint: '集中以外の未配置科目は、各ターム表示で確認できます。',
+        allPlaced: '集中・応談・随時などを除く、現在のドラフト科目は時間割へ反映できています。',
+        unscheduledTitle: '時限未配置 / 集中・応談など',
+        showing: (label) => `表示 ${label}`,
+        draftItems: (n) => `ドラフト掲載 ${n} 件`,
+        intensiveItems: (n) => `集中科目 ${n} 件`,
+        preview: '候補科目を重ね表示中',
+        noConflict: '時限重複なし',
+        conflict: (n) => `重複セル ${n} 件`
+      },
+      search: {
+        noMatch: '該当科目が見つかりません。',
+        noCode: 'コードなし',
+        credits: (v) => `単位 ${v}`,
+        total: (v) => `合計 ${v} 点`,
+        placeRegular: '15行目以降へ追加',
+        fixedRowLabel: (row) => `${row}行の固定欄`,
+        scheduleLabel: '開講',
+        scheduleLoading: '開講時限データを読み込み中です。',
+        scheduleMissing: '開講時限データは未読込または未登録です。',
+        fixedNoteLabel: '固定欄',
+        fixedNote: (row) => `${row}行で手動配点します。`,
+        select: '選択'
+      },
+      selected: {
+        noCode: 'コード未設定',
+        external: '他研究群科目',
+        internal: 'システム情報工学研究群科目',
+        fixed: '固定行の手動配点',
+        source: '元データ',
+        point18: (n) => `18観点入力 / 合計 ${n} 点`,
+        rawValues: '公開 PDF から読める非ゼロ配点列',
+        autoCompleteHelp: '不足差分を見ながら 8 コンピテンスへ補完し、その後 18 観点へ初期展開します。',
+        creditBased: (n) => `大学院スタンダード配点が未登録のため、単位数換算 ${n} 点をもとに初期配点します`,
+        schedule: '開講ターム・時限',
+        scheduleFallback: '開講時限',
+        room: '教室',
+        person: '担当',
+        loading: '読込中です。',
+        unavailable: '未登録または取得前です。',
+        needsManual: '固定行の特別研究は、必要に応じて18観点を手動で割り振ってください。',
+        editable18: '大学院スタンダードの公開カリキュラム・マップは 8 コンピテンス配点なので、下の 18 観点は初期案です。必要なら手動で修正してください。',
+        total: (n) => `最終合計 ${n} 点`,
+        custom: 'カスタム',
+        untitled: '名称未設定',
+        auto: '自動補完対象',
+        creditsOnly: '単位数ベース',
+        official: '元配点あり'
+      },
+      plan: {
+        noDraft: 'まだ授業科目ドラフトはありません。科目を選んで追加してください。',
+        row: (n) => `${n}行`,
+        scheduleLabel: '開講',
+        fixedBadge: '固定行',
+        clear: 'クリア',
+        total: (n) => `${n} 点`,
+        creditsPoints: (credits, total) => `${credits ? `${credits} 単位 / ` : ''}${total} 点`
+      }
+    },
+    en: {
+      buttonTitle: '日本語に切り替え / Switch to Japanese',
+      searchSide: { editor: 'Point editor', timetable: 'Timetable' },
+      compact: {
+        hideGuide: 'Hide guide',
+        showGuide: 'Show guide',
+        denseOn: 'Compact text',
+        denseOff: 'Restore text',
+        collapseAll: 'Collapse all panels',
+        expandAll: 'Expand all panels',
+        collapse: 'Collapse',
+        expand: 'Expand'
+      },
+      timetable: {
+        dayLabels: ['Mon','Tue','Wed','Thu','Fri','Sat'],
+        termLabels: { '0':'Spring A','1':'Spring B','2':'Spring C','3':'Fall A','4':'Fall B','5':'Fall C','intensive':'Intensive' },
+        timeHeader: 'Period',
+        noData: 'No timetable data yet. Wait for automatic loading or load a KdB JSON file manually.',
+        noCourse: 'No courses are ready to be shown on the timetable yet.',
+        intensiveEmpty: 'No intensive courses yet.',
+        intensiveOtherHint: 'Check non-intensive unscheduled courses in each term tab.',
+        allPlaced: 'All current draft courses except intensive / arranged / irregular items are placed on the timetable.',
+        unscheduledTitle: 'Unscheduled / intensive / arranged',
+        showing: (label) => `Showing ${label}`,
+        draftItems: (n) => `Draft items ${n}`,
+        intensiveItems: (n) => `Intensive items ${n}`,
+        preview: 'Selected course preview shown',
+        noConflict: 'No timetable conflicts',
+        conflict: (n) => `Conflicting cells ${n}`
+      },
+      search: {
+        noMatch: 'No matching course found.',
+        noCode: 'No code',
+        credits: (v) => `Credits ${v}`,
+        total: (v) => `Total ${v} points`,
+        placeRegular: 'Place from row 15 onward',
+        fixedRowLabel: (row) => `Fixed slot in row ${row}`,
+        scheduleLabel: 'Schedule',
+        scheduleLoading: 'Loading timetable data.',
+        scheduleMissing: 'Timetable data is not loaded or unavailable.',
+        fixedNoteLabel: 'Fixed slot',
+        fixedNote: (row) => `Allocate points manually in row ${row}.`,
+        select: 'Select'
+      },
+      selected: {
+        noCode: 'Code not set',
+        external: 'Course from another program',
+        internal: 'Graduate School of Systems and Information Engineering course',
+        fixed: 'Manual allocation for fixed row',
+        source: 'Source data',
+        point18: (n) => `18-item input / total ${n} points`,
+        rawValues: 'Non-zero values readable from the public PDF',
+        autoCompleteHelp: 'The app complements the 8 competences while looking at current deficits, then expands them into the 18 items.',
+        creditBased: (n) => `Official curriculum-map points are not bundled for this course, so an initial allocation is created from ${n} credit-based points`,
+        schedule: 'Term / time slot',
+        scheduleFallback: 'Schedule',
+        room: 'Room',
+        person: 'Instructor',
+        loading: 'Loading…',
+        unavailable: 'Not registered or not loaded yet.',
+        needsManual: 'For fixed-row research courses, allocate the 18 items manually if needed.',
+        editable18: 'The public curriculum map provides 8-competence values, so the 18-item allocation below is an initial proposal. Adjust it manually if needed.',
+        total: (n) => `Final total ${n} points`,
+        custom: 'Custom',
+        untitled: 'Untitled',
+        auto: 'Auto-completion target',
+        creditsOnly: 'Credit-based',
+        official: 'Official points available'
+      },
+      plan: {
+        noDraft: 'No course draft yet. Add a course first.',
+        row: (n) => `Row ${n}`,
+        scheduleLabel: 'Schedule',
+        fixedBadge: 'Fixed row',
+        clear: 'Clear',
+        total: (n) => `${n} points`,
+        creditsPoints: (credits, total) => `${credits ? `${credits} credits / ` : ''}${total} points`
+      }
+    }
+  };
+
+  function getUiFinal20260410(){
+    const lang = (typeof getUiLang20260409 === 'function' ? getUiLang20260409() : 'ja');
+    return UI_FINAL_20260410[lang] || UI_FINAL_20260410.ja;
+  }
+  function tFinal20260410(text){
+    return typeof translateDynamicText20260409 === 'function' ? translateDynamicText20260409(text) : text;
+  }
+  function coursePrimaryName20260410(course){
+    if (!course) return '';
+    return (typeof getUiLang20260409 === 'function' && getUiLang20260409() === 'en')
+      ? String(course.nameEn || course.nameJa || course.code || getUiFinal20260410().selected.untitled)
+      : String(course.nameJa || course.nameEn || course.code || getUiFinal20260410().selected.untitled);
+  }
+  function courseSecondaryName20260410(course){
+    if (!course) return '';
+    return (typeof getUiLang20260409 === 'function' && getUiLang20260409() === 'en')
+      ? String(course.nameJa || '')
+      : String(course.nameEn || '');
+  }
+
+  Object.assign(EXACT_TEXT_MAP_20260409.en, {
+    '配点編集': 'Point editor',
+    '時間割': 'Timetable',
+    '展開': 'Expand',
+    '縮小': 'Collapse',
+    '使い方を表示': 'Show guide',
+    '使い方を隠す': 'Hide guide',
+    '説明を省略': 'Compact text',
+    '説明を戻す': 'Restore text',
+    '全パネルを縮小': 'Collapse all panels',
+    '全パネルを展開': 'Expand all panels',
+    'コードなし': 'No code',
+    'コード未設定': 'Code not set',
+    '名称未設定': 'Untitled',
+    'カスタム': 'Custom',
+    'システム情報工学研究群': 'Graduate School of Systems and Information Engineering',
+    '大学院共通 / 他研究群': 'Graduate common / other programs',
+    '筑波大学大学院開設科目': 'University of Tsukuba graduate course',
+    '数値配点（汎用5）': 'Numeric points (generic 5)',
+    '〇配点（自動配分）': 'Circle-based points (automatic allocation)',
+    '数値配点': 'Numeric points',
+    '非ゼロ列を自動補完': 'Complete missing zero columns automatically',
+    '手動 / 個別': 'Manual / individual',
+    '固定行': 'Fixed row',
+    'クリア': 'Clear',
+    '月': 'Mon',
+    '火': 'Tue',
+    '水': 'Wed',
+    '木': 'Thu',
+    '金': 'Fri',
+    '土': 'Sat',
+    '時限': 'Period',
+    '春A': 'Spring A',
+    '春B': 'Spring B',
+    '春C': 'Spring C',
+    '秋A': 'Fall A',
+    '秋B': 'Fall B',
+    '秋C': 'Fall C',
+    '集中': 'Intensive',
+    '候補科目を重ね表示中': 'Selected course preview shown',
+    '時限重複なし': 'No timetable conflicts',
+    '開講時限データを読み込み中です。': 'Loading timetable data.',
+    '開講時限データは未読込または未登録です。': 'Timetable data is not loaded or unavailable.',
+    '開講時限データがまだありません。自動読込を待つか、必要なら KdB JSON を手動読込してください。': 'No timetable data yet. Wait for automatic loading or load a KdB JSON file manually.',
+    '時間割へ載せられる科目がまだありません。': 'No courses are ready to be shown on the timetable yet.',
+    '集中として扱う科目はまだありません。': 'No intensive courses yet.',
+    '集中以外の未配置科目は、各ターム表示で確認できます。': 'Check non-intensive unscheduled courses in each term tab.',
+    '集中・応談・随時などを除く、現在のドラフト科目は時間割へ反映できています。': 'All current draft courses except intensive / arranged / irregular items are placed on the timetable.',
+    '時限未配置 / 集中・応談など': 'Unscheduled / intensive / arranged',
+    '固定行の特別研究は、必要に応じて18観点を手動で割り振ってください。': 'For fixed-row research courses, allocate the 18 items manually if needed.',
+    '大学院スタンダードの公開カリキュラム・マップは 8 コンピテンス配点なので、下の 18 観点は初期案です。必要なら手動で修正してください。': 'The public curriculum map provides 8-competence values, so the 18-item allocation below is an initial proposal. Adjust it manually if needed.',
+    '授業科目データが見つかりません。': 'Course data not found.',
+    '11〜14行の固定欄です。配点は指導教員との確認対象ですが、システム情報工学研究群外科目ではありません。': 'This is a fixed row (11-14). Point allocation should still be checked with the advisor, but it is not treated as a course outside the Graduate School of Systems and Information Engineering.',
+    'システム情報工学研究群の科目です。通常の達成度確認で扱えます。': 'This course belongs to the Graduate School of Systems and Information Engineering and can be handled in the usual review flow.',
+    'システム情報工学研究群外の科目として扱われるため、配点根拠の別途確認が必要です。': 'This course is treated as outside the Graduate School of Systems and Information Engineering, so a separate check of the point-allocation basis is required.',
+    'システム情報工学研究群コードとして判定しました。必要に応じて配点根拠を追加確認してください。': 'This course was recognized as a Systems and Information Engineering code. Check the allocation basis additionally if needed.',
+    'システム情報工学研究群外または未判定の科目です。配点根拠を別途確認してください。': 'This course is outside the Graduate School of Systems and Information Engineering or is not classified. Please check the allocation basis separately.',
+    'システム情報工学研究群外の科目は見つかりませんでした。': 'No courses outside the Graduate School of Systems and Information Engineering were found.',
+    'まだ授業科目・授業科目以外の入力がありません。まず Excel を読み込むか、履修計画 / 評価内容を作成してください。': 'There are no course or non-class entries yet. Load an Excel file or create a plan / evaluation draft first.'
+  });
+  Object.assign(EXACT_TEXT_MAP_20260409.ja, {
+    'Point editor': '配点編集',
+    'Timetable': '時間割',
+    'Expand': '展開',
+    'Collapse': '縮小',
+    'Show guide': '使い方を表示',
+    'Hide guide': '使い方を隠す',
+    'Compact text': '説明を省略',
+    'Restore text': '説明を戻す',
+    'Collapse all panels': '全パネルを縮小',
+    'Expand all panels': '全パネルを展開',
+    'No code': 'コードなし',
+    'Code not set': 'コード未設定',
+    'Untitled': '名称未設定',
+    'Custom': 'カスタム',
+    'Graduate School of Systems and Information Engineering': 'システム情報工学研究群',
+    'Graduate common / other programs': '大学院共通 / 他研究群',
+    'University of Tsukuba graduate course': '筑波大学大学院開設科目',
+    'Numeric points (generic 5)': '数値配点（汎用5）',
+    'Circle-based points (automatic allocation)': '〇配点（自動配分）',
+    'Numeric points': '数値配点',
+    'Complete missing zero columns automatically': '非ゼロ列を自動補完',
+    'Manual / individual': '手動 / 個別',
+    'Fixed row': '固定行',
+    'Clear': 'クリア',
+    'Mon': '月', 'Tue': '火', 'Wed': '水', 'Thu': '木', 'Fri': '金', 'Sat': '土',
+    'Period': '時限',
+    'Spring A': '春A', 'Spring B': '春B', 'Spring C': '春C', 'Fall A': '秋A', 'Fall B': '秋B', 'Fall C': '秋C', 'Intensive': '集中',
+    'Selected course preview shown': '候補科目を重ね表示中',
+    'No timetable conflicts': '時限重複なし',
+    'Loading timetable data.': '開講時限データを読み込み中です。',
+    'Timetable data is not loaded or unavailable.': '開講時限データは未読込または未登録です。',
+    'No timetable data yet. Wait for automatic loading or load a KdB JSON file manually.': '開講時限データがまだありません。自動読込を待つか、必要なら KdB JSON を手動読込してください。',
+    'No courses are ready to be shown on the timetable yet.': '時間割へ載せられる科目がまだありません。',
+    'No intensive courses yet.': '集中として扱う科目はまだありません。',
+    'Check non-intensive unscheduled courses in each term tab.': '集中以外の未配置科目は、各ターム表示で確認できます。',
+    'All current draft courses except intensive / arranged / irregular items are placed on the timetable.': '集中・応談・随時などを除く、現在のドラフト科目は時間割へ反映できています。',
+    'Unscheduled / intensive / arranged': '時限未配置 / 集中・応談など'
+  });
+
+  DYNAMIC_PATTERNS_20260409.push(
+    { ja: /^単位\s*(.+)$/, en: 'Credits $1', jaOut: '単位 $1' },
+    { ja: /^合計\s*(\d+)\s*点$/, en: 'Total $1 points', jaOut: '合計 $1 点' },
+    { ja: /^最終合計\s*(\d+)\s*点$/, en: 'Final total $1 points', jaOut: '最終合計 $1 点' },
+    { ja: /^(\d+)行の固定欄$/, en: 'Fixed slot in row $1', jaOut: '$1行の固定欄' },
+    { ja: /^(\d+)行で手動配点します。$/, en: 'Allocate points manually in row $1.', jaOut: '$1行で手動配点します。' },
+    { ja: /^(\d+)\s*単位\s*\/\s*(\d+)\s*点$/, en: '$1 credits / $2 points', jaOut: '$1 単位 / $2 点' },
+    { ja: /^表示\s*(.+)$/, en: 'Showing $1', jaOut: '表示 $1' },
+    { ja: /^ドラフト掲載\s*(\d+)\s*件$/, en: 'Draft items $1', jaOut: 'ドラフト掲載 $1 件' },
+    { ja: /^集中科目\s*(\d+)\s*件$/, en: 'Intensive items $1', jaOut: '集中科目 $1 件' },
+    { ja: /^重複セル\s*(\d+)\s*件$/, en: 'Conflicting cells $1', jaOut: '重複セル $1 件' },
+    { ja: /^(\d+)限$/, en: 'Period $1', jaOut: '$1限' },
+    { ja: /^Fixed slot in row\s*(\d+)$/, en: 'Fixed slot in row $1', jaOut: '$1行の固定欄' },
+    { ja: /^Allocate points manually in row\s*(\d+)\.$/, en: 'Allocate points manually in row $1.', jaOut: '$1行で手動配点します。' },
+    { ja: /^Draft items\s*(\d+)$/, en: 'Draft items $1', jaOut: 'ドラフト掲載 $1 件' },
+    { ja: /^Intensive items\s*(\d+)$/, en: 'Intensive items $1', jaOut: '集中科目 $1 件' },
+    { ja: /^Conflicting cells\s*(\d+)$/, en: 'Conflicting cells $1', jaOut: '重複セル $1 件' },
+    { ja: /^Period\s*(\d+)$/, en: 'Period $1', jaOut: '$1限' }
+  );
+
+  function getLocalizedTimetableTabLabel20260410(termCode){
+    return getUiFinal20260410().timetable.termLabels[String(termCode)] || '—';
+  }
+  function getLocalizedDayLabels20260410(){
+    return getUiFinal20260410().timetable.dayLabels.slice();
+  }
+  function cleanupLanguageControls20260410(){
+    const select = document.getElementById('uiLangSelect');
+    if (select) select.remove();
+    const stateEl = document.getElementById('languageState');
+    if (stateEl) stateEl.remove();
+    const button = document.getElementById('languageToggleBtn');
+    if (button) {
+      button.textContent = 'Language';
+      button.setAttribute('title', getUiFinal20260410().buttonTitle);
+      button.setAttribute('aria-label', getUiFinal20260410().buttonTitle);
+    }
+  }
+  function refreshCompactControls20260410(){
+    const ui = getUiFinal20260410();
+    const dense = document.body.classList.contains('app-body--dense-text');
+    const denseBtn = document.getElementById('toggleDenseBtn');
+    if (denseBtn) denseBtn.textContent = dense ? ui.compact.denseOff : ui.compact.denseOn;
+    const collapseAllBtn = document.getElementById('collapseAllPanelsBtn');
+    if (collapseAllBtn) collapseAllBtn.textContent = ui.compact.collapseAll;
+    const expandAllBtn = document.getElementById('expandAllPanelsBtn');
+    if (expandAllBtn) expandAllBtn.textContent = ui.compact.expandAll;
+    document.querySelectorAll('.compact-card[data-collapse-ready="1"]').forEach(card => {
+      const btn = card.querySelector('.section-heading__toggle');
+      if (btn) btn.textContent = card.classList.contains('is-collapsed') ? ui.compact.expand : ui.compact.collapse;
+    });
+    const hint = document.querySelector('.topbar__hint');
+    const hintBtn = hint?.querySelector('.topbar__hint-toggle');
+    if (hintBtn) hintBtn.textContent = hint.classList.contains('is-collapsed') ? ui.compact.showGuide : ui.compact.hideGuide;
+    const editorBtn = document.querySelector('[data-search-side-view="editor"]');
+    if (editorBtn) editorBtn.textContent = ui.searchSide.editor;
+    const timetableBtn = document.querySelector('[data-search-side-view="timetable"]');
+    if (timetableBtn) timetableBtn.textContent = ui.searchSide.timetable;
+  }
+
+  const __prevApplyStatic20260410 = applyStaticUiText20260409;
+  applyStaticUiText20260409 = function applyStaticUiText20260410Final(){
+    __prevApplyStatic20260410();
+    cleanupLanguageControls20260410();
+    refreshCompactControls20260410();
+  };
+
+  const __prevGetTimetableTabLabel20260410 = getTimetableTabLabel20260408;
+  getTimetableTabLabel20260408 = function getTimetableTabLabel20260410Final(termCode){
+    const localized = getLocalizedTimetableTabLabel20260410(termCode);
+    return localized || __prevGetTimetableTabLabel20260410(termCode);
+  };
+
+  renderScheduleTermTabs = function renderScheduleTermTabs20260410Final() {
+    if (!els.scheduleTermTabs) return;
+    els.scheduleTermTabs.innerHTML = '';
+    TIMETABLE_VIEW_TABS.forEach(term => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = getLocalizedTimetableTabLabel20260410(term.code);
+      button.className = String(term.code) === String(state.activeTermCode) ? 'is-active' : '';
+      button.addEventListener('click', () => {
+        state.activeTermCode = term.code;
+        state.uiPrefs.activeTimetableTab = term.code;
+        saveUiPrefs20260408();
+        renderScheduleTermTabs();
+        renderTimetablePanel();
+      });
+      els.scheduleTermTabs.appendChild(button);
+    });
+  };
+
+  renderSearchResults = function renderSearchResults20260410Final(courses) {
+    if (!els.searchResults) return;
+    const ui = getUiFinal20260410();
+    if (!courses.length) {
+      els.searchResults.innerHTML = `<div class="status status--warn">${escapeHtml(ui.search.noMatch)}</div>`;
+      return;
+    }
+    const fragment = document.createDocumentFragment();
+    courses.forEach(course => {
+      const card = document.createElement('article');
+      card.className = 'result-card';
+      const fixedRow = getFixedCourseRowForCourse(course);
+      const schedule = getCourseScheduleInfo(course);
+      const rowLabel = fixedRow ? ui.search.fixedRowLabel(fixedRow) : ui.search.placeRegular;
+      const metaChips = [
+        chip(course.code || ui.search.noCode),
+        chip(tFinal20260410(getDefaultCatalogLabel20260408(course))),
+        chip(ui.search.credits(course.credits ?? '—')),
+        chip(ui.search.total(course.total ?? '—')),
+        chip(tFinal20260410(getSourceRuleLabel20260408(course))),
+        chip(rowLabel)
+      ].join('');
+      const scheduleText = schedule ? tFinal20260410(formatScheduleSummaryText(schedule)) : '';
+      const scheduleHtml = scheduleText
+        ? `<div class="result-card__extra"><strong>${escapeHtml(ui.search.scheduleLabel)}</strong> ${escapeHtml(scheduleText)}</div>`
+        : (state.scheduleStatus === 'loading'
+          ? `<div class="result-card__extra muted">${escapeHtml(ui.search.scheduleLoading)}</div>`
+          : `<div class="result-card__extra muted">${escapeHtml(ui.search.scheduleMissing)}</div>`);
+      const fixedNote = fixedRow
+        ? `<div class="result-card__extra"><strong>${escapeHtml(ui.search.fixedNoteLabel)}</strong> ${escapeHtml(ui.search.fixedNote(fixedRow))}</div>`
+        : '';
+      const primary = coursePrimaryName20260410(course);
+      const secondary = courseSecondaryName20260410(course);
+      card.innerHTML = `
+        <div class="result-card__body">
+          <div>
+            <strong>${escapeHtml(primary || ui.selected.untitled)}</strong>
+            ${secondary ? `<div class="muted">${escapeHtml(secondary)}</div>` : ''}
+          </div>
+          <div class="chips">${metaChips}</div>
+          ${scheduleHtml}
+          ${fixedNote}
+        </div>
+        <div class="result-card__actions">
+          <button type="button" class="button button--primary button--small">${escapeHtml(ui.search.select)}</button>
+        </div>
+      `;
+      card.querySelector('button')?.addEventListener('click', () => selectCourse(course));
+      fragment.appendChild(card);
+    });
+    els.searchResults.innerHTML = '';
+    els.searchResults.appendChild(fragment);
+  };
+
+  renderSelectedCourse = function renderSelectedCourse20260410Final(course) {
+    if (!els.selectedCourseBox) return;
+    const ui = getUiFinal20260410();
+    if (!course) {
+      els.selectedCourseBox.classList.add('empty');
+      els.selectedCourseBox.innerHTML = getUiLang20260409() === 'en' ? 'No course selected yet.' : 'まだ科目が選択されていません。';
+      return;
+    }
+    const targetRow = Number((els.targetRow && els.targetRow.value) || '');
+    const isFixedSelection = isFixedCourseRow(targetRow);
+    const subline = [
+      course.code || ui.selected.noCode,
+      course.credits ? (getUiLang20260409() === 'en' ? `${course.credits} credits` : `${course.credits} 単位`) : '',
+      course.isExternal ? ui.selected.external : ui.selected.internal,
+      isFixedSelection ? ui.selected.fixed : ''
+    ].filter(Boolean).join(' / ');
+    let pointsHtml = '';
+    if (Array.isArray(course?.points18) && course.points18.length === 18) {
+      pointsHtml = `<div class="point8-item point8-item--wide"><span>${escapeHtml(ui.selected.source)}</span><strong>${escapeHtml(ui.selected.point18(sumPoints18(course.points18)))}</strong></div>`;
+    } else if (course.points8 && Object.keys(course.points8).length > 0) {
+      pointsHtml = GROUP_CONFIG.map(group => `<div class="point8-item"><span>${escapeHtml(group.label)}</span><strong>${asInt(course.points8[group.key])}</strong></div>`).join('');
+    } else if (Array.isArray(course.rawCompetenceValues) && course.rawCompetenceValues.length > 0) {
+      pointsHtml = `
+        <div class="point8-item point8-item--wide">
+          <span>${escapeHtml(ui.selected.rawValues)}</span>
+          <strong>${course.rawCompetenceValues.map(asInt).join(' / ')}</strong>
+          <div class="help-text">${escapeHtml(ui.selected.autoCompleteHelp)}</div>
+        </div>
+      `;
+    } else {
+      pointsHtml = `<div class="point8-item point8-item--wide"><span>${escapeHtml(ui.selected.source)}</span><strong>${escapeHtml(ui.selected.creditBased(asInt(resolveCourseTotal(course))))}</strong></div>`;
+    }
+    const schedule = getCourseScheduleInfo(course);
+    const scheduleHtml = schedule
+      ? `
+        <div class="selected-course__schedule">
+          <div><strong>${escapeHtml(ui.selected.schedule)}</strong> ${escapeHtml(tFinal20260410(formatScheduleSummaryText(schedule)))}</div>
+          ${schedule.room ? `<div><strong>${escapeHtml(ui.selected.room)}</strong> ${escapeHtml(schedule.room)}</div>` : ''}
+          ${schedule.person ? `<div><strong>${escapeHtml(ui.selected.person)}</strong> ${escapeHtml(schedule.person)}</div>` : ''}
+        </div>
+      `
+      : `
+        <div class="selected-course__schedule">
+          <div><strong>${escapeHtml(ui.selected.scheduleFallback)}</strong> ${escapeHtml(state.scheduleStatus === 'loading' ? ui.selected.loading : ui.selected.unavailable)}</div>
+        </div>
+      `;
+    const badges = [
+      chip(course.sourceKind === 'sequence' ? ui.selected.auto : (course.sourceKind === 'creditsOnly' ? ui.selected.creditsOnly : ui.selected.official)),
+      chip(ui.selected.total(asInt(resolveCourseTotal(course))))
+    ].join('');
+    els.selectedCourseBox.classList.remove('empty');
+    els.selectedCourseBox.innerHTML = `
+      <div class="result-card__code">${escapeHtml(course.code || ui.selected.custom)}</div>
+      <h3>${escapeHtml(coursePrimaryName20260410(course) || ui.selected.untitled)}</h3>
+      ${courseSecondaryName20260410(course) ? `<div class="muted">${escapeHtml(courseSecondaryName20260410(course))}</div>` : ''}
+      <div class="muted">${escapeHtml(subline)}</div>
+      <div class="selected-course__source">${badges}</div>
+      ${scheduleHtml}
+      <div class="points8">${pointsHtml}</div>
+      <div class="help-text">${escapeHtml(isFixedSelection ? ui.selected.needsManual : ui.selected.editable18)}</div>
+    `;
+  };
+
+  renderPlanList = function renderPlanList20260410Final() {
+    const draft = getCurrentDraft();
+    draft.courseRows = normalizeCourseRowsForFixedLayout(draft.courseRows);
+    const entries = getPlanEntries(draft.courseRows);
+    if (!els.planList) return;
+    const ui = getUiFinal20260410();
+    if (!entries.length) {
+      els.planList.innerHTML = `<div class="status status--muted">${escapeHtml(ui.plan.noDraft)}</div>`;
+    } else {
+      els.planList.innerHTML = entries.map(entry => {
+        const total = sumPoints18(entry.points18);
+        const isFixed = isFixedCourseRow(entry.row);
+        const sourceCourse = entry.sourceCourse || entry;
+        const tags = [
+          entry.code ? chip(entry.code) : '',
+          chip(tFinal20260410(getDefaultCatalogLabel20260408(sourceCourse))),
+          chip(tFinal20260410(getSourceRuleLabel20260408(sourceCourse))),
+          chip(ui.plan.creditsPoints(entry.credits, total))
+        ].join('');
+        const schedule = getCourseScheduleInfo(sourceCourse);
+        const scheduleHtml = schedule ? `<div class="plan-card__schedule"><div><strong>${escapeHtml(ui.plan.scheduleLabel)}</strong> ${escapeHtml(tFinal20260410(formatScheduleSummaryText(schedule)))}</div></div>` : '';
+        const controls = isFixed
+          ? `
+            <div class="actions-row actions-row--compact">
+              <span class="badge plan-card__fixed">${escapeHtml(ui.plan.fixedBadge)}</span>
+              <button class="button button--small" type="button" data-action="edit" data-row="${entry.row}">${escapeHtml(getUiLang20260409()==='en' ? 'Edit' : '編集')}</button>
+              <button class="button button--small button--danger" type="button" data-action="remove" data-row="${entry.row}">${escapeHtml(ui.plan.clear)}</button>
+            </div>
+          `
+          : `
+            <div class="actions-row actions-row--compact">
+              <button class="button button--small" type="button" data-action="up" data-row="${entry.row}">${escapeHtml(getUiLang20260409()==='en' ? 'Up' : '上へ')}</button>
+              <button class="button button--small" type="button" data-action="down" data-row="${entry.row}">${escapeHtml(getUiLang20260409()==='en' ? 'Down' : '下へ')}</button>
+              <button class="button button--small" type="button" data-action="edit" data-row="${entry.row}">${escapeHtml(getUiLang20260409()==='en' ? 'Edit' : '編集')}</button>
+              <button class="button button--small button--danger" type="button" data-action="remove" data-row="${entry.row}">${escapeHtml(getUiLang20260409()==='en' ? 'Remove' : '削除')}</button>
+            </div>
+          `;
+        return `
+          <article class="plan-card">
+            <div class="plan-card__top">
+              <div>
+                <div class="plan-card__row">${escapeHtml(ui.plan.row(entry.row))}</div>
+                <h3>${escapeHtml(displayCourseName(entry))}</h3>
+                <p>${escapeHtml(courseSecondaryName20260410(entry))}</p>
+                <div class="plan-card__meta">${tags}</div>
+                ${scheduleHtml}
+              </div>
+              <div class="plan-card__total">${escapeHtml(ui.plan.total(total))}</div>
+            </div>
+            ${controls}
+          </article>
+        `;
+      }).join('');
+      els.planList.querySelectorAll('button[data-action="remove"]').forEach(button => button.addEventListener('click', () => removePlanRow(Number(button.dataset.row))));
+      els.planList.querySelectorAll('button[data-action="edit"]').forEach(button => button.addEventListener('click', () => editPlanRow(Number(button.dataset.row))));
+      els.planList.querySelectorAll('button[data-action="up"]').forEach(button => button.addEventListener('click', () => movePlanRow(Number(button.dataset.row), -1)));
+      els.planList.querySelectorAll('button[data-action="down"]').forEach(button => button.addEventListener('click', () => movePlanRow(Number(button.dataset.row), +1)));
+    }
+    const metrics = getMetrics(draft);
+    if (els.planCourseCount) els.planCourseCount.textContent = String(entries.length);
+    if (els.planCredits) els.planCredits.textContent = String(entries.reduce((sum, entry) => sum + Number(entry.credits || 0), 0));
+    if (els.planPointsTotal) els.planPointsTotal.textContent = String(metrics.subtotalTotal);
+    if (els.extraItemCount) els.extraItemCount.textContent = String((draft.extraItems || []).length);
+    if (els.extraPointsTotal) els.extraPointsTotal.textContent = String(metrics.extraTotal);
+    if (els.projectedTotal) els.projectedTotal.textContent = String(metrics.projectedTotal);
+    if (els.unmetCount) els.unmetCount.textContent = `${metrics.unmetCount} / 18`;
+  };
+
+  renderTimetablePanel = function renderTimetablePanel20260410Final() {
+    if (!els.timetableGrid || !els.timetableSummary || !els.timetableUnscheduled) return;
+    renderScheduleStatus();
+    renderScheduleTermTabs();
+    const ui = getUiFinal20260410();
+    const isIntensive = isIntensiveTimetableTab20260408(state.activeTermCode);
+    if (!Object.keys(state.scheduleMap || {}).length && state.scheduleStatus !== 'loading') {
+      els.timetableGrid.innerHTML = `<div class="status status--muted">${escapeHtml(ui.timetable.noData)}</div>`;
+      els.timetableSummary.innerHTML = '';
+      const unscheduled = buildUnscheduledCourseItems();
+      els.timetableUnscheduled.innerHTML = unscheduled.length
+        ? `<div class="subsection-title">${escapeHtml(ui.timetable.unscheduledTitle)}</div><div class="unscheduled-list">${unscheduled.map(item => `<div class="unscheduled-chip"><strong>${escapeHtml(item.label)}</strong><div class="unscheduled-chip__meta">${escapeHtml(tFinal20260410(item.reason))}</div></div>`).join('')}</div>`
+        : `<div class="status status--muted">${escapeHtml(ui.timetable.noCourse)}</div>`;
+      return;
+    }
+    if (isIntensive) {
+      const items = buildIntensiveTimetableItems20260408();
+      els.timetableGrid.innerHTML = items.length
+        ? `<div class="intensive-list">${items.map(item => { const classes=['intensive-chip']; if (item.kind==='preview') classes.push('intensive-chip--preview'); return `<div class="${classes.join(' ')}"><strong>${escapeHtml(item.label)}</strong></div>`; }).join('')}</div>`
+        : `<div class="status status--muted">${escapeHtml(ui.timetable.intensiveEmpty)}</div>`;
+      const previewCount = items.filter(item => item.kind === 'preview').length;
+      els.timetableSummary.innerHTML = `
+        <div class="timetable-summary__stats">
+          <span class="chip">${escapeHtml(ui.timetable.showing(getLocalizedTimetableTabLabel20260410(state.activeTermCode)))}</span>
+          <span class="chip">${escapeHtml(ui.timetable.intensiveItems(items.filter(item => item.kind === 'draft').length))}</span>
+          ${previewCount ? `<span class="chip">${escapeHtml(ui.timetable.preview)}</span>` : ''}
+        </div>
+      `;
+      els.timetableUnscheduled.innerHTML = `<div class="status status--muted">${escapeHtml(ui.timetable.intensiveOtherHint)}</div>`;
+      return;
+    }
+    const timetableItems = buildTimetableItemsForTerm(state.activeTermCode);
+    const cellMap = new Map();
+    timetableItems.forEach(item => item.cells.forEach(cell => { const key = `${cell.dayIndex}-${cell.periodIndex}`; if (!cellMap.has(key)) cellMap.set(key, []); cellMap.get(key).push(item); }));
+    let conflictCellCount = 0;
+    const dayLabels = getLocalizedDayLabels20260410();
+    const bodyHtml = Array.from({ length: SCHEDULE_PERIOD_TIMES.length }, (_, periodIndex) => {
+      const cellHtml = Array.from({ length: SCHEDULE_DAY_LABELS.length }, (_, dayIndex) => {
+        const key = `${dayIndex}-${periodIndex}`;
+        const items = cellMap.get(key) || [];
+        if (items.length > 1) conflictCellCount += 1;
+        const slotContent = items.length ? `<div class="timetable-slotlist">${items.map(item => { const classes=['timetable-chip']; if (items.length>1) classes.push('timetable-chip--conflict'); if (item.kind==='preview') classes.push('timetable-chip--preview'); return `<div class="${classes.join(' ')}"><strong>${escapeHtml(item.shortLabel)}</strong></div>`; }).join('')}</div>` : '';
+        return `<td class="timetable-slot">${slotContent}</td>`;
+      }).join('');
+      return `
+        <tr>
+          <th class="timetable-table__time"><strong>${escapeHtml(tFinal20260410(`${periodIndex + 1}限`))}</strong><span>${escapeHtml(SCHEDULE_PERIOD_TIMES[periodIndex][0])}<br>${escapeHtml(SCHEDULE_PERIOD_TIMES[periodIndex][1])}</span></th>
+          ${cellHtml}
+        </tr>
+      `;
+    }).join('');
+    els.timetableGrid.innerHTML = `
+      <table class="timetable-table timetable-table--names-only">
+        <thead>
+          <tr>
+            <th class="timetable-table__time">${escapeHtml(ui.timetable.timeHeader)}</th>
+            ${dayLabels.map(label => `<th>${escapeHtml(label)}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>${bodyHtml}</tbody>
+      </table>
+    `;
+    const draftItems = timetableItems.filter(item => item.kind === 'draft').length;
+    const previewItem = timetableItems.find(item => item.kind === 'preview');
+    els.timetableSummary.innerHTML = `
+      <div class="timetable-summary__stats">
+        <span class="chip">${escapeHtml(ui.timetable.showing(getLocalizedTimetableTabLabel20260410(state.activeTermCode)))}</span>
+        <span class="chip">${escapeHtml(ui.timetable.draftItems(draftItems))}</span>
+        ${previewItem ? `<span class="chip">${escapeHtml(ui.timetable.preview)}</span>` : ''}
+        <span class="chip">${escapeHtml(conflictCellCount > 0 ? ui.timetable.conflict(conflictCellCount) : ui.timetable.noConflict)}</span>
+      </div>
+    `;
+    const unscheduled = buildUnscheduledCourseItems();
+    els.timetableUnscheduled.innerHTML = unscheduled.length
+      ? `<div class="subsection-title">${escapeHtml(ui.timetable.unscheduledTitle)}</div><div class="unscheduled-list">${unscheduled.map(item => `<div class="unscheduled-chip"><strong>${escapeHtml(item.label)}</strong><div class="unscheduled-chip__meta">${escapeHtml(tFinal20260410(item.reason))}</div></div>`).join('')}</div>`
+      : `<div class="status status--ok">${escapeHtml(ui.timetable.allPlaced)}</div>`;
+  };
+
+  function rerenderAllLanguageSensitive20260410(){
+    if (typeof renderSearchResults === 'function' && typeof searchCourses === 'function') renderSearchResults(searchCourses(els.searchInput?.value || ''));
+    if (typeof renderSelectedCourse === 'function') renderSelectedCourse(state.selectedCourse);
+    if (typeof renderPlanSection === 'function') renderPlanSection();
+    if (typeof renderScheduleTermTabs === 'function') renderScheduleTermTabs();
+    if (typeof renderTimetablePanel === 'function') renderTimetablePanel();
+    if (typeof renderAdvisorCheckPanel20260409 === 'function') renderAdvisorCheckPanel20260409();
+    refreshCompactControls20260410();
+    cleanupLanguageControls20260410();
+  }
+
+  onUiLanguageChanged20260409 = function onUiLanguageChanged20260410Final(lang) {
+    state.uiLang = lang === 'en' ? 'en' : 'ja';
+    safeSetUiLang20260409(state.uiLang);
+    refreshAvailableSheetsForLanguage20260409();
+    renderModeSwitch();
+    renderModeInfo();
+    renderRowOptions();
+    renderPreviewGrid();
+    renderCustomValueGrid();
+    renderExtraTypeOptions();
+    renderExtraDynamicFields();
+    renderExtraPreviewGrid();
+    renderFixedCourseButtons();
+    renderFixedExtraButtons();
+    updateActionStates();
+    applyUiLanguage20260409();
+    rerenderAllLanguageSensitive20260410();
+    scheduleApplyUiLanguage20260409();
+  };
+
+  function bindOneButtonLanguageToggle20260410(){
+    cleanupLanguageControls20260410();
+    const button = document.getElementById('languageToggleBtn');
+    if (!button) return;
+    const fresh = button.cloneNode(true);
+    button.replaceWith(fresh);
+    fresh.dataset.boundFinal = 'true';
+    fresh.textContent = 'Language';
+    fresh.setAttribute('title', getUiFinal20260410().buttonTitle);
+    fresh.setAttribute('aria-label', getUiFinal20260410().buttonTitle);
+    fresh.addEventListener('click', () => onUiLanguageChanged20260409(getUiLang20260409() === 'en' ? 'ja' : 'en'));
+  }
+
+  function initFinalLanguageCleanup20260410(){
+    bindOneButtonLanguageToggle20260410();
+    cleanupLanguageControls20260410();
+    applyUiLanguage20260409();
+    rerenderAllLanguageSensitive20260410();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFinalLanguageCleanup20260410);
+  } else {
+    initFinalLanguageCleanup20260410();
+  }
+  window.addEventListener('load', initFinalLanguageCleanup20260410);
+})();
+
+
+/* === 2026-04-10 extra bilingual coverage for non-class dynamic fields === */
+(function(){
+  Object.assign(EXACT_TEXT_MAP_20260409.en, {
+    '筆頭著者 / 査読有り論文誌 本数': 'First author / Peer-reviewed journal count',
+    '筆頭著者 / 査読有り国際会議かつ発表 本数': 'First author / Peer-reviewed international conference with presentation count',
+    '筆頭著者 / それ以外の論文・発表 本数': 'First author / Other papers or presentations count',
+    '非筆頭 / 査読有り論文誌 本数': 'Non-first author / Peer-reviewed journal count',
+    '非筆頭 / 査読有り国際会議かつ発表 本数': 'Non-first author / Peer-reviewed international conference with presentation count',
+    '非筆頭 / それ以外の論文・発表 本数': 'Non-first author / Other papers or presentations count',
+    '筆頭論文・非筆頭論文を含めて複数本ある場合でも、合計ではなく最も高いポイントだけを採用します。': 'Even if there are multiple papers or presentations, only the highest applicable point value is used; the values are not summed.',
+    '貢献率（%）': 'Contribution ratio (%)',
+    '特許は 300 × 貢献率で計算します。例: 50% なら 150 点です。': 'Patents are calculated as 300 × contribution ratio. Example: 50% gives 150 points.',
+    '配分点（目安: 0〜300）': 'Allocated points (guide: 0-300)',
+    '研究室に関係する活動に対して配分します。実態に合わせて指導教員と相談してください。': 'Allocate points for activities related to your laboratory. Please consult your supervisor based on the actual activity.',
+    '配分点（1〜500）': 'Allocated points (1-500)',
+    'CSスペシャルワークショップ（CollaboTICS）の貢献度に応じて実行委員会が判断するポイントを入力します。': 'Enter the point value decided by the organizing committee according to your contribution to the CS Special Workshop (CollaboTICS).',
+    '全学プロジェクト、コンテスト、インターンシップ、国外活動などをまとめて扱えます。指導教員と相談の上で点数を決めてください。': 'Use this for university-wide projects, contests, internships, overseas activities, and similar work. Decide the point value with your supervisor.',
+    'TA コマ数（1コマ = 1.5 時間）': 'TA slots (1 slot = 1.5 hours)',
+    '1 コマあたり 4 ポイントで計算します。': 'Calculated as 4 points per TA slot.',
+    '試験種別': 'Exam type',
+    'スコア': 'Score',
+    'TOEIC / TOEFL は国際性（J, K 列）のみに配点します。40 / 60 / 80 / 100 点へ離散化します。': 'TOEIC / TOEFL points are allocated only to Internationality (columns J and K). Scores are discretized into 40 / 60 / 80 / 100 points.',
+    '固定項目': 'Fixed item',
+    '総点': 'Total points',
+    '総点を決めてから、18 観点へ手動で配点できます。': 'Decide the total points first, then allocate them manually across the 18 items.',
+    '最も高い実績に応じて 600 点を採用します。複数件あっても合計にはなりません。': 'The highest applicable achievement point is used. Multiple items are not summed.',
+    '研究室に関係する活動として自由配点できます。': 'You can allocate these points freely as a laboratory-related activity.',
+    '貢献度に応じて 1〜500 点を自由配点できます。': 'You can allocate 1 to 500 points freely according to the level of contribution.',
+    '外部活動の実態に応じて自由配点できます。': 'You can allocate points freely according to the actual external activity.',
+    '総点を決めた上で 18 観点へ自由配点できます。': 'After deciding the total points, you can allocate them freely across the 18 items.',
+    '入力してください。': 'Please enter the values.'
+  });
+  Object.assign(EXACT_TEXT_MAP_20260409.ja, {
+    'First author / Peer-reviewed journal count': '筆頭著者 / 査読有り論文誌 本数',
+    'First author / Peer-reviewed international conference with presentation count': '筆頭著者 / 査読有り国際会議かつ発表 本数',
+    'First author / Other papers or presentations count': '筆頭著者 / それ以外の論文・発表 本数',
+    'Non-first author / Peer-reviewed journal count': '非筆頭 / 査読有り論文誌 本数',
+    'Non-first author / Peer-reviewed international conference with presentation count': '非筆頭 / 査読有り国際会議かつ発表 本数',
+    'Non-first author / Other papers or presentations count': '非筆頭 / それ以外の論文・発表 本数',
+    'Even if there are multiple papers or presentations, only the highest applicable point value is used; the values are not summed.': '筆頭論文・非筆頭論文を含めて複数本ある場合でも、合計ではなく最も高いポイントだけを採用します。',
+    'Contribution ratio (%)': '貢献率（%）',
+    'Patents are calculated as 300 × contribution ratio. Example: 50% gives 150 points.': '特許は 300 × 貢献率で計算します。例: 50% なら 150 点です。',
+    'Allocated points (guide: 0-300)': '配分点（目安: 0〜300）',
+    'Allocate points for activities related to your laboratory. Please consult your supervisor based on the actual activity.': '研究室に関係する活動に対して配分します。実態に合わせて指導教員と相談してください。',
+    'Allocated points (1-500)': '配分点（1〜500）',
+    'Enter the point value decided by the organizing committee according to your contribution to the CS Special Workshop (CollaboTICS).': 'CSスペシャルワークショップ（CollaboTICS）の貢献度に応じて実行委員会が判断するポイントを入力します。',
+    'Use this for university-wide projects, contests, internships, overseas activities, and similar work. Decide the point value with your supervisor.': '全学プロジェクト、コンテスト、インターンシップ、国外活動などをまとめて扱えます。指導教員と相談の上で点数を決めてください。',
+    'TA slots (1 slot = 1.5 hours)': 'TA コマ数（1コマ = 1.5 時間）',
+    'Calculated as 4 points per TA slot.': '1 コマあたり 4 ポイントで計算します。',
+    'Exam type': '試験種別',
+    'Score': 'スコア',
+    'TOEIC / TOEFL points are allocated only to Internationality (columns J and K). Scores are discretized into 40 / 60 / 80 / 100 points.': 'TOEIC / TOEFL は国際性（J, K 列）のみに配点します。40 / 60 / 80 / 100 点へ離散化します。',
+    'Fixed item': '固定項目',
+    'Total points': '総点',
+    'Decide the total points first, then allocate them manually across the 18 items.': '総点を決めてから、18 観点へ手動で配点できます。',
+    'You can allocate these points freely as a laboratory-related activity.': '研究室に関係する活動として自由配点できます。',
+    'You can allocate 1 to 500 points freely according to the level of contribution.': '貢献度に応じて 1〜500 点を自由配点できます。',
+    'You can allocate points freely according to the actual external activity.': '外部活動の実態に応じて自由配点できます。',
+    'After deciding the total points, you can allocate them freely across the 18 items.': '総点を決めた上で 18 観点へ自由配点できます。',
+    'Please enter the values.': '入力してください。'
+  });
+  DYNAMIC_PATTERNS_20260409.push(
+    { ja: /^最も高い実績に応じて\s*(\d+)\s*点を採用します。複数件あっても合計にはなりません。$/, en: 'The highest applicable achievement gives $1 points. Multiple items are not summed.', jaOut: '最も高い実績に応じて $1 点を採用します。複数件あっても合計にはなりません。' },
+    { ja: /^300 × 貢献率で計算し、現在は\s*(\d+)\s*点です。$/, en: 'Calculated as 300 × contribution ratio. The current total is $1 points.', jaOut: '300 × 貢献率で計算し、現在は $1 点です。' },
+    { ja: /^TA\s*(\d+)\s*コマ × 4 点 =\s*(\d+)\s*点です。$/, en: 'TA $1 slots × 4 points = $2 points.', jaOut: 'TA $1 コマ × 4 点 = $2 点です。' },
+    { ja: /^([A-Z]+)\s*(\d+)\s*点を\s*(\d+)\s*点へ離散化し、国際性（J, K 列）にのみ配点します。$/, en: '$1 $2 is discretized to $3 points and allocated only to Internationality (columns J and K).', jaOut: '$1 $2 点を $3 点へ離散化し、国際性（J, K 列）にのみ配点します。' }
+  );
+})();
