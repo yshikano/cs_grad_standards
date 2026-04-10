@@ -8995,3 +8995,728 @@ window.addEventListener('load', initLanguageButtonPatch20260410);
     { ja: /^([A-Z]+)\s*(\d+)\s*点を\s*(\d+)\s*点へ離散化し、国際性（J, K 列）にのみ配点します。$/, en: '$1 $2 is discretized to $3 points and allocated only to Internationality (columns J and K).', jaOut: '$1 $2 点を $3 点へ離散化し、国際性（J, K 列）にのみ配点します。' }
   );
 })();
+
+/* === 2026-04-10 final direct bilingual rendering patch === */
+(function(){
+  function uiLang20260410FinalPatch(){
+    try {
+      if (typeof getUiLang20260409 === 'function') {
+        return getUiLang20260409() === 'en' ? 'en' : 'ja';
+      }
+    } catch (error) {
+      console.warn(error);
+    }
+    return (state && state.uiLang === 'en') ? 'en' : 'ja';
+  }
+
+  function uiRes20260410FinalPatch(){
+    const lang = uiLang20260410FinalPatch();
+    if (typeof I18N_RES_20260409 === 'object' && I18N_RES_20260409 && I18N_RES_20260409[lang]) {
+      return I18N_RES_20260409[lang];
+    }
+    return {
+      mode: {
+        plan: { label: lang === 'en' ? 'Planning' : '履修計画', description: lang === 'en' ? 'This mode is for planning on the UI only. Nothing is written to Excel.' : 'UI 上で履修計画を検討するモードです。Excel への書き込みは行いません。', sheetLabel: lang === 'en' ? 'Planning' : '履修計画' },
+        midterm: { label: lang === 'en' ? 'M Mid-term evaluation' : 'M中間評価', description: lang === 'en' ? 'Operational mode for the M Mid-term evaluation sheet.' : 'M中間評価シートを対象にした実運用モードです。', sheetLabel: lang === 'en' ? 'M Mid-term evaluation' : 'M中間評価' },
+        final: { label: lang === 'en' ? 'M Final evaluation' : 'M最終評価', description: lang === 'en' ? 'Operational mode for the M Final evaluation sheet. You can initialize it from the mid-term draft.' : 'M最終評価シートを対象にした実運用モードです。中間評価の内容を初期値にできます。', sheetLabel: lang === 'en' ? 'M Final evaluation' : 'M最終評価' }
+      },
+      rowLabels: lang === 'en'
+        ? {
+            11: 'Row 11: Research in Computer Science A',
+            12: 'Row 12: Research in Computer Science B',
+            13: 'Row 13: Research in Computer Science C',
+            14: 'Row 14: Research in Computer Science D'
+          }
+        : {
+            11: '11行: 情報理工前期特別研究A',
+            12: '12行: 情報理工前期特別研究B',
+            13: '13行: 情報理工前期特別研究C',
+            14: '14行: 情報理工前期特別研究D'
+          },
+      extraTypeLabels: lang === 'en'
+        ? {
+            paper: 'Paper / presentation',
+            patent: 'Patent',
+            labwg: 'Lab WG',
+            collabotics: 'CS Special Workshop',
+            outsideProgram: 'Extra-program activity',
+            ta: 'TA',
+            language: 'TOEIC / TOEFL',
+            fixed: 'Fixed item',
+            custom: 'Other (manual)'
+          }
+        : {
+            paper: '論文・発表',
+            patent: '特許',
+            labwg: '研究室WG',
+            collabotics: 'CSスペシャルワークショップ',
+            outsideProgram: '学位プログラム外活動',
+            ta: 'TA',
+            language: 'TOEIC / TOEFL',
+            fixed: '固定項目',
+            custom: 'その他（自由入力）'
+          },
+      fixedExtra: (typeof I18N_RES_20260409 === 'object' && I18N_RES_20260409 && I18N_RES_20260409[lang] && I18N_RES_20260409[lang].fixedExtra) ? I18N_RES_20260409[lang].fixedExtra : {},
+      columnLabels: (typeof I18N_RES_20260409 === 'object' && I18N_RES_20260409 && I18N_RES_20260409[lang] && I18N_RES_20260409[lang].columnLabels) ? I18N_RES_20260409[lang].columnLabels : COLUMN_LABELS
+    };
+  }
+
+  function tr20260410FinalPatch(text){
+    if (typeof translateDynamicText20260409 === 'function') {
+      return translateDynamicText20260409(text);
+    }
+    return text;
+  }
+
+  function modeLabel20260410FinalPatch(mode){
+    return uiRes20260410FinalPatch().mode?.[mode]?.label || MODE_CONFIG?.[mode]?.label || String(mode || '');
+  }
+
+  function modeDescription20260410FinalPatch(mode){
+    return uiRes20260410FinalPatch().mode?.[mode]?.description || MODE_CONFIG?.[mode]?.description || '';
+  }
+
+  function modeSheetLabel20260410FinalPatch(mode){
+    return uiRes20260410FinalPatch().mode?.[mode]?.sheetLabel || modeLabel20260410FinalPatch(mode);
+  }
+
+  function rowLabel20260410FinalPatch(row){
+    const res = uiRes20260410FinalPatch();
+    return res.rowLabels?.[row] || (uiLang20260410FinalPatch() === 'en' ? `Row ${row}` : `${row}行`);
+  }
+
+  function localizedExtraTypeLabel20260410FinalPatch(type){
+    const res = uiRes20260410FinalPatch();
+    return res.extraTypeLabels?.[type] || EXTRA_TYPE_LABELS?.[type] || type || '';
+  }
+
+  function localizedFixedTemplateLabel20260410FinalPatch(key){
+    if (typeof getFixedTemplateLocalizedLabel20260409 === 'function') {
+      return getFixedTemplateLocalizedLabel20260409(key, uiLang20260410FinalPatch());
+    }
+    return FIXED_EXTRA_TEMPLATES?.[key]?.label || key || '';
+  }
+
+  function courseSearchStaticLabels20260410FinalPatch(){
+    const lang = uiLang20260410FinalPatch();
+    return lang === 'en'
+      ? {
+          eyebrow: 'Unofficial Tsukuba Achievement Helper',
+          title1: 'University of Tsukuba Achievement Evaluation Sheet Input / Review Support (Unofficial)',
+          title2: 'for the Master\'s Program in Computer Science',
+          searchTitle: 'Course search',
+          searchLead: 'Search by course code, Japanese title, or English title. Regular courses are placed from row 15 onward; Research in Computer Science A–D are fixed in rows 11–14.'
+        }
+      : {
+          eyebrow: 'Unofficial Tsukuba Achievement Helper',
+          title1: '筑波大学達成度評価シート入力・確認支援（非公式）',
+          title2: '情報理工学位プログラム（博士前期課程）用',
+          searchTitle: '授業検索',
+          searchLead: '科目番号・日本語名・英語名で検索します。通常科目は 15 行目以降、情報理工前期特別研究 A〜D は 11〜14 行の固定欄です。'
+        };
+  }
+
+  function refreshHeaderTexts20260410FinalPatch(){
+    const labels = courseSearchStaticLabels20260410FinalPatch();
+    const eyebrow = document.getElementById('brandEyebrow');
+    if (eyebrow) eyebrow.textContent = labels.eyebrow;
+    const appTitle = document.getElementById('appTitle');
+    if (appTitle) {
+      appTitle.innerHTML = `\n        <span class="app-title__line" data-title-line="1">${escapeHtml(labels.title1)}</span>\n        <span class="app-title__line" data-title-line="2">${escapeHtml(labels.title2)}</span>\n      `;
+    }
+    const searchPanelTitle = document.getElementById('searchPanelTitle');
+    if (searchPanelTitle) searchPanelTitle.textContent = labels.searchTitle;
+    const searchLead = document.querySelector('[data-workspace-panel="search"] .section-heading p');
+    if (searchLead) searchLead.textContent = labels.searchLead;
+  }
+
+  function refreshSearchSideSwitcherLabels20260410FinalPatch(){
+    const host = document.getElementById('searchSideSwitcher');
+    if (!host) return;
+    const lang = uiLang20260410FinalPatch();
+    const labels = lang === 'en'
+      ? { editor: 'Point editor', timetable: 'Timetable' }
+      : { editor: '配点編集', timetable: '時間割' };
+    host.querySelectorAll('[data-search-side-view]').forEach(button => {
+      const key = button.dataset.searchSideView;
+      if (labels[key]) button.textContent = labels[key];
+    });
+  }
+
+  const originalApplyStaticUiText20260409FinalPatch = typeof applyStaticUiText20260409 === 'function' ? applyStaticUiText20260409 : null;
+  if (originalApplyStaticUiText20260409FinalPatch && !originalApplyStaticUiText20260409FinalPatch.__finalDirectPatch) {
+    applyStaticUiText20260409 = function applyStaticUiText20260410FinalPatched() {
+      originalApplyStaticUiText20260409FinalPatch();
+      refreshHeaderTexts20260410FinalPatch();
+      refreshSearchSideSwitcherLabels20260410FinalPatch();
+    };
+    applyStaticUiText20260409.__finalDirectPatch = true;
+  }
+
+  renderModeSwitch = function renderModeSwitch20260410FinalPatched() {
+    if (!els.modeSwitch) return;
+    els.modeSwitch.innerHTML = '';
+    MODE_KEYS.forEach(mode => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = `mode-switch__button${state.currentMode === mode ? ' is-active' : ''}`;
+      button.textContent = modeLabel20260410FinalPatch(mode);
+      button.addEventListener('click', () => setMode(mode));
+      els.modeSwitch.appendChild(button);
+    });
+  };
+
+  renderModeInfo = function renderModeInfo20260410FinalPatched() {
+    const lang = uiLang20260410FinalPatch();
+    const config = MODE_CONFIG[state.currentMode];
+    const label = modeLabel20260410FinalPatch(state.currentMode);
+    const description = modeDescription20260410FinalPatch(state.currentMode);
+    const sheetName = getSheetNameForMode(state.currentMode);
+
+    if (els.seedFinalBtn) {
+      els.seedFinalBtn.textContent = lang === 'en'
+        ? 'Initialize final evaluation from mid-term draft'
+        : '中間評価の内容で最終評価を初期化';
+    }
+    if (els.planAddBtn) {
+      els.planAddBtn.textContent = lang === 'en'
+        ? `Add / update course in ${label}`
+        : `${label}の授業科目へ追加 / 更新`;
+    }
+    if (els.extraAddBtn) {
+      els.extraAddBtn.textContent = lang === 'en'
+        ? `Add / update non-class item in ${label}`
+        : `${label}の授業科目以外へ追加 / 更新`;
+    }
+    if (els.applyPlanBtn) {
+      els.applyPlanBtn.textContent = config.canWrite
+        ? (lang === 'en' ? `Apply ${label} to Excel` : `${label}を Excel に一括反映`)
+        : (lang === 'en' ? 'Planning mode does not write to Excel' : '履修計画モードでは Excel に書き込みません');
+    }
+    if (els.downloadBtn) {
+      els.downloadBtn.textContent = lang === 'en' ? 'Download updated Excel' : '更新した Excel をダウンロード';
+    }
+    if (els.reloadPlanBtn) {
+      els.reloadPlanBtn.textContent = lang === 'en' ? 'Reload from Excel' : 'Excel から再読込';
+    }
+    if (els.clearPlanBtn) {
+      els.clearPlanBtn.textContent = lang === 'en' ? 'Clear current mode draft' : '現在のモードのドラフトをクリア';
+    }
+
+    if (!els.modeInfo) return;
+
+    if (state.currentMode === 'plan') {
+      els.modeInfo.textContent = lang === 'en'
+        ? 'Planning mode. Nothing is written to Excel.'
+        : description;
+      els.modeInfo.className = 'status status--muted';
+      return;
+    }
+
+    if (!state.workbook) {
+      els.modeInfo.textContent = lang === 'en'
+        ? `${description} Load an Excel workbook to import the ${modeSheetLabel20260410FinalPatch(state.currentMode)} sheet into the draft.`
+        : `${description} Excel を読み込むと ${label} シートの内容をドラフトへ取り込みます。`;
+      els.modeInfo.className = 'status status--muted';
+      return;
+    }
+
+    const currentDraft = getDraft(state.currentMode);
+    const synced = isModeDraftSyncedWithWorkbook(state.currentMode);
+    const syncLabel = lang === 'en' ? (synced ? 'Synced' : 'Not yet applied') : (synced ? '同期済み' : '未反映');
+    let text = lang === 'en'
+      ? `${description} Target sheet: ${sheetName || 'Not detected'} / ${syncLabel}`
+      : `${description} 対象シート: ${sheetName || '未検出'} / ${syncLabel}`;
+    if (state.currentMode === 'final' && currentDraft.seededFromMidterm) {
+      text += lang === 'en'
+        ? ' / The mid-term draft is being used as the initial value.'
+        : ' / 中間評価ドラフトを初期値として使っています。';
+    }
+    els.modeInfo.textContent = text;
+    els.modeInfo.className = `status ${synced ? 'status--ok' : 'status--pending'}`;
+  };
+
+  const originalSetWorkbookStatus20260410FinalPatch = typeof setWorkbookStatus === 'function' ? setWorkbookStatus : null;
+  if (originalSetWorkbookStatus20260410FinalPatch && !originalSetWorkbookStatus20260410FinalPatch.__directBilingualPatch) {
+    setWorkbookStatus = function setWorkbookStatus20260410FinalPatched(message, kind = 'muted') {
+      const translated = typeof message === 'string' ? tr20260410FinalPatch(message) : message;
+      return originalSetWorkbookStatus20260410FinalPatch(translated, kind);
+    };
+    setWorkbookStatus.__directBilingualPatch = true;
+  }
+
+  renderFixedCourseButtons = function renderFixedCourseButtons20260410FinalPatched() {
+    if (!els.fixedCourseButtons) return;
+    els.fixedCourseButtons.innerHTML = '';
+    getSpecialResearchRowMap().forEach(item => {
+      const matched = findCourseByNameOrAlias(item.ja)
+        || findCourseByNameOrAlias(item.en)
+        || state.courses.find(course => item.codes.includes(String(course.code || '').trim().toUpperCase()));
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'button button--small';
+      button.dataset.row = String(item.row);
+      button.textContent = rowLabel20260410FinalPatch(item.row);
+      button.addEventListener('click', () => {
+        const course = matched || {
+          code: item.codes[0],
+          nameJa: item.ja,
+          nameEn: item.en,
+          credits: 3,
+          total: 300,
+          points18: clonePoints18(ZERO_18),
+          aliases: [item.ja, item.en],
+          equivalentCodes: item.codes.slice(),
+          sourceKind: 'manual'
+        };
+        selectCourse(course);
+      });
+      els.fixedCourseButtons.appendChild(button);
+    });
+  };
+
+  getRowLabel = function getRowLabel20260410FinalPatched(row) {
+    const lang = uiLang20260410FinalPatch();
+    const numericRow = Number(row);
+    const prefix = lang === 'en' ? `Row ${numericRow}: ` : `${numericRow}行: `;
+    const planned = normalizeCourseRowsForFixedLayout(getCurrentDraft().courseRows)[numericRow];
+    if (planned) {
+      return `${prefix}${displayCourseName(planned)}`;
+    }
+
+    const fixedInfo = getSpecialResearchRowMap().find(item => item.row === numericRow);
+    if (fixedInfo) {
+      return rowLabel20260410FinalPatch(numericRow);
+    }
+
+    const sheetName = getSheetNameForMode(state.currentMode);
+    if (state.workbook && sheetName) {
+      try {
+        const sheet = state.workbook.sheet(sheetName);
+        const layout = detectSheetLayout(sheet);
+        if (numericRow <= layout.courseEndRow) {
+          const courseName = String(sheet.cell(`A${numericRow}`).value() || '').trim();
+          const points18 = COLUMN_LETTERS.map(letter => asInt(sheet.cell(`${letter}${numericRow}`).value()));
+          if (courseName || points18.some(value => value > 0)) {
+            return `${prefix}${courseName || (lang === 'en' ? 'Filled course' : '入力済み科目')}`;
+          }
+        }
+      } catch (error) {
+        console.warn(error);
+      }
+    }
+    return `${prefix}${lang === 'en' ? 'Empty' : '空き行'}`;
+  };
+
+  const originalInstallSearchSideViewTabs20260410FinalPatch = typeof installSearchSideViewTabs20260408 === 'function' ? installSearchSideViewTabs20260408 : null;
+  if (originalInstallSearchSideViewTabs20260410FinalPatch && !originalInstallSearchSideViewTabs20260410FinalPatch.__directBilingualPatch) {
+    installSearchSideViewTabs20260408 = function installSearchSideViewTabs20260410FinalPatched() {
+      originalInstallSearchSideViewTabs20260410FinalPatch();
+      refreshSearchSideSwitcherLabels20260410FinalPatch();
+    };
+    installSearchSideViewTabs20260408.__directBilingualPatch = true;
+  }
+
+  renderExtraTypeOptions = function renderExtraTypeOptions20260410FinalPatched() {
+    if (!els.extraType) return;
+    els.extraType.innerHTML = EXTRA_TYPE_OPTIONS.map(option => `<option value="${escapeHtml(option.key)}">${escapeHtml(localizedExtraTypeLabel20260410FinalPatch(option.key))}</option>`).join('');
+    els.extraType.value = state.extraForm.type;
+  };
+
+  renderFixedExtraButtons = function renderFixedExtraButtons20260410FinalPatched() {
+    if (!els.fixedExtraButtons) return;
+    els.fixedExtraButtons.innerHTML = '';
+    Object.values(FIXED_EXTRA_TEMPLATES).forEach(template => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'button button--small';
+      button.dataset.key = template.key;
+      button.textContent = localizedFixedTemplateLabel20260410FinalPatch(template.key);
+      button.addEventListener('click', () => {
+        clearExtraForm();
+        state.extraForm.type = 'fixed';
+        state.extraForm.fixedKey = template.key;
+        if (els.extraType) els.extraType.value = 'fixed';
+        renderExtraDynamicFields();
+        recomputeExtraPreview();
+      });
+      els.fixedExtraButtons.appendChild(button);
+    });
+  };
+
+  const originalGetExtraDescriptor20260410FinalPatch = typeof getExtraDescriptor === 'function' ? getExtraDescriptor : null;
+  if (originalGetExtraDescriptor20260410FinalPatch && !originalGetExtraDescriptor20260410FinalPatch.__directBilingualPatch) {
+    getExtraDescriptor = function getExtraDescriptor20260410FinalPatched() {
+      const descriptor = originalGetExtraDescriptor20260410FinalPatch();
+      const form = state.extraForm || createDefaultExtraForm();
+      const hasCustomLabel = Boolean(String(form.label || '').trim());
+      if (!hasCustomLabel) {
+        if (form.type === 'fixed' && form.fixedKey) {
+          descriptor.name = localizedFixedTemplateLabel20260410FinalPatch(form.fixedKey);
+        } else if (form.type === 'custom') {
+          descriptor.name = uiLang20260410FinalPatch() === 'en' ? 'Other' : 'その他';
+        } else {
+          descriptor.name = localizedExtraTypeLabel20260410FinalPatch(form.type);
+        }
+      }
+      if (typeof descriptor.message === 'string') {
+        descriptor.message = tr20260410FinalPatch(descriptor.message);
+      }
+      return descriptor;
+    };
+    getExtraDescriptor.__directBilingualPatch = true;
+  }
+
+  renderExtraDynamicFields = function renderExtraDynamicFields20260410FinalPatched() {
+    const form = state.extraForm;
+    if (els.extraLabel) els.extraLabel.value = form.label || '';
+    if (els.extraNote) els.extraNote.value = form.note || '';
+    if (els.extraSplitMode) els.extraSplitMode.value = form.splitMode || 'smart';
+    if (els.extraType) els.extraType.value = form.type;
+
+    const t = tr20260410FinalPatch;
+    const fixedNote = FIXED_EXTRA_TEMPLATES[form.fixedKey]?.note || '';
+    let html = '';
+    switch (form.type) {
+      case 'paper':
+        html = `
+          <div class="dynamic-fields__group">
+            <div class="dynamic-fields__grid">
+              ${renderLabeledNumberField('paper-first-journal', t('筆頭著者 / 査読有り論文誌 本数'), form.paperCounts.firstJournal)}
+              ${renderLabeledNumberField('paper-first-intl', t('筆頭著者 / 査読有り国際会議かつ発表 本数'), form.paperCounts.firstIntl)}
+              ${renderLabeledNumberField('paper-first-other', t('筆頭著者 / それ以外の論文・発表 本数'), form.paperCounts.firstOther)}
+              ${renderLabeledNumberField('paper-nonfirst-journal', t('非筆頭 / 査読有り論文誌 本数'), form.paperCounts.nonFirstJournal)}
+              ${renderLabeledNumberField('paper-nonfirst-intl', t('非筆頭 / 査読有り国際会議かつ発表 本数'), form.paperCounts.nonFirstIntl)}
+              ${renderLabeledNumberField('paper-nonfirst-other', t('非筆頭 / それ以外の論文・発表 本数'), form.paperCounts.nonFirstOther)}
+            </div>
+            <div class="help-box">${escapeHtml(t('筆頭論文・非筆頭論文を含めて複数本ある場合でも、合計ではなく最も高いポイントだけを採用します。'))}</div>
+          </div>
+        `;
+        break;
+      case 'patent':
+        html = `
+          ${renderLabeledNumberField('patent-contribution', t('貢献率（%）'), form.patentContribution, { min: 0, max: 100, step: 1 })}
+          <div class="help-box">${escapeHtml(t('特許は 300 × 貢献率で計算します。例: 50% なら 150 点です。'))}</div>
+        `;
+        break;
+      case 'labwg':
+        html = `
+          ${renderLabeledNumberField('labwg-points', t('配分点（目安: 0〜300）'), form.labwgPoints, { min: 0, max: 300, step: 1 })}
+          <div class="help-box">${escapeHtml(t('研究室に関係する活動に対して配分します。実態に合わせて指導教員と相談してください。'))}</div>
+        `;
+        break;
+      case 'collabotics':
+        html = `
+          ${renderLabeledNumberField('collabotics-points', t('配分点（1〜500）'), form.collaboticsPoints, { min: 0, max: 500, step: 1 })}
+          <div class="help-box">${escapeHtml(t('CSスペシャルワークショップ（CollaboTICS）の貢献度に応じて実行委員会が判断するポイントを入力します。'))}</div>
+        `;
+        break;
+      case 'outsideProgram':
+        html = `
+          ${renderLabeledNumberField('outsideprogram-points', t('配分点（目安: 0〜300）'), form.outsideProgramPoints, { min: 0, step: 1 })}
+          <div class="help-box">${escapeHtml(t('全学プロジェクト、コンテスト、インターンシップ、国外活動などをまとめて扱えます。指導教員と相談の上で点数を決めてください。'))}</div>
+        `;
+        break;
+      case 'ta':
+        html = `
+          ${renderLabeledNumberField('ta-slots', t('TA コマ数（1コマ = 1.5 時間）'), form.taSlots, { min: 0, step: 1 })}
+          <div class="help-box">${escapeHtml(t('1 コマあたり 4 ポイントで計算します。'))}</div>
+        `;
+        break;
+      case 'language':
+        html = `
+          <label>
+            <span>${escapeHtml(t('試験種別'))}</span>
+            <select id="language-kind">
+              <option value="toeic" ${form.languageKind === 'toeic' ? 'selected' : ''}>TOEIC</option>
+              <option value="toefl" ${form.languageKind === 'toefl' ? 'selected' : ''}>TOEFL</option>
+            </select>
+          </label>
+          ${renderLabeledNumberField('language-score', t('スコア'), form.languageScore, { min: 0, step: 1 })}
+          <div class="help-box">${escapeHtml(t('TOEIC / TOEFL は国際性（J, K 列）のみに配点します。40 / 60 / 80 / 100 点へ離散化します。'))}</div>
+        `;
+        break;
+      case 'fixed':
+        html = `
+          <label>
+            <span>${escapeHtml(t('固定項目'))}</span>
+            <select id="fixed-key">
+              ${Object.values(FIXED_EXTRA_TEMPLATES).map(template => `<option value="${escapeHtml(template.key)}" ${template.key === form.fixedKey ? 'selected' : ''}>${escapeHtml(localizedFixedTemplateLabel20260410FinalPatch(template.key))}</option>`).join('')}
+            </select>
+          </label>
+          <div class="help-box">${escapeHtml(tr20260410FinalPatch(fixedNote))}</div>
+        `;
+        break;
+      case 'custom':
+        html = `
+          ${renderLabeledNumberField('custom-total', t('総点'), form.customTotal, { min: 0, step: 1 })}
+          <div class="help-box">${escapeHtml(t('総点を決めてから、18 観点へ手動で配点できます。'))}</div>
+        `;
+        break;
+      default:
+        html = '';
+        break;
+    }
+    if (els.extraDynamicFields) els.extraDynamicFields.innerHTML = html;
+    wireExtraDynamicFieldEvents();
+  };
+
+  renderPreviewGrid = function renderPreviewGrid20260410FinalPatched() {
+    if (!els.previewGrid) return;
+    const labels = uiRes20260410FinalPatch().columnLabels || COLUMN_LABELS;
+    els.previewGrid.innerHTML = '';
+    labels.forEach((label, index) => {
+      const wrapper = document.createElement('label');
+      wrapper.className = 'preview-cell';
+      wrapper.innerHTML = `
+        <span class="preview-cell__label">${COLUMN_LETTERS[index]} / ${escapeHtml(label)}</span>
+        <input type="number" min="0" step="1" value="0">
+      `;
+      const input = wrapper.querySelector('input');
+      input.addEventListener('input', () => {
+        state.previewPoints18[index] = asInt(input.value);
+        updatePreviewTotal();
+      });
+      els.previewGrid.appendChild(wrapper);
+    });
+    updatePreviewInputs();
+  };
+
+  updatePreviewTotal = function updatePreviewTotal20260410FinalPatched() {
+    if (!els.previewTotal) return;
+    const lang = uiLang20260410FinalPatch();
+    const previewTotal = sumPoints18(state.previewPoints18);
+    const sourceTotal = state.selectedCourse ? resolveCourseTotal(state.selectedCourse) : 0;
+    const diff = previewTotal - sourceTotal;
+    const suffix = diff === 0 ? '' : (lang === 'en' ? ` / Difference from source ${formatSigned(diff)}` : ` / 元データとの差 ${formatSigned(diff)}`);
+    els.previewTotal.textContent = lang === 'en'
+      ? `Total ${previewTotal} points${suffix}`
+      : `合計 ${previewTotal} 点${suffix}`;
+  };
+
+  renderExtraPreviewGrid = function renderExtraPreviewGrid20260410FinalPatched() {
+    if (!els.extraPreviewGrid) return;
+    const labels = uiRes20260410FinalPatch().columnLabels || COLUMN_LABELS;
+    els.extraPreviewGrid.innerHTML = '';
+    labels.forEach((label, index) => {
+      const wrapper = document.createElement('label');
+      wrapper.className = 'preview-cell';
+      wrapper.innerHTML = `
+        <span class="preview-cell__label">${COLUMN_LETTERS[index]} / ${escapeHtml(label)}</span>
+        <input type="number" min="0" step="1" value="0">
+      `;
+      const input = wrapper.querySelector('input');
+      input.addEventListener('input', () => {
+        state.extraForm.points18[index] = asInt(input.value);
+        updateExtraPreviewTotal();
+        updateExtraMeta();
+      });
+      els.extraPreviewGrid.appendChild(wrapper);
+    });
+    recomputeExtraPreview();
+  };
+
+  updateExtraPreviewTotal = function updateExtraPreviewTotal20260410FinalPatched() {
+    if (!els.extraPreviewTotal) return;
+    const lang = uiLang20260410FinalPatch();
+    const previewTotal = sumPoints18(state.extraForm.points18);
+    const descriptor = getExtraDescriptor();
+    const diff = previewTotal - descriptor.total;
+    const suffix = diff === 0 ? '' : (lang === 'en' ? ` / Difference from target ${formatSigned(diff)}` : ` / 目標との差 ${formatSigned(diff)}`);
+    els.extraPreviewTotal.textContent = lang === 'en'
+      ? `Total ${previewTotal} points${suffix}`
+      : `合計 ${previewTotal} 点${suffix}`;
+  };
+
+  updateExtraMeta = function updateExtraMeta20260410FinalPatched() {
+    if (!els.extraMeta) return;
+    const lang = uiLang20260410FinalPatch();
+    const descriptor = getExtraDescriptor();
+    const previewTotal = sumPoints18(state.extraForm.points18);
+    let kind = 'muted';
+    let message = descriptor.message;
+
+    if (descriptor.total <= 0) {
+      kind = 'warn';
+      message = lang === 'en'
+        ? `${descriptor.message} The current total is 0 points.`
+        : `${descriptor.message} 現在の総点は 0 点です。`;
+    } else if (previewTotal === descriptor.total) {
+      kind = 'ok';
+    } else {
+      kind = 'pending';
+      message = lang === 'en'
+        ? `${descriptor.message} The current input total ${previewTotal} points will be normalized to ${descriptor.total} points when saved.`
+        : `${descriptor.message} 入力合計 ${previewTotal} 点を保存時に ${descriptor.total} 点へ正規化します。`;
+    }
+
+    if (state.extraForm.editingId) {
+      message = lang === 'en' ? `Editing: ${message}` : `編集中: ${message}`;
+    }
+
+    els.extraMeta.textContent = message;
+    els.extraMeta.className = `status status--${kind}`;
+  };
+
+  renderExtraList = function renderExtraList20260410FinalPatched() {
+    if (!els.extraList) return;
+    const lang = uiLang20260410FinalPatch();
+    const items = getCurrentDraft().extraItems || [];
+
+    if (!items.length) {
+      els.extraList.innerHTML = `<div class="status status--muted">${escapeHtml(lang === 'en' ? 'No non-class activities yet. Add them from the form above.' : 'まだ授業科目以外はありません。上のフォームから追加してください。')}</div>`;
+      return;
+    }
+
+    const displayNameForItem = (item) => {
+      const formLabel = String(item?.formSnapshot?.label || '').trim();
+      if (formLabel) return formLabel;
+      if (item.type === 'fixed' && item?.formSnapshot?.fixedKey) {
+        return localizedFixedTemplateLabel20260410FinalPatch(item.formSnapshot.fixedKey);
+      }
+      if (item.type === 'custom') {
+        return lang === 'en' ? 'Other' : 'その他';
+      }
+      return localizedExtraTypeLabel20260410FinalPatch(item.type) || item.name || '';
+    };
+
+    els.extraList.innerHTML = items.map(item => {
+      const tags = [
+        chip(localizedExtraTypeLabel20260410FinalPatch(item.type) || (lang === 'en' ? 'Non-class activity' : '授業科目以外')),
+        chip(lang === 'en' ? `${item.total} points` : `${item.total} 点`),
+        item.note ? chip(item.note) : ''
+      ].join('');
+
+      return `
+        <article class="plan-card">
+          <div class="plan-card__top">
+            <div>
+              <div class="plan-card__row">${escapeHtml(lang === 'en' ? 'Non-class activity' : '授業科目以外')}</div>
+              <h3>${escapeHtml(displayNameForItem(item))}</h3>
+              <p>${escapeHtml(item.note || '')}</p>
+              <div class="plan-card__meta">${tags}</div>
+            </div>
+            <div class="plan-card__total">${escapeHtml(lang === 'en' ? `${item.total} points` : `${item.total} 点`)}</div>
+          </div>
+          <div class="actions-row actions-row--compact">
+            <button class="button button--small" type="button" data-action="edit-extra" data-id="${item.id}">${escapeHtml(lang === 'en' ? 'Edit' : '編集')}</button>
+            <button class="button button--small button--danger" type="button" data-action="remove-extra" data-id="${item.id}">${escapeHtml(lang === 'en' ? 'Remove' : '削除')}</button>
+          </div>
+        </article>
+      `;
+    }).join('');
+
+    els.extraList.querySelectorAll('button[data-action="edit-extra"]').forEach(button => {
+      button.addEventListener('click', () => editExtraItem(Number(button.dataset.id)));
+    });
+    els.extraList.querySelectorAll('button[data-action="remove-extra"]').forEach(button => {
+      button.addEventListener('click', () => removeExtraItem(Number(button.dataset.id)));
+    });
+  };
+
+  renderSyncStatus = function renderSyncStatus20260410FinalPatched() {
+    if (!els.syncStatus) return;
+    const lang = uiLang20260410FinalPatch();
+    const label = modeLabel20260410FinalPatch(state.currentMode);
+
+    if (state.currentMode === 'plan') {
+      els.syncStatus.innerHTML = lang === 'en'
+        ? '<span class="badge">Planning</span><span class="muted"> This mode is for UI-side planning only. Nothing is written to Excel.</span>'
+        : '<span class="badge">履修計画</span><span class="muted"> このモードは UI 上の検討用です。Excel への書き込みは行いません。</span>';
+      return;
+    }
+    if (!state.workbook) {
+      els.syncStatus.innerHTML = lang === 'en'
+        ? '<span class="badge">Excel not loaded</span><span class="muted"> No Excel workbook has been loaded as the apply target yet.</span>'
+        : '<span class="badge">Excel 未読込</span><span class="muted"> まだ一括反映先の Excel がありません。</span>';
+      return;
+    }
+    if (isModeDraftSyncedWithWorkbook(state.currentMode)) {
+      els.syncStatus.innerHTML = lang === 'en'
+        ? `<span class="badge badge--ok">Synced</span><span class="muted"> The ${escapeHtml(label)} draft matches the Excel sheet.</span>`
+        : `<span class="badge badge--ok">同期済み</span><span class="muted"> ${escapeHtml(label)} のドラフトと Excel シートが一致しています。</span>`;
+      return;
+    }
+    els.syncStatus.innerHTML = lang === 'en'
+      ? `<span class="badge badge--pending">Not yet applied</span><span class="muted"> The ${escapeHtml(label)} draft has unapplied changes. Apply it to Excel at the end.</span>`
+      : `<span class="badge badge--pending">未反映</span><span class="muted"> ${escapeHtml(label)} のドラフトに未反映の変更があります。最後に一括反映してください。</span>`;
+  };
+
+  renderTotalsTable = function renderTotalsTable20260410FinalPatched() {
+    if (!els.totalsBody || !els.totalsFoot) return;
+    const lang = uiLang20260410FinalPatch();
+    const labels = uiRes20260410FinalPatch().columnLabels || COLUMN_LABELS;
+    const metrics = getMetrics(getCurrentDraft());
+
+    els.totalsBody.innerHTML = labels.map((label, index) => {
+      const required = REQUIRED_POINTS18[index];
+      const subtotal = metrics.subtotal18[index];
+      const extra = metrics.extra18[index];
+      const projected = metrics.projected18[index];
+      const diff = metrics.diff18[index];
+      const status = diff >= 0
+        ? `<span class="badge badge--ok">${escapeHtml(lang === 'en' ? 'OK' : 'OK')}</span>`
+        : `<span class="badge badge--warn">${escapeHtml(lang === 'en' ? `Short ${Math.abs(diff)}` : `不足 ${Math.abs(diff)}`)}</span>`;
+
+      return `
+        <tr>
+          <th>${escapeHtml(`${COLUMN_LETTERS[index]} / ${label}`)}</th>
+          <td class="num">${required}</td>
+          <td class="num">${subtotal}</td>
+          <td class="num">${extra}</td>
+          <td class="num">${projected}</td>
+          <td class="num ${diff >= 0 ? 'num--ok' : 'num--deficit'}">${formatSigned(diff)}</td>
+          <td>${status}</td>
+        </tr>
+      `;
+    }).join('');
+
+    els.totalsFoot.innerHTML = `
+      <tr>
+        <th>${escapeHtml(lang === 'en' ? 'Total' : '合計')}</th>
+        <td class="num">${REQUIRED_TOTAL}</td>
+        <td class="num">${metrics.subtotalTotal}</td>
+        <td class="num">${metrics.extraTotal}</td>
+        <td class="num">${metrics.projectedTotal}</td>
+        <td class="num ${metrics.diffTotal >= 0 ? 'num--ok' : 'num--deficit'}">${formatSigned(metrics.diffTotal)}</td>
+        <td>${metrics.diffTotal >= 0 ? `<span class="badge badge--ok">${escapeHtml(lang === 'en' ? 'Grand total OK' : '総点 OK')}</span>` : `<span class="badge badge--warn">${escapeHtml(lang === 'en' ? `Grand total short ${Math.abs(metrics.diffTotal)}` : `総点不足 ${Math.abs(metrics.diffTotal)}`)}</span>`}</td>
+      </tr>
+    `;
+  };
+
+  function refreshDirectBilingualUi20260410FinalPatch(){
+    try { refreshHeaderTexts20260410FinalPatch(); } catch (error) { console.warn(error); }
+    try { refreshSearchSideSwitcherLabels20260410FinalPatch(); } catch (error) { console.warn(error); }
+    try { if (typeof renderModeSwitch === 'function') renderModeSwitch(); } catch (error) { console.warn(error); }
+    try { if (typeof renderModeInfo === 'function') renderModeInfo(); } catch (error) { console.warn(error); }
+    try { if (typeof renderRowOptions === 'function') renderRowOptions(); } catch (error) { console.warn(error); }
+    try { if (typeof renderFixedCourseButtons === 'function') renderFixedCourseButtons(); } catch (error) { console.warn(error); }
+    try { if (typeof renderPreviewGrid === 'function') renderPreviewGrid(); } catch (error) { console.warn(error); }
+    try { if (typeof renderExtraTypeOptions === 'function') renderExtraTypeOptions(); } catch (error) { console.warn(error); }
+    try { if (typeof renderFixedExtraButtons === 'function') renderFixedExtraButtons(); } catch (error) { console.warn(error); }
+    try { if (typeof renderExtraDynamicFields === 'function') renderExtraDynamicFields(); } catch (error) { console.warn(error); }
+    try { if (typeof renderExtraPreviewGrid === 'function') renderExtraPreviewGrid(); } catch (error) { console.warn(error); }
+    try { if (typeof renderPlanSection === 'function') renderPlanSection(); } catch (error) { console.warn(error); }
+    try { if (typeof renderSelectedCourse === 'function') renderSelectedCourse(state.selectedCourse); } catch (error) { console.warn(error); }
+    try { if (typeof renderSearchResults === 'function' && typeof searchCourses === 'function') renderSearchResults(searchCourses(els.searchInput?.value || '')); } catch (error) { console.warn(error); }
+    try { if (typeof renderTimetablePanel === 'function') renderTimetablePanel(); } catch (error) { console.warn(error); }
+    try { if (typeof renderAdvisorCheckPanel20260409 === 'function') renderAdvisorCheckPanel20260409(); } catch (error) { console.warn(error); }
+    try { if (typeof applyUiLanguage20260409 === 'function') scheduleApplyUiLanguage20260409(); } catch (error) { console.warn(error); }
+  }
+
+  const originalOnUiLanguageChanged20260410FinalPatch = typeof onUiLanguageChanged20260409 === 'function' ? onUiLanguageChanged20260409 : null;
+  if (originalOnUiLanguageChanged20260410FinalPatch && !originalOnUiLanguageChanged20260410FinalPatch.__directBilingualPatch) {
+    onUiLanguageChanged20260409 = function onUiLanguageChanged20260410FinalPatched(lang) {
+      originalOnUiLanguageChanged20260410FinalPatch(lang);
+      refreshDirectBilingualUi20260410FinalPatch();
+    };
+    onUiLanguageChanged20260409.__directBilingualPatch = true;
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', refreshDirectBilingualUi20260410FinalPatch);
+  } else {
+    refreshDirectBilingualUi20260410FinalPatch();
+  }
+  window.addEventListener('load', refreshDirectBilingualUi20260410FinalPatch);
+})();
