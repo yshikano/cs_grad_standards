@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>筑波大学達成度評価シート入力・確認支援（非公式）情報理工学位プログラム（博士前期課程）用</title>
+  <title>筑波大学達成度評価シート入力・確認支援（非公式）｜情報理工学位プログラム（博士前期課程）用</title>
   <link rel="stylesheet" href="./styles.css">
   <script defer src="https://cdn.jsdelivr.net/npm/xlsx-populate/browser/xlsx-populate.min.js"></script>
   <script defer src="./app.js"></script>
@@ -11,8 +11,19 @@
 <body class="app-body app-body--compact app-body--unofficial">
   <header class="topbar">
     <div class="topbar__brand">
-      <p class="eyebrow">Unofficial Tsukuba Achievement Helper</p>
-      <h1>筑波大学達成度評価シート入力・確認支援（非公式）情報理工学位プログラム（博士前期課程）用</h1>
+      <div class="topbar__brand-head">
+        <div class="topbar__brand-copy">
+          <p class="eyebrow" id="brandEyebrow">Unofficial Tsukuba Achievement Helper</p>
+          <h1 class="app-title" id="appTitle">
+            <span class="app-title__line" data-title-line="1">筑波大学達成度評価シート入力・確認支援（非公式）</span>
+            <span class="app-title__line" data-title-line="2">情報理工学位プログラム（博士前期課程）用</span>
+          </h1>
+        </div>
+        <div class="topbar__lang-wrap">
+          <button id="languageToggleBtn" class="button button--small topbar__lang-button" type="button">Language</button>
+          <div id="languageState" class="topbar__lang-state">日本語</div>
+        </div>
+      </div>
       <p class="lead">履修計画 / M中間評価 / M最終評価に加えて、指導教員向けの確認機能も扱える情報理工学位プログラム（博士前期課程）向けの非公式ツールです。ChatGPT によりほとんどプログラムされました。また、<a href="https://make-it-tsukuba.github.io/alternative-tsukuba-kdb/#" target="_blank" rel="noopener noreferrer">KdB もどき</a>のデータベースを参考にさせていただきました。ありがとうございます。</p>
     </div>
     <div class="topbar__hint">
@@ -38,13 +49,10 @@
         <div class="control-card__mode">
           <div class="mode-panel__label">利用モード</div>
           <div id="modeSwitch" class="mode-switch"></div>
-          <label class="lang-switch-inline">
-            <span>表示言語 / Language</span>
-            <select id="uiLangSelect">
-              <option value="ja">日本語</option>
-              <option value="en">English</option>
-            </select>
-          </label>
+          <select id="uiLangSelect" class="sr-only" aria-hidden="true" tabindex="-1">
+            <option value="ja">日本語</option>
+            <option value="en">English</option>
+          </select>
         </div>
 
         <div class="control-card__actions">
@@ -110,7 +118,7 @@
         <section class="card compact-card compact-card--search">
           <div class="section-heading section-heading--compact">
             <div>
-              <h2>筑波大学達成度評価シート入力・確認支援（非公式）情報理工学位プログラム（博士前期課程）用</h2>
+              <h2 id="searchPanelTitle">授業検索</h2>
               <p>科目番号・日本語名・英語名で検索します。通常科目は 15 行目以降、情報理工前期特別研究 A〜D は 11〜14 行の固定欄です。</p>
             </div>
           </div>

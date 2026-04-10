@@ -8098,3 +8098,132 @@ writeFooterStructure = function writeFooterStructure20260409(sheet, courseEndRow
     deficitRow
   };
 };
+
+/* === 2026-04-10 bilingual toggle + two-line title patch === */
+Object.assign(I18N_RES_20260409.ja, {
+  appTitle: '筑波大学達成度評価シート入力・確認支援（非公式）｜情報理工学位プログラム（博士前期課程）用',
+  appTitleLine1: '筑波大学達成度評価シート入力・確認支援（非公式）',
+  appTitleLine2: '情報理工学位プログラム（博士前期課程）用',
+  searchPanelTitle: '授業検索',
+  eyebrow: 'Unofficial Tsukuba Achievement Helper',
+  languageButtonLabel: 'Language',
+  languageState: '日本語'
+});
+
+Object.assign(I18N_RES_20260409.en, {
+  appTitle: 'University of Tsukuba Achievement Evaluation Sheet Input / Review Support (Unofficial) | for the Master\'s Program in Computer Science',
+  appTitleLine1: 'University of Tsukuba Achievement Evaluation Sheet',
+  appTitleLine2: 'Input / Review Support (Unofficial) for the Master\'s Program in Computer Science',
+  searchPanelTitle: 'Course search',
+  eyebrow: 'Unofficial Tsukuba Achievement Helper',
+  languageButtonLabel: 'Language',
+  languageState: 'English'
+});
+
+EXACT_TEXT_MAP_20260409.ja['Course search'] = '授業検索';
+EXACT_TEXT_MAP_20260409.en['授業検索'] = 'Course search';
+
+function updateLanguageToggleUi20260410() {
+  const res = getUiRes20260409();
+  const button = document.getElementById('languageToggleBtn');
+  const stateEl = document.getElementById('languageState');
+  const currentLang = getUiLang20260409();
+  if (button) {
+    button.textContent = res.languageButtonLabel || 'Language';
+    button.dataset.lang = currentLang;
+    const hint = currentLang === 'en' ? 'Switch to Japanese' : 'Switch to English';
+    button.setAttribute('title', hint);
+    button.setAttribute('aria-label', hint);
+  }
+  if (stateEl) {
+    stateEl.textContent = res.languageState || (currentLang === 'en' ? 'English' : '日本語');
+  }
+}
+
+function rebuildAppTitleLines20260410() {
+  const res = getUiRes20260409();
+  const title = document.getElementById('appTitle');
+  if (!title) return;
+  const line1 = res.appTitleLine1 || res.appTitle || '';
+  const line2 = res.appTitleLine2 || '';
+  title.textContent = '';
+  const span1 = document.createElement('span');
+  span1.className = 'app-title__line';
+  span1.dataset.titleLine = '1';
+  span1.textContent = line1;
+  title.appendChild(span1);
+  if (line2) {
+    const span2 = document.createElement('span');
+    span2.className = 'app-title__line';
+    span2.dataset.titleLine = '2';
+    span2.textContent = line2;
+    title.appendChild(span2);
+  }
+}
+
+const __orig_applyStaticUiText_20260410 = applyStaticUiText20260409;
+applyStaticUiText20260409 = function applyStaticUiText20260410() {
+  __orig_applyStaticUiText_20260410();
+  const res = getUiRes20260409();
+  document.title = res.appTitle || [res.appTitleLine1, res.appTitleLine2].filter(Boolean).join(' | ');
+
+  const eyebrow = document.getElementById('brandEyebrow');
+  if (eyebrow) eyebrow.textContent = res.eyebrow || 'Unofficial Tsukuba Achievement Helper';
+
+  rebuildAppTitleLines20260410();
+
+  const searchPanelTitle = document.getElementById('searchPanelTitle');
+  if (searchPanelTitle) {
+    searchPanelTitle.textContent = res.searchPanelTitle || (getUiLang20260409() === 'en' ? 'Course search' : '授業検索');
+  }
+
+  updateLanguageToggleUi20260410();
+};
+
+onUiLanguageChanged20260409 = function onUiLanguageChanged20260410(lang) {
+  state.uiLang = lang === 'en' ? 'en' : 'ja';
+  safeSetUiLang20260409(state.uiLang);
+  const select = document.getElementById('uiLangSelect');
+  if (select) select.value = state.uiLang;
+  refreshAvailableSheetsForLanguage20260409();
+  renderModeSwitch();
+  renderModeInfo();
+  renderRowOptions();
+  renderPreviewGrid();
+  renderCustomValueGrid();
+  renderExtraTypeOptions();
+  renderExtraDynamicFields();
+  renderExtraPreviewGrid();
+  renderFixedCourseButtons();
+  renderFixedExtraButtons();
+  renderSelectedCourse(state.selectedCourse);
+  renderPlanSection();
+  renderAdvisorCheckPanel20260409();
+  updateActionStates();
+  applyUiLanguage20260409();
+  scheduleApplyUiLanguage20260409();
+  updateLanguageToggleUi20260410();
+};
+
+function bindLanguageToggleButton20260410() {
+  const button = document.getElementById('languageToggleBtn');
+  if (!button || button.dataset.bound === 'true') return;
+  button.dataset.bound = 'true';
+  button.addEventListener('click', () => {
+    const next = getUiLang20260409() === 'en' ? 'ja' : 'en';
+    onUiLanguageChanged20260409(next);
+  });
+}
+
+function initLanguageButtonPatch20260410() {
+  bindLanguageToggleButton20260410();
+  updateLanguageToggleUi20260410();
+  applyUiLanguage20260409();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initLanguageButtonPatch20260410);
+} else {
+  initLanguageButtonPatch20260410();
+}
+window.addEventListener('load', initLanguageButtonPatch20260410);
